@@ -20,8 +20,8 @@ public class PlayerCamera : MonoBehaviour
     public float zoomStep = 25f;             // 휠 한 칸 당 거리 변화
 
     // 초기값 백업(휠 클릭 리셋용)
-    float defaultYaw, defaultPitch, defaultDistance;
-    Vector3 defaultPivotOffset;
+    private float defaultYaw, defaultPitch, defaultDistance;
+    private Vector3 defaultPivotOffset;
 
     void Awake()
     {

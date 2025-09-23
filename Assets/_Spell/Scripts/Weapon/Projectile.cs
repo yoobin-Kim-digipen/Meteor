@@ -2,10 +2,10 @@ using UnityEngine;
 using System.Collections;
 public class Projectile : MonoBehaviour
 {
-    float speed;
-    float lifetime;
-    float damage;
-    Rigidbody rb;
+    private float speed;
+    private float lifetime;
+    private float damage;
+    private Rigidbody rb;
 
     public void Initialize(WeaponData weaponData)
     {
@@ -16,7 +16,7 @@ public class Projectile : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log(gameObject.name + " Awake! Trying to get Rigidbody.");
+        //Debug.Log(gameObject.name + " Awake! Trying to get Rigidbody.");
         rb = GetComponent<Rigidbody>();
 
         if (rb == null)

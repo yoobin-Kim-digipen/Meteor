@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     [Header("Move")]
-    public float moveSpeed = 5f;
+    public float moveSpeed = 7f;
     public float turnSpeed = 720f; // 도/초
 
     [Header("Acceleration")]
@@ -26,24 +26,24 @@ public class Player : MonoBehaviour
 
     // 점프 컷용, 점프키를 빨리 떼면 살짝 낮게(속도감)
     public bool jumpCut = true;              //코드 내에선 항상 true상태, inspector내에서 토글용도(체크 해제시 jumpcut 기능사라짐)
-    bool jumpReleaseQueued;
+    private bool jumpReleaseQueued;
 
     // 점프 컷 안정화용(최소 유지시간 + 점프 직후 접지 무시)
     public float minJumpCutDelay = 0.06f;    // 게임 감각 보정 (최소 점프 시간)
     public float jumpUngroundGrace = 0.05f;   // 물리 판정 보정 (착지 오탐 방지) 
-    float jumpStartTime;
-    float ungroundedUntil;
+    private float jumpStartTime;
+    private float ungroundedUntil;
     
     // 점프 큐와 바닥 상태
     Vector3 groundNormal = Vector3.up;       // 경사면 노멀 캐싱
-    float castDist = 0.3f;                   // sphere cast에서 사용됨 / public 불필요 자세한 내용은 함수 주석확인
-    bool jumpQueued;
-    bool isGrounded;
+    private float castDist = 0.3f;                   // sphere cast에서 사용됨 / public 불필요 자세한 내용은 함수 주석확인
+    private bool jumpQueued;
+    private bool isGrounded;
 
-    Rigidbody rb;
-    Camera cam;
-    Vector3 moveDir;                         // Update에서 받은 입력을 FixedUpdate에서 사용
-    bool wantRotate;
+    private Rigidbody rb;
+    private Camera cam;
+    private Vector3 moveDir;                         // Update에서 받은 입력을 FixedUpdate에서 사용
+    private bool wantRotate;
 
     void Start()
     {

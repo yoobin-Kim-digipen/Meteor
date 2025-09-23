@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27eb33c0cf2594748ba8c638f173ad08, type: 3}
-  m_Name: WeaponDatabase
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponDatabase
-  allWeapons:
-  - {fileID: 11400000, guid: 34a0f15a8e102f64d9c10f77e8eb444c, type: 2}
+  m_Script: {fileID: 11500000, guid: b99501d5484ab5a4bbad013a76b57f8b, type: 3}
+  m_Name: MonsterDB
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterDatabase
+  allMonsters:
+  - {fileID: 11400000, guid: e597b0681bdc8954cbbcf1d6349bc1c3, type: 2}

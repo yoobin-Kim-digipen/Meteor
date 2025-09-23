@@ -19,5 +19,5 @@ MonoBehaviour:
   projectileAmount: 1
   poolSize: 20
   projectilePrefab: {fileID: 9209319087193056292, guid: b8c20a36c640a0946a0138cb5bf96e21, type: 3}
-  projectileSpeed: 5
+  projectileSpeed: 10
   projectileLifetime: 5

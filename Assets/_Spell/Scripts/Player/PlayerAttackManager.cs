@@ -8,10 +8,10 @@ public class PlayerAttackManager : MonoBehaviour
     public List<WeaponData> equippedWeapons; // 인스펙터에서 유저가 집어넣은 무기 정보
 
     //Dictionary 함수 각 아이템이 고유한 Key와 그에 해당하는 Value로 구성됨
-    Dictionary<WeaponData, float> weaponCooldowns; 
+    private Dictionary<WeaponData, float> weaponCooldowns; 
     void Start()
     {
-        Debug.Log("Equipped weapons count: " + equippedWeapons.Count);
+        //Debug.Log("Equipped weapons count: " + equippedWeapons.Count);
         weaponCooldowns = new Dictionary<WeaponData, float>();
 
         //foreach (var 아이템 in 컬렉션) 이런 기능도 있노 종나 신기하네
@@ -29,7 +29,7 @@ public class PlayerAttackManager : MonoBehaviour
             //처음엔 0초니까 일단 쏘고 쿨 정해주는 느낌
             if (Time.time >= weaponCooldowns[weapon])
             {
-                Debug.Log("Attack condition met for: " + weapon.weaponName);
+               // Debug.Log("Attack condition met for: " + weapon.weaponName);
                 Attack(weapon);
                 //쿨타임 읽어옴
                 weaponCooldowns[weapon] = Time.time + weapon.cooldown;

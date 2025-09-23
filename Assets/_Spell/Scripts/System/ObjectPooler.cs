@@ -5,9 +5,10 @@ public class ObjectPooler : MonoBehaviour
 {
     public static ObjectPooler Instance; // 싱글톤 패턴을 위한 자기 자신 참조
     public WeaponDatabase weaponDB;
+    public MonsterDatabase monsterDB;
 
-    Dictionary<string, List<GameObject>> poolDictionary;
-    Dictionary<string, GameObject> prefabDictionary;
+    private Dictionary<string, List<GameObject>> poolDictionary;
+    private Dictionary<string, GameObject> prefabDictionary;
 
     void Awake()
     {
@@ -22,40 +23,53 @@ public class ObjectPooler : MonoBehaviour
 
     void InitializePools()
     {
-        //디버깅 디버깅
-        if (weaponDB == null)
+        if (weaponDB == null) Debug.LogError("WeaponDatabase is not assigned in ObjectPooler!");
+        if (monsterDB == null) Debug.LogError("MonsterDatabase is not assigned in ObjectPooler!");
+
+        // 1. 무기 목록을 순회하며 풀 생성 함수 호출
+        if (weaponDB != null)
         {
-            Debug.LogError("WeaponDatabase is not assigned in ObjectPooler!");
+            foreach (var weaponData in weaponDB.allWeapons)
+            {
+                CreatePool(weaponData.weaponName, weaponData.projectilePrefab, weaponData.poolSize);
+            }
+        }
+
+        // 2. 몬스터 목록을 순회하며 똑같은 풀 생성 함수 호출
+        if (monsterDB != null)
+        {
+            foreach (var monsterData in monsterDB.allMonsters)
+            {
+                CreatePool(monsterData.monsterName, monsterData.monsterPrefab, monsterData.poolSize);
+            }
+        }
+    }
+    private void CreatePool(string tag, GameObject prefab, int size)
+    {
+        //1. 현재 무기에 할당된 발사체 프리팹(설계도)이 없는가?
+        //2. poolDictionary에 이 무기 이름으로 된 풀이 이미 등록되어 있는가?
+        if (prefab == null || poolDictionary.ContainsKey(tag))
+        {
             return;
         }
 
-
-        //무기수만큼
-        foreach (var weaponData in weaponDB.allWeapons)
+        // 이거 궁금해서 찾아봤는데 메모리 할당해놓은거 c#의 GC(가비지컬렉터)가 주기적으로 메모리 순회하면서 참조하지 않는 데이터 메모리 날림
+        // 근데 오브젝트를 미리 인스턴스화 해놓고 액티브로 껐다켰다 하니까 가비지 컬렉터가 게임중엔 작동을 안해서 GC Spike x
+        List<GameObject> objectPool = new List<GameObject>();
+        for (int i = 0; i < size; i++)
         {
-            //1. 현재 무기에 할당된 발사체 프리팹(설계도)이 없는가?
-            //2. poolDictionary에 이 무기 이름으로 된 풀이 이미 등록되어 있는가?
-            if (weaponData.projectilePrefab == null || poolDictionary.ContainsKey(weaponData.weaponName))
-                continue;
-
-            // 이거 궁금해서 찾아봤는데 메모리 할당해놓은거 c#의 GC(가비지컬렉터)가 주기적으로 메모리 순회하면서 참조하지 않는 데이터 메모리 날림
-            // 근데 오브젝트를 미리 인스턴스화 해놓고 액티브로 껐다켰다 하니까 가비지 컬렉터가 게임중엔 작동을 안해서 GC Spike x
-            List<GameObject> objectPool = new List<GameObject>();
-
-            for (int i = 0; i < weaponData.poolSize; i++)
-            {
-                //1. projectilePrefab, 2. spawnPoint.position, spawnPoint.rotation (transform)
-                GameObject obj = Instantiate(weaponData.projectilePrefab, transform);
-                obj.SetActive(false);
-                objectPool.Add(obj);
-            }
-
-            //메인으로 사용
-            poolDictionary.Add(weaponData.weaponName, objectPool);
-
-            //찐빠났을때 메꾸는용도
-            prefabDictionary.Add(weaponData.weaponName, weaponData.projectilePrefab);
+            //1. projectilePrefab, 2. spawnPoint.position, spawnPoint.rotation (transform)
+            GameObject obj = Instantiate(prefab, transform);
+            obj.SetActive(false);
+            objectPool.Add(obj);
         }
+
+        //메인으로 사용
+        poolDictionary.Add(tag, objectPool);
+
+        //찐빠났을때 메꾸는용도
+        prefabDictionary.Add(tag, prefab);
+        Debug.Log($"Pool for '{tag}' created with size {size}.");
     }
 
     public GameObject GetFromPool(string tag, Vector3 position, Quaternion rotation)
