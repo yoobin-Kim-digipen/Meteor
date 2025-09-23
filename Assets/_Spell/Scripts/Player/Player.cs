@@ -397,9 +397,29 @@ public class Player : MonoBehaviour
     }
 
     // ---------------------------------        Debug         ----------------------------------------------------------------------
+    void OnGUI()
+    {
+        // 디버그 텍스트를 표시할 사각형 영역 설정 (x, y, width, height)
+        Rect rect = new Rect(10, 10, 300, 200);
+        // 텍스트 스타일 설정 (폰트 크기, 색상)
+        GUIStyle style = new GUIStyle();
+        style.fontSize = 20;
+        style.normal.textColor = Color.white;
+
+        // 표시할 디버그 정보 문자열 생성
+        string debugInfo =
+            $"isGrounded: {isGrounded}\n" +
+            $"Velocity: {rb.linearVelocity.ToString("F2")}\n" + // 소수점 2자리까지 표시
+            $"Input moveDir: {moveDir.ToString("F2")}\n" +
+            $"wantRotate: {wantRotate}\n" +
+            $"Ground Normal: {groundNormal.ToString("F2")}";
+
+        // 화면에 텍스트 표시
+        GUI.Label(rect, debugInfo, style);
+    }
 
     //아래는 기즈모 활성화 시 바닥 충돌판정 디버그 시각화 용도임 지워도 상관 없음
-    //void OnDrawGizmos() { DrawGroundGizmos(); }    //<-------------이거 주석 풀면 기즈모 활성화 시 바닥 체크 보임
+    void OnDrawGizmos() { DrawGroundGizmos(); }    //<-------------이거 주석 풀면 기즈모 활성화 시 바닥 체크 보임
     void DrawGroundGizmos()
     {
         if (groundCheck == null) return;

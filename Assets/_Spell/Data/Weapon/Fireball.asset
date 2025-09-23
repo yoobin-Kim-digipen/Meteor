@@ -15,9 +15,9 @@ MonoBehaviour:
   weaponName: Fireball
   description: demo
   damage: 10
-  cooldown: 1
+  cooldown: 0.3
   projectileAmount: 1
   poolSize: 20
   projectilePrefab: {fileID: 9209319087193056292, guid: b8c20a36c640a0946a0138cb5bf96e21, type: 3}
-  projectileSpeed: 10
+  projectileSpeed: 20
   projectileLifetime: 5
