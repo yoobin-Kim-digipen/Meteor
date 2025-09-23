@@ -17,6 +17,8 @@ public class TimeManager : MonoBehaviour
 
     [SerializeField] private Light globalLight;
 
+    [SerializeField] private Transform MagneticFieldTransform;
+
     private int minutes;
     private int hours = 6;
     private int days;
@@ -24,6 +26,8 @@ public class TimeManager : MonoBehaviour
     private float tempSecond;
 
     private Coroutine skyboxTransitionCoroutine;
+
+    public Vector3 shrinkSpeed = new Vector3(0.1f, 0.0f, 0.1f);
 
     // Start is called before the first frame update
     void Start()
@@ -61,6 +65,7 @@ public class TimeManager : MonoBehaviour
         // 매 프레임마다 현재 시간과 전환 조건을 확인합니다.
         // 그리고 이미 전환 코루틴이 실행 중이 아닌지 체크합니다.
         CheckForTransition();
+        MagneticfieldAdjestment();
     }
 
     private void CheckForTransition()
@@ -106,7 +111,7 @@ public class TimeManager : MonoBehaviour
 
         RenderSettings.skybox.SetTexture("_Texture1", b);
         RenderSettings.skybox.SetFloat("_Blend", 0);
-        
+
         // 코루틴 완료 후 핸들을 null로 초기화
         skyboxTransitionCoroutine = null;
     }
@@ -118,6 +123,20 @@ public class TimeManager : MonoBehaviour
             globalLight.color = lightGradient.Evaluate(i / time);
             RenderSettings.fogColor = globalLight.color;
             yield return null;
+        }
+    }
+
+    private void MagneticfieldAdjestment()
+    {
+        if ((hours >= 18 || hours < 6) && MagneticFieldTransform.localScale.x > 50)
+        {
+            Vector3 newScale = MagneticFieldTransform.localScale - shrinkSpeed * Time.deltaTime * 16;
+
+            // 스케일이 음수가 되지 않도록 최소값 제한
+            newScale.x = Mathf.Max(newScale.x, 0f);
+            newScale.z = Mathf.Max(newScale.z, 0f);
+
+            MagneticFieldTransform.localScale = newScale;
         }
     }
 }
