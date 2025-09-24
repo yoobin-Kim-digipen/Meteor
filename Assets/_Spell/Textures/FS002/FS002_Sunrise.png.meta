@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 3cf4d52b14bd4254d9f4fd063f8d9bfd
+guid: a56382ec31aaa43628019210c2d1e6b2
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -120,10 +120,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 18353
-  packageName: Fantasy Skybox FREE
-  packageVersion: 1.6.5
-  assetPath: Assets/Fantasy Skybox FREE/Panoramics/FS002/FS002_Night.png
-  uploadId: 699843

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9183c8173b34a5741a60673a672347cb
+guid: 1178ce14e270a47c3bd3292133db0707
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -120,10 +120,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 18353
-  packageName: Fantasy Skybox FREE
-  packageVersion: 1.6.5
-  assetPath: Assets/Fantasy Skybox FREE/Panoramics/FS002/FS002_Rainy.png
-  uploadId: 699843

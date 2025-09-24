@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 88c4ef1770f6491408e50fd96829b1b6
+guid: 201a556efe28a4d98b3fe5810e610384
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -120,10 +120,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 18353
-  packageName: Fantasy Skybox FREE
-  packageVersion: 1.6.5
-  assetPath: Assets/Fantasy Skybox FREE/Panoramics/FS002/FS002_Sunset.png
-  uploadId: 699843

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e2c576b6d07638b468b5ba303a3a07cb
+guid: 1176070e6fe774935969814a19650389
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -120,10 +120,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 18353
-  packageName: Fantasy Skybox FREE
-  packageVersion: 1.6.5
-  assetPath: Assets/Fantasy Skybox FREE/Panoramics/FS002/FS002_Day_Sunless.png
-  uploadId: 699843
