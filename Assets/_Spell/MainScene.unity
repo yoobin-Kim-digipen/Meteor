@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: d1c35cf8ddc41104b98ce5697f9e9890, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: acd523bc22e6446549de2e2db2049a5c, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -909,7 +909,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1069140844}
-  - component: {fileID: 1069140843}
+  - component: {fileID: 1069140845}
   m_Layer: 0
   m_Name: TimeManager
   m_TagString: Untagged
@@ -917,7 +917,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1069140843
+--- !u!4 &1069140844
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069140842}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -34.50817, y: 3.9668, z: -94.91154}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1069140845
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -926,13 +941,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1069140842}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be78b4ebca6d9394f8e0f71dddc05585, type: 3}
+  m_Script: {fileID: 11500000, guid: db0bb2283bf1a4174bdc109868dabea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeManager
-  skyboxNight: {fileID: 2800000, guid: 3cf4d52b14bd4254d9f4fd063f8d9bfd, type: 3}
-  skyboxSunrise: {fileID: 2800000, guid: 7deb3454b299fae498f2365d40aee326, type: 3}
-  skyboxDay: {fileID: 2800000, guid: 90bac99dc822bf641b140cdc291b845e, type: 3}
-  skyboxSunset: {fileID: 2800000, guid: 88c4ef1770f6491408e50fd96829b1b6, type: 3}
+  skyboxNight: {fileID: 2800000, guid: cf13b200cac9746c3a79fd87e0ec4d6a, type: 3}
+  skyboxSunrise: {fileID: 2800000, guid: a56382ec31aaa43628019210c2d1e6b2, type: 3}
+  skyboxDay: {fileID: 2800000, guid: 201a556efe28a4d98b3fe5810e610384, type: 3}
+  skyboxSunset: {fileID: 2800000, guid: 5c0c462ea11eb41238f28c787edf107f, type: 3}
   graddientNightToSunrise:
     serializedVersion: 2
     key0: {r: 0.282353, g: 0.2392157, b: 0.5450981, a: 1}
@@ -1056,21 +1071,6 @@ MonoBehaviour:
   globalLight: {fileID: 1705188299}
   MagneticFieldTransform: {fileID: 363188706}
   shrinkSpeed: {x: 0.3, y: 0, z: 0.3}
---- !u!4 &1069140844
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069140842}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -34.50817, y: 3.9668, z: -94.91154}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1166192213
 GameObject:
   m_ObjectHideFlags: 0
