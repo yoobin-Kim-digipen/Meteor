@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
+
 
 public class MonsterSpawner : MonoBehaviour
 {
@@ -14,6 +16,11 @@ public class MonsterSpawner : MonoBehaviour
 
     private Dictionary<string, List<GameObject>> activeMonsters = new Dictionary<string, List<GameObject>>();
     private int totalMonsterCount = 0;
+    public GameObject TimeManager;
+
+    [Header("Spawn Time Settings")]
+    public int spawnStartHour = 18; // 스폰 시작 시간 
+    public int spawnEndHour = 6;    // 스폰 종료 시간 
 
     void Start()
     {
@@ -37,6 +44,7 @@ public class MonsterSpawner : MonoBehaviour
 
     IEnumerator SpawnMonsterCoroutine(MonsterData monsterData)
     {
+        TimeManager tm = TimeManager.GetComponent<TimeManager>();
         while (true)
         {
             // 1. 죽은 몬스터를 리스트에서 제거하여 현재 몬스터 수를 정확하게 유지
@@ -52,8 +60,22 @@ public class MonsterSpawner : MonoBehaviour
             bool canSpawnByType = activeMonsters[monsterData.monsterName].Count < monsterData.maxAliveCount;
             bool canSpawnByTotal = totalMonsterCount < maxMonsters;
 
-            // 2. 최대 몬스터 수보다 적을 때만 스폰
-            if (canSpawnByType && canSpawnByTotal)
+            int currentHour = tm.GetHour();
+            bool isSpawnTime;
+
+            if (spawnStartHour < spawnEndHour)
+            {
+                // 스폰 가능한 시간이 하루 안에서 연속적인 범위일 때
+                isSpawnTime = currentHour >= spawnStartHour && currentHour < spawnEndHour;
+            }
+            else
+            {
+                // 밤 시간 범위, 하루를 넘는 경우
+                isSpawnTime = currentHour >= spawnStartHour || currentHour < spawnEndHour;
+            }
+
+            // 2. 최대 몬스터 수보다 적을 때만 스폰 + 지정한 스폰 시간일 때만 스폰
+            if (canSpawnByType && canSpawnByTotal && isSpawnTime)
             {
                 SpawnMonster(monsterData);
             }

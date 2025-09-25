@@ -19,6 +19,11 @@ public class TimeManager : MonoBehaviour
 
     [SerializeField] private Transform MagneticFieldTransform;
 
+    public int morningHour = 6;
+    public int dayHour = 8;
+    public int eveningHour = 18;
+    public int nightHour = 22;
+
     private int minutes;
     private int hours = 6;
     private int days;
@@ -75,22 +80,22 @@ public class TimeManager : MonoBehaviour
             return;
         }
 
-        if (hours == 6)
+        if (hours == morningHour)
         {
             skyboxTransitionCoroutine = StartCoroutine(LerpSkybox(skyboxNight, skyboxSunrise, 10f));
             StartCoroutine(LerpLight(graddientNightToSunrise, 10f));
         }
-        else if (hours == 8)
+        else if (hours == dayHour)
         {
             skyboxTransitionCoroutine = StartCoroutine(LerpSkybox(skyboxSunrise, skyboxDay, 10f));
             StartCoroutine(LerpLight(graddientSunriseToDay, 10f));
         }
-        else if (hours == 18)
+        else if (hours == eveningHour)
         {
             skyboxTransitionCoroutine = StartCoroutine(LerpSkybox(skyboxDay, skyboxSunset, 10f));
             StartCoroutine(LerpLight(graddientDayToSunset, 10f));
         }
-        else if (hours == 22)
+        else if (hours == nightHour)
         {
             skyboxTransitionCoroutine = StartCoroutine(LerpSkybox(skyboxSunset, skyboxNight, 10f));
             StartCoroutine(LerpLight(graddientSunsetToNight, 10f));
@@ -138,5 +143,10 @@ public class TimeManager : MonoBehaviour
 
             MagneticFieldTransform.localScale = newScale;
         }
+    }
+
+    public int GetHour()
+    {
+        return hours;
     }
 }

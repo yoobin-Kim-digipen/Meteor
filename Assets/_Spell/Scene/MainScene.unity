@@ -694,6 +694,9 @@ MonoBehaviour:
   maxSpawnRadius: 70
   minSpawnRadius: 40
   maxMonsters: 30
+  TimeManager: {fileID: 1069140842}
+  spawnStartHour: 18
+  spawnEndHour: 6
 --- !u!4 &924109522
 Transform:
   m_ObjectHideFlags: 0
@@ -1070,6 +1073,10 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   globalLight: {fileID: 1705188299}
   MagneticFieldTransform: {fileID: 363188706}
+  morningHour: 6
+  dayHour: 8
+  eveningHour: 18
+  nightHour: 22
   shrinkSpeed: {x: 0.3, y: 0, z: 0.3}
 --- !u!1 &1166192213
 GameObject:
