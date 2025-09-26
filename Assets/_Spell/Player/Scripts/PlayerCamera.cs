@@ -6,14 +6,15 @@ public class PlayerCamera : MonoBehaviour
     public Transform target;                 // 따라갈 대상(플레이어)
     public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // 머리 높이
 
-    public float distance = 15f;             // 기본 거리
+    public float distance = 5f;             // 기본 거리
     public float minDistance = 5f;           // 최소
     public float maxDistance = 20f;          // 최대
+    public float maxHeightOffset = 5f;       // 최대 줌 아웃 시 추가될 높이
 
     public float yaw = 0f;                   // 좌우 각도
     public float pitch = 15f;                // 위아래 각도
-    public float minPitch = -30f;            // 아래로 최대
-    public float maxPitch = 70f;             // 위로 최대
+    public float minPitch = -85f;            // 아래로 최대
+    public float maxPitch = 85f;             // 위로 최대
     public float sensitivity = 0.12f;        // 마우스 민감도
     public bool invertY = false;             // 마우스 Y 반전
 
@@ -89,12 +90,23 @@ public class PlayerCamera : MonoBehaviour
     {
         if (Mouse.current == null) return;
 
-        float scroll = Mouse.current.scroll.ReadValue().y; // 보통 ±120
+        // 1. 기존 줌 로직
+        float scroll = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            float steps = scroll / 120f; // 한 칸 단위
+            float steps = scroll / 15f;
             distance = Mathf.Clamp(distance - steps * zoomStep, minDistance, maxDistance);
         }
+
+        // 2. 추가된 로직: 거리에 비례하여 pivotOffset의 y값을 조절
+        // 현재 줌 상태가 최소(0)인지 최대(1)인지 비율을 계산
+        float zoomRatio = (distance - minDistance) / (maxDistance - minDistance);
+
+        // 기본 높이(defaultPivotOffset.y)에서 추가될 최대 높이(maxHeightOffset) 사이를 보간
+        float newOffsetY = Mathf.Lerp(defaultPivotOffset.y, defaultPivotOffset.y + maxHeightOffset, zoomRatio);
+
+        // pivotOffset의 y값만 업데이트
+        pivotOffset.y = newOffsetY;
     }
 
     Vector3 camera_Raycast(Vector3 focus, Vector3 pos)
