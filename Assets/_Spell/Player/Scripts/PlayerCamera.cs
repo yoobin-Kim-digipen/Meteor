@@ -19,6 +19,10 @@ public class PlayerCamera : MonoBehaviour
 
     public float zoomStep = 25f;             // 휠 한 칸 당 거리 변화
 
+    [Header("Collision")]
+    public LayerMask collisionMask;      // 카메라가 충돌할 레이어들 (예: Ground, Wall)
+    public float collisionPadding = 0.2f; // 충돌 지점에서 살짝 뗄 거리 (카메라가 벽에 너무 붙지 않게)
+
     // 초기값 백업(휠 클릭 리셋용)
     private float defaultYaw, defaultPitch, defaultDistance;
     private Vector3 defaultPivotOffset;
@@ -45,19 +49,21 @@ public class PlayerCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        CheckResetInput();
-        Camera_Movement();
-        Camera_Zoomsetup();
+        checkResetInput();
+        camera_Movement();
+        camera_Zoomsetup();
 
         Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 focus = target.position + pivotOffset;
         Vector3 pos = focus - rot * Vector3.forward * distance;
 
-        transform.position = pos;
+        Vector3 finalPos = camera_Raycast(focus, pos); //벽뚫 바닥뚫 방지용
+
+        transform.position = finalPos;
         transform.LookAt(focus);
     }
 
-    void CheckResetInput()
+    void checkResetInput()
     {
         if (Mouse.current != null && Mouse.current.middleButton.wasPressedThisFrame)
         {
@@ -67,7 +73,7 @@ public class PlayerCamera : MonoBehaviour
         }
     }
 
-    void Camera_Movement()
+    void camera_Movement()
     {
         if (Mouse.current == null) return;
 
@@ -79,7 +85,7 @@ public class PlayerCamera : MonoBehaviour
         pitch = Mathf.Clamp(pitch + my, minPitch, maxPitch);
     }
 
-    void Camera_Zoomsetup()
+    void camera_Zoomsetup()
     {
         if (Mouse.current == null) return;
 
@@ -88,6 +94,31 @@ public class PlayerCamera : MonoBehaviour
         {
             float steps = scroll / 120f; // 한 칸 단위
             distance = Mathf.Clamp(distance - steps * zoomStep, minDistance, maxDistance);
+        }
+    }
+
+    Vector3 camera_Raycast(Vector3 focus, Vector3 pos)
+    {
+        RaycastHit hit;
+
+        // 플레이어 머리(focus)에서 이상적인 카메라 위치(pos) 방향으로 Ray를 쏜다.
+        // Vector3.forward 대신 (pos - focus).normalized 를 사용해 정확한 방향을 구한다.
+        Vector3 direction = pos - focus;
+        float rayDistance = direction.magnitude; // 광선의 최대 거리는 원래 distance와 같다.
+        Vector3 finalPosition = pos; // 최종 위치는 일단 임의로 초기화
+
+        // Raycast 실행
+        if (Physics.Raycast(focus, direction.normalized, out hit, rayDistance, collisionMask))
+        {
+            // 만약 Ray가 무언가에 부딪혔다면,
+            // 최종 위치를 '부딪힌 지점'에서 '패딩'만큼 살짝 앞으로 당긴 곳으로 설정한다.
+            Debug.DrawLine(focus, hit.point, Color.red); // 디버깅용: 충돌 지점까지 빨간 선 그리기
+            return hit.point + hit.normal * collisionPadding;
+        }
+        else
+        {
+            Debug.DrawLine(focus, pos, Color.green); // 디버깅용: 충돌 없을 때 초록 선 그리기
+            return pos;
         }
     }
 }
