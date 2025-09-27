@@ -881,6 +881,7 @@ GameObject:
   - component: {fileID: 1036380664}
   - component: {fileID: 1036380663}
   - component: {fileID: 1036380669}
+  - component: {fileID: 1036380670}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1057,6 +1058,21 @@ MonoBehaviour:
   spawnPoint: {fileID: 1715219958}
   equippedWeapons:
   - {fileID: 11400000, guid: 34a0f15a8e102f64d9c10f77e8eb444c, type: 2}
+--- !u!114 &1036380670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036380662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9c9d51c461ca86498bc6515487128fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
+  playerMovement: {fileID: 0}
+  playerAttack: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1 &1069140842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1381,15 +1397,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93c9a987338ac30499b9dc40c2a43494, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
-  target: {fileID: 1036380668}
+  target: {fileID: 0}
   pivotOffset: {x: 0, y: 1.6, z: 0}
   distance: 5
   minDistance: 5
   maxDistance: 20
+  maxHeightOffset: 5
   yaw: 0
   pitch: 15
-  minPitch: -30
-  maxPitch: 70
+  minPitch: -85
+  maxPitch: 85
   sensitivity: 0.12
   invertY: 0
   zoomStep: 25

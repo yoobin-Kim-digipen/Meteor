@@ -61,7 +61,6 @@ public class PlayerAttackManager : MonoBehaviour
         }
     }
 
-
     private Vector3 FindTargetPoint()
     {
         // 카메라 화면의 정중앙 좌표를 가져온다. (x: 0.5, y: 0.5)
