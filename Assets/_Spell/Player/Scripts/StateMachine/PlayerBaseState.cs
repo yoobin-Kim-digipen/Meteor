@@ -1,4 +1,4 @@
-public abstract class PlayerBaseState
+public abstract class PlayerBaseState // abstract -> 자식클래스 override 필수
 {
     protected PlayerStateMachine _ctx; // Context (상태 머신의 주인)
     protected PlayerStateFactory _factory; // 상태들을 생성하는 팩토리

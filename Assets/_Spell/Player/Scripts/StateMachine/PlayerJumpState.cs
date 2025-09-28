@@ -10,7 +10,7 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Enter Jump State");
+        //Debug.Log("Enter Jump State");
 
         // 점프 큐 클리어
         _player.jumpQueued = false;

@@ -2,14 +2,20 @@ public class PlayerStateFactory
 {
     private PlayerStateMachine _context;
 
+    private PlayerBaseState _groundedState;
+    private PlayerBaseState _jumpState;
+    private PlayerBaseState _fallState;
+
     public PlayerStateFactory(PlayerStateMachine currentContext)
     {
         _context = currentContext;
+
+        _groundedState = new PlayerGroundedState(_context, this);
+        _jumpState = new PlayerJumpState(_context, this);
+        _fallState = new PlayerFallState(_context, this);
     }
 
-    // 각 상태를 생성하는 메소드들
-    public PlayerBaseState Grounded() { return new PlayerGroundedState(_context, this); }
-    public PlayerBaseState Jump() { return new PlayerJumpState(_context, this); }
-    public PlayerBaseState Fall() { return new PlayerFallState(_context, this); }
-    // 나중에 Aim, Attack 등 다른 상태들도 여기에 추가
+    public PlayerBaseState Grounded() => _groundedState;
+    public PlayerBaseState Jump() => _jumpState;
+    public PlayerBaseState Fall() => _fallState;
 }

@@ -11,7 +11,7 @@ public class PlayerFallState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Enter Fall State");
+        //Debug.Log("Enter Fall State");
     }
 
     public override void UpdateState()

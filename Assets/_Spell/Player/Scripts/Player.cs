@@ -47,6 +47,8 @@ public class Player : MonoBehaviour
     private Camera cam;
 
     public PlayerStateMachine stateMachine;
+    public PlayerAttackManager attackManager { get; private set; }
+    public bool IsAttacking { get; private set; }
 
     void Start()
     {
@@ -60,6 +62,12 @@ public class Player : MonoBehaviour
         if (stateMachine == null)
         {
             Debug.LogError("PlayerStateMachine 컴포넌트가 없습니다!");
+        }
+
+        attackManager = GetComponent<PlayerAttackManager>();
+        if (attackManager == null)
+        {
+            Debug.LogWarning("PlayerAttackManager 컴포넌트가 없습니다!");
         }
 
         if (groundCheck == null) Debug.LogError("groundCheck가 할당되지 않았습니다!");
@@ -110,6 +118,11 @@ public class Player : MonoBehaviour
         {
             stateMachine.Update();
         }
+
+        if (Mouse.current != null)
+        {
+            IsAttacking = Mouse.current.leftButton.isPressed;
+        }
     }
 
     void FixedUpdate()
@@ -126,12 +139,6 @@ public class Player : MonoBehaviour
         if (stateMachine != null)
         {
             stateMachine.FixedUpdate();
-        }
-
-        // 회전(카메라 Yaw 기준)
-        if (wantRotate)
-        {
-            faceCameraYaw();
         }
     }
 

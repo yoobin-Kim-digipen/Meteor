@@ -11,7 +11,7 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Enter Grounded State");
+        //Debug.Log("Enter Grounded State");
         _player.jumpReleaseQueued = false;
     }
 
@@ -23,7 +23,29 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void FixedUpdateState()
     {
-        HandleGroundedMovement();
+        // 공격 중일 때와 아닐 때의 로직을 분리
+        if (_player.IsAttacking)
+        {
+            // 1. 공격 관리자에게 조준과 발사를 모두 위임
+            if (_player.attackManager != null)
+            {
+                _player.attackManager.HandleAimAndAttack();
+            }
+
+            // 2. 공격 중에도 이동은 가능하도록 처리
+            // 단, 회전은 AttackManager가 하므로 여기서는 회전 로직을 제외
+            HandleGroundedMovement(applyRotation: false);
+        }
+        else
+        {
+            // 3. 공격 중이 아닐 때는 평소처럼 이동과 회전을 모두 처리
+            if (_player.attackManager != null)
+            {
+                _player.attackManager.OnStopAttack();
+            }
+
+            HandleGroundedMovement(applyRotation: true);
+        }
     }
 
     public override void ExitState()
@@ -47,7 +69,7 @@ public class PlayerGroundedState : PlayerBaseState
             return;
         }
     }
-    private void HandleGroundedMovement()
+    private void HandleGroundedMovement(bool applyRotation)
     {
         float dt = Time.fixedDeltaTime;
         Vector3 v = _player.Rigidbody.linearVelocity;
@@ -104,9 +126,9 @@ public class PlayerGroundedState : PlayerBaseState
         _player.Rigidbody.linearVelocity = v;
 
         // 회전 처리 (카메라 방향)
-        if (_player.wantRotate)
+        if (applyRotation && _player.wantRotate)
         {
-            _player.faceCameraYaw(); // 이건 Player.cs에 남겨둠
+            _player.faceCameraYaw(); // 평소의 회전 로직
         }
     }
 }
