@@ -18,6 +18,6 @@ MonoBehaviour:
   spawnType: 0
   spawnOffset: {x: 0, y: 0.5, z: 0.5}
   spawnHeightOffset: 20
-  speed: 10
+  speed: 20
   lifetime: 5
-  damage: 10
+  damage: 50

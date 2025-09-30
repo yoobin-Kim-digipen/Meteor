@@ -9,6 +9,7 @@ public class MonsterFSM : MonoBehaviour
     public MonsterData monsterData;
     public Transform target;
 
+    public Collider targetCollider { get; private set; }
     public NavMeshAgent agent { get; private set; }
     public MonsterStateMachine stateMachine { get; private set; }
     public EnemyHealth health { get; private set; }

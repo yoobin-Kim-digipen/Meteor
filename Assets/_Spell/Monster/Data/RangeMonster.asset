@@ -16,11 +16,11 @@ MonoBehaviour:
   monsterPrefab: {fileID: 422378310355384057, guid: 8fd7d313d6230c146b73ee336c297ec3, type: 3}
   maxHealth: 100
   speed: 3.5
-  attackRange: 15
+  attackRange: 25
   poolSize: 10
   spawnInterval: 5
   maxAliveCount: 5
   attackCooldown: 2
   skills:
   - {fileID: 11400000, guid: 9be13c6bf7584f744a7a8f29b36292da, type: 2}
-  tooCloseDistance: 5
+  tooCloseDistance: 15

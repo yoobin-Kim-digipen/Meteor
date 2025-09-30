@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 510811664920525027}
   - component: {fileID: 4083810503638989440}
   - component: {fileID: 3344713448831589287}
-  - component: {fileID: 9001565365430965907}
-  m_Layer: 6
+  - component: {fileID: 6622355624331964496}
+  m_Layer: 11
   m_Name: EnemyBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,7 +140,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &9001565365430965907
+--- !u!114 &6622355624331964496
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,4 +151,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8ad560ab26ca8f4fa7d594afee0de52, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterProjectile
+  m_EditorClassIdentifier: Assembly-CSharp::Projectile

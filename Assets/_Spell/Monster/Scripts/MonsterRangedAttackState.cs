@@ -70,33 +70,41 @@ public class MonsterRangedAttackState : MonsterBaseState
 
     private void PerformAttack()
     {
+        // 1. 쿨타임 재설정하고 사용할 스킬 데이터 가져오기
         _attackCooldownTimer = _rangedData.attackCooldown;
-        // _monster.Animator.SetTrigger("Attack");
-
-        // 몬스터가 사용할 스킬이 등록되어 있는지 확인
         if (_rangedData.skills == null || _rangedData.skills.Count == 0) return;
-
-        // 이 몬스터의 첫 번째 스킬을 사용
         SkillData skillToUse = _rangedData.skills[0];
 
-        // 스폰 위치 계산
-        Transform spawnPoint = _monster.transform.Find("SpawnPoint");
-        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : _monster.transform.position + Vector3.up;
-        Quaternion spawnRotation = _monster.transform.rotation;
+        // 2. 스킬 발사 시작 위치 계산 (몬스터 몸통 앞)
+        Vector3 spawnPos = _monster.transform.position + _monster.transform.rotation * skillToUse.spawnOffset;
 
-        // ObjectPooler에서 SkillData의 이름(태그)으로 스킬 오브젝트를 가져옴
+        Vector3 finalTargetPoint = _monster.target.position;
+
+        // 3. 몬스터가 타겟의 콜라이더 정보를 가지고 있는지 확인
+        if (_monster.targetCollider != null)
+        {
+            // 콜라이더가 있으면, 그것의 정확한 중심점을 조준점으로 사용
+            Vector3 targetCenter = _monster.targetCollider.bounds.center;
+
+            targetCenter.y -= 1.5f; // 귀찮아서 일단 높이 좀 낮춤
+            finalTargetPoint = targetCenter;
+        }
+
+        // 4. 최종 목표 지점을 정확히 바라보는 발사 각도를 계산
+        Quaternion spawnRotation = Quaternion.LookRotation((finalTargetPoint - spawnPos).normalized);
+
+        // 5. 오브젝트 풀에서 스킬 오브젝트를 가져옴
         GameObject skillObj = ObjectPooler.Instance.GetFromPool(skillToUse.skillName, spawnPos, spawnRotation);
+
         if (skillObj != null)
         {
-            // 스폰된 오브젝트에서 'Skill' 컴포넌트를 찾음
+            // 6. 스킬 컴포넌트를 찾아서 Activate 함수 호출. "내가 이 스킬 쏜다!"고 알려줌
             Skill skill = skillObj.GetComponent<Skill>();
             if (skill != null)
             {
-                // 'Skill'의 표준 방식인 Activate 함수를 호출
                 skill.Activate(_monster.gameObject, skillToUse);
             }
         }
     }
-
     public override void ExitState() { }
 }
