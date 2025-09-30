@@ -15,7 +15,16 @@ public class PlayerStateFactory
         _fallState = new PlayerFallState(_context, this);
     }
 
-    public PlayerBaseState Grounded() => _groundedState;
-    public PlayerBaseState Jump() => _jumpState;
-    public PlayerBaseState Fall() => _fallState;
+    public PlayerBaseState Grounded()
+    {
+        return _groundedState;
+    }
+    public PlayerBaseState Jump()
+    {
+        return _jumpState;
+    }
+    public PlayerBaseState Fall()
+    {
+        return _fallState;
+    }
 }

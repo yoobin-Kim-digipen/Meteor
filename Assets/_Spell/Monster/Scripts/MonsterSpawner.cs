@@ -63,22 +63,25 @@ public class MonsterSpawner : MonoBehaviour
             int currentHour = tm.GetHour();
             bool isSpawnTime;
 
-            if (spawnStartHour < spawnEndHour)
-            {
-                // 스폰 가능한 시간이 하루 안에서 연속적인 범위일 때
-                isSpawnTime = currentHour >= spawnStartHour && currentHour < spawnEndHour;
-            }
-            else
-            {
-                // 밤 시간 범위, 하루를 넘는 경우
-                isSpawnTime = currentHour >= spawnStartHour || currentHour < spawnEndHour;
-            }
+            //if (spawnStartHour < spawnEndHour)
+            //{
+            //    // 스폰 가능한 시간이 하루 안에서 연속적인 범위일 때
+            //    isSpawnTime = currentHour >= spawnStartHour && currentHour < spawnEndHour;
+            //}
+            //else
+            //{
+            //    // 밤 시간 범위, 하루를 넘는 경우
+            //    isSpawnTime = currentHour >= spawnStartHour || currentHour < spawnEndHour;
+            //}
 
-            // 2. 최대 몬스터 수보다 적을 때만 스폰 + 지정한 스폰 시간일 때만 스폰
-            if (canSpawnByType && canSpawnByTotal && isSpawnTime)
+            //// 2. 최대 몬스터 수보다 적을 때만 스폰 + 지정한 스폰 시간일 때만 스폰
+            //if (canSpawnByType && canSpawnByTotal && isSpawnTime)
+            //{
+            if (canSpawnByType && canSpawnByTotal)
             {
                 SpawnMonster(monsterData);
             }
+            //}
 
             // 3. 정해진 시간만큼 기다림
             yield return new WaitForSeconds(monsterData.spawnInterval);
@@ -108,7 +111,11 @@ public class MonsterSpawner : MonoBehaviour
 
             if (monster != null)
             {
-                monster.GetComponent<MonsterFSM>().target = playerTransform;
+                MonsterFSM fsm = monster.GetComponent<MonsterFSM>();
+                if (fsm != null)
+                {
+                    fsm.Initialize(monsterToSpawn, playerTransform);
+                }
                 activeMonsters[monsterToSpawn.monsterName].Add(monster);
             }
         }

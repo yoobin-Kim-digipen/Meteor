@@ -30,7 +30,7 @@ public class PlayerJumpState : PlayerBaseState
 
         // 점프 시작 시간 기록
         _player.jumpStartTime = Time.time;
-        _player.ungroundedUntil = Time.time + _player.jumpUngroundGrace; // 착지 무시 시간
+       // _player.ungroundedUntil = Time.time + _player.jumpUngroundGrace; // 착지 무시 시간
     }
 
     public override void UpdateState()

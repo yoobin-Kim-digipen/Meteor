@@ -402,8 +402,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56931f4dc02e65f4cafd1ad9ff5b54a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
-  weaponDB: {fileID: 11400000, guid: e7248d94a5d188f4aa6a03e4d86a2244, type: 2}
-  monsterDB: {fileID: 11400000, guid: 4c415c65f882ec34fa779c6e0adcb4ea, type: 2}
+  weaponDB: {fileID: 11400000, guid: 06bc2b4199cf77943bdceb97895ce100, type: 2}
+  monsterDB: {fileID: 11400000, guid: a7ae35eddccb2b943b9a69eb9cec4145, type: 2}
 --- !u!4 &215413719
 Transform:
   m_ObjectHideFlags: 0
@@ -844,7 +844,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
   playerTransform: {fileID: 1036380668}
   spawnableMonsters:
-  - {fileID: 11400000, guid: e597b0681bdc8954cbbcf1d6349bc1c3, type: 2}
+  - {fileID: 11400000, guid: f010ce5b90d257c41bd66131d4342fcb, type: 2}
+  - {fileID: 11400000, guid: 4a3313588b1d0014ba46eb10f7376c5b, type: 2}
   maxSpawnRadius: 70
   minSpawnRadius: 40
   maxMonsters: 30
@@ -940,12 +941,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   jumpHeight: 1.6
-  groundCheckRadius: 0.25
-  maxSnapFallSpeed: 1
+  groundCheckRadius: 0.2
   jumpCutMultiplier: 0.5
   jumpCut: 1
+  jumpReleaseQueued: 0
   minJumpCutDelay: 0.06
   jumpUngroundGrace: 0.05
+  jumpStartTime: 0
+  groundedGracePeriod: 0.1
+  jumpQueued: 0
+  isGrounded: 0
+  groundCheckDelay: 0.05
+  moveDir: {x: 0, y: 0, z: 0}
+  wantRotate: 0
+  stateMachine: {fileID: 0}
 --- !u!136 &1036380665
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1040,7 +1049,6 @@ Transform:
   m_Children:
   - {fileID: 1817318602}
   - {fileID: 1166192214}
-  - {fileID: 1715219958}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1036380669
@@ -1055,9 +1063,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b0584c718064a443999df812c498f49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackManager
-  spawnPoint: {fileID: 1715219958}
   equippedWeapons:
-  - {fileID: 11400000, guid: 34a0f15a8e102f64d9c10f77e8eb444c, type: 2}
+  - {fileID: 11400000, guid: 7f98d879d5f2ac042822aa8cb40f0873, type: 2}
+  rotationSpeed: 720
 --- !u!114 &1036380670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1898,37 +1906,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1 &1715219957
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1715219958}
-  m_Layer: 0
-  m_Name: AttackSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1715219958
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1715219957}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.698}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1036380668}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1817318601
 GameObject:
   m_ObjectHideFlags: 0
@@ -1954,7 +1931,7 @@ Transform:
   m_GameObject: {fileID: 1817318601}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.013, z: 0}
+  m_LocalPosition: {x: 0, y: -1.06, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

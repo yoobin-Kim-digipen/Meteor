@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
     public LayerMask groundMask;             // Ground 레이어 설정
     public float jumpHeight = 1.6f;          // 목표 점프 높이(물리식으로 계산)
     public float groundCheckRadius = 0.25f;  // 발 위치 반경
-    public float maxSnapFallSpeed = 1f;
     public float jumpCutMultiplier = 0.5f;   // 점프 컷 비율(0~1)
 
     // 점프 컷용, 점프키를 빨리 떼면 살짝 낮게(속도감)
@@ -29,19 +28,26 @@ public class Player : MonoBehaviour
     public bool jumpReleaseQueued;
 
     // 점프 컷 안정화용(최소 유지시간 + 점프 직후 접지 무시)
-    public float minJumpCutDelay = 0.06f;    // 게임 감각 보정 (최소 점프 시간)
+    public float minJumpCutDelay = 0.06f;     // 게임 감각 보정 (최소 점프 시간)
     public float jumpUngroundGrace = 0.05f;   // 물리 판정 보정 (착지 오탐 방지) 
     public float jumpStartTime;
-    public float ungroundedUntil;
-    
+
+    [Tooltip("땅에서 떨어진 후 Fall 상태로 전환되기까지의 유예 시간")] // 땅바닥 울퉁불퉁한곳 fall state 진입 방지용
+    public float groundedGracePeriod = 0.1f;
+
     // 점프 큐와 바닥 상태
     public  bool jumpQueued;
     public bool isGrounded;
-    private float castDist = 0.3f;                   // sphere cast에서 사용됨 / public 불필요 자세한 내용은 함수 주석확인
-    Vector3 groundNormal = Vector3.up;       // 경사면 노멀 캐싱
+    private bool _isGroundedThisFrame; // 이번 프레임에 물리적으로 땅에 닿았는가?
+    private float _leftGroundTimer; // 땅에서 떨어진 시간을 재는 타이머
+    [Tooltip("isGrounded가 false로 바뀌기까지 필요한 최소 시간")]
+    public float groundCheckDelay = 0.05f; // 0.05초 정도면 충분
+
+    private float castDist = 0.3f;  // sphere cast에서 사용됨 / public 불필요 자세한 내용은 함수 주석확인
+    Vector3 groundNormal = Vector3.up; // 경사면 노멀 캐싱
 
     public Rigidbody Rigidbody { get { return rb; } }
-    public Vector3 moveDir;                         // Update에서 받은 입력을 FixedUpdate에서 사용
+    public Vector3 moveDir; // Update에서 받은 입력을 FixedUpdate에서 사용
     public bool wantRotate;
     private Rigidbody rb;
     private Camera cam;
@@ -104,6 +110,11 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (Mouse.current != null)
+        {
+            IsAttacking = Mouse.current.leftButton.isPressed;
+        }
+
         if (moveDir.sqrMagnitude > 0.0001f)
         {
             wantRotate = true;
@@ -114,27 +125,18 @@ public class Player : MonoBehaviour
             wantRotate = false;
         }
 
+        updateGroundedState();
+
         if (stateMachine != null)
         {
             stateMachine.Update();
-        }
-
-        if (Mouse.current != null)
-        {
-            IsAttacking = Mouse.current.leftButton.isPressed;
         }
     }
 
     void FixedUpdate()
     {
-        // 바닥 체크(Overlap + SphereCast로 안정화)
-        updateGroundState();
-
-        // 점프 직후 일정 시간 접지 무시
-        if (Time.time < ungroundedUntil)
-        {
-            isGrounded = false;
-        }
+        // 평소에는 물리 체크 실행
+        checkGroundStatus();
 
         if (stateMachine != null)
         {
@@ -184,21 +186,34 @@ public class Player : MonoBehaviour
         moveDir = forward * input.y + right * input.x;
     }
 
-    // 바닥 체크(Overlap + SphereCast)
-    void updateGroundState()
+    private void updateGroundedState()
     {
-        bool wasGrounded = isGrounded; // 이전 값 저장
+        if (_isGroundedThisFrame)
+        {
+            _leftGroundTimer = 0f;
+            isGrounded = true;
+        }
+        else
+        {
+            // Update에서 호출되므로 Time.deltaTime을 사용
+            _leftGroundTimer += Time.deltaTime;
+            if (_leftGroundTimer > groundCheckDelay)
+            {
+                isGrounded = false;
+            }
+        }
+    }
 
-        isGrounded = false;
+    // 바닥 체크(Overlap + SphereCast)
+    void checkGroundStatus()
+    {
+        _isGroundedThisFrame = false;
         groundNormal = Vector3.up; // 평지 구분
-
         if (groundCheck == null) return;
-
         const float skin = 0.02f;
 
         // 1. 이미 겹쳐 있나? (딱 붙어있는 평지)
         // Physics.CheckSphere(center, radius, layerMask, queryTriggerInteraction) <- 함수 원형
-
         bool overlap = Physics.CheckSphere(
             //플레이어 에게 상속 되어 있는 groundcheck 오브젝트 위치
             groundCheck.position,
@@ -213,9 +228,9 @@ public class Player : MonoBehaviour
             QueryTriggerInteraction.Ignore
         );
 
-        if (overlap && rb.linearVelocity.y >= -maxSnapFallSpeed)
+        if (overlap)
         {
-            isGrounded = true;
+            _isGroundedThisFrame = true;
 
             //딱붙었으면 평지니까 벡터up
             groundNormal = Vector3.up; // Overlap만으로는 노멀을 모르니 일단 Up
@@ -250,9 +265,9 @@ public class Player : MonoBehaviour
             // 위와 동일
             groundMask,
             QueryTriggerInteraction.Ignore
-        ) && rb.linearVelocity.y >= -maxSnapFallSpeed)
+        ))
         {
-            isGrounded = true;
+            _isGroundedThisFrame = true;
 
             //SphereCast로 맞은 표면의 법선 벡터(hit.normal)를 “지면 노멀” 변수(groundNormal)에 저장
             //혹시 나중에 벽에 비볐을때 cast 오작동으로 grounded 상태가 될 수 있음. 추후 필요 시(버그 발생 시) 바닥과의 각도 계산 필요

@@ -4,7 +4,6 @@ using UnityEngine;
 public class PlayerAttackManager : MonoBehaviour
 {
     [Header("Attack Settings")]
-    public Transform spawnPoint; // 발사체가 생성될 위치
     public List<WeaponData> equippedWeapons; // 인스펙터에서 유저가 집어넣은 무기 정보
     private Dictionary<WeaponData, float> weaponCooldowns;
     private bool _isFirstShot = true;
@@ -72,35 +71,61 @@ public class PlayerAttackManager : MonoBehaviour
 
     void Attack(WeaponData weapon, Vector3 targetPoint)
     {
-        Vector3 spawnPos = spawnPoint.position;
+        if (weapon.skills == null || weapon.skills.Count == 0) return;
 
-        // 첫 발일 때만 발사 위치를 보정
-        if (_isFirstShot)
+        SkillData skillToUse = weapon.skills[0];
+
+        Vector3 spawnPos;
+        Quaternion spawnRotation;
+
+        // SkillData에 정의된 스폰 타입에 따라 위치와 회전값을 계산
+        switch (skillToUse.spawnType)
         {
-            Vector3 idealDirection = (targetPoint - _playerRb.position).normalized;
-            idealDirection.y = 0f;
-            Quaternion idealRotation = Quaternion.LookRotation(idealDirection);
-            Vector3 spawnOffsetLocal = _playerRb.transform.InverseTransformPoint(spawnPoint.position);
-            spawnPos = _playerRb.position + idealRotation * spawnOffsetLocal;
+            case SkillSpawnType.FromCaster:
+                // 기본 스폰 위치는 이제 플레이어의 중심 위치
+                Vector3 baseSpawnPos = transform.position;
+
+                // 첫 발 보정 트릭: 이상적인 회전값을 기준으로 오프셋을 적용합니다.
+                if (_isFirstShot)
+                {
+                    Vector3 idealDirection = (targetPoint - baseSpawnPos).normalized;
+                    idealDirection.y = 0f;
+                    Quaternion idealRotation = Quaternion.LookRotation(idealDirection);
+                    // 이상적인 회전 * 로컬 오프셋 = 월드 오프셋
+                    spawnPos = baseSpawnPos + idealRotation * skillToUse.spawnOffset;
+                }
+                else
+                {
+                    // 두 번째 발부터는 현재 캐릭터의 회전을 기준으로 오프셋을 적용
+                    spawnPos = baseSpawnPos + transform.rotation * skillToUse.spawnOffset;
+                }
+
+                spawnRotation = Quaternion.LookRotation((targetPoint - spawnPos).normalized);
+                break;
+
+            case SkillSpawnType.OnTarget:
+                spawnPos = targetPoint + Vector3.up * skillToUse.spawnHeightOffset;
+                spawnRotation = Quaternion.LookRotation(Vector3.down);
+                break;
+
+            default: // 예외 처리
+                spawnPos = transform.position;
+                spawnRotation = Quaternion.identity;
+                break;
         }
 
-        for (int i = 0; i < weapon.projectileAmount; i++)
+        GameObject skillObj = ObjectPooler.Instance.GetFromPool(skillToUse.skillName, spawnPos, spawnRotation);
+
+        if (skillObj != null)
         {
-            Vector3 directionToTarget = (targetPoint - spawnPos).normalized;
-            Quaternion spawnRotation = Quaternion.LookRotation(directionToTarget);
-
-            string poolTag = weapon.weaponName;
-            GameObject projectileObj = ObjectPooler.Instance.GetFromPool(poolTag, spawnPos, spawnRotation);
-
-            if (projectileObj == null) continue;
-
-            Projectile projectileScript = projectileObj.GetComponent<Projectile>();
-            if (projectileScript != null)
+            Skill skill = skillObj.GetComponent<Skill>();
+            if (skill != null)
             {
-                projectileScript.Initialize(weapon);
+                skill.Activate(gameObject, skillToUse);
             }
         }
     }
+
 
     private Vector3 FindTargetPoint()
     {

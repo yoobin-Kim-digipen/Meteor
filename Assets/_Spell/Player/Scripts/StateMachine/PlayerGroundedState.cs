@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerGroundedState : PlayerBaseState
 {
     private Player _player;
+    private float _groundedGraceTimer; // <--- 유예 시간을 셀 타이머 변수 추가
     public PlayerGroundedState(PlayerStateMachine context, PlayerStateFactory factory) : base(context, factory)
     {
         _player = _ctx.playerMovement; // Player 컴포넌트 참조
@@ -13,6 +14,7 @@ public class PlayerGroundedState : PlayerBaseState
     {
         //Debug.Log("Enter Grounded State");
         _player.jumpReleaseQueued = false;
+        _groundedGraceTimer = _player.groundedGracePeriod;
     }
 
     public override void UpdateState()
@@ -55,18 +57,28 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void CheckSwitchStates()
     {
-        // 점프 큐가 있고, 실제로 grounded라면 점프 상태로
+        // 점프 조건은 최우선으로 확인
         if (_player.jumpQueued && _player.isGrounded)
         {
             _ctx.SwitchState(_factory.Jump());
             return;
         }
 
-        // 공중 상태로 전환 조건: grounded가 아니고, 아래로 떨어지고 있을 때
-        if (!_player.isGrounded && _player.Rigidbody.linearVelocity.y < 0f)
+        if (_player.isGrounded)
         {
-            _ctx.SwitchState(_factory.Fall());
-            return;
+            // 땅에 붙어있다면, 타이머를 계속 최대로 유지
+            _groundedGraceTimer = _player.groundedGracePeriod;
+        }
+        else
+        {
+            // 땅에서 떨어졌다면, 타이머를 감소시키기 시작
+            _groundedGraceTimer -= Time.deltaTime;
+
+            // 타이머가 0 이하로 떨어져야만 '진짜 추락'으로 간주하고 Fall 상태로 전환
+            if (_groundedGraceTimer <= 0f)
+            {
+                _ctx.SwitchState(_factory.Fall());
+            }
         }
     }
     private void HandleGroundedMovement(bool applyRotation)
