@@ -18,7 +18,6 @@ public class MonsterHealth : MonoBehaviour
         if (health <= 0)
         {
             gameObject.SetActive(false);
-            StatManager.Instance.GainExperience(10);
         }
     }
 }
