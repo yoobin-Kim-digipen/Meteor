@@ -9,35 +9,35 @@ public class MonsterSpawner : MonoBehaviour
 {
     [Header("Spawner Settings")]
     public Transform playerTransform;
-    public List<MonsterData> spawnableMonsters; // ÀÌ ½ºÆ÷³Ê¿¡¼­ ½ºÆùÇÒ ¸ó½ºÅÍ Á¾·ù
-    public float maxSpawnRadius = 750f; // ÃÖ´ë ¹İ°æ 
-    public float minSpawnRadius = 300f;  // ÃÖ¼Ò ¹İ°æ
-    public int maxMonsters = 30; // ¾À¿¡ Á¸ÀçÇÒ ÃÖ´ë ¸ó½ºÅÍ ¼ö
+    public List<MonsterData> spawnableMonsters; // ì´ ìŠ¤í¬ë„ˆì—ì„œ ìŠ¤í°í•  ëª¬ìŠ¤í„° ì¢…ë¥˜
+    public float maxSpawnRadius = 750f; // ìµœëŒ€ ë°˜ê²½ 
+    public float minSpawnRadius = 300f;  // ìµœì†Œ ë°˜ê²½
+    public int maxMonsters = 30; // ì”¬ì— ì¡´ì¬í•  ìµœëŒ€ ëª¬ìŠ¤í„° ìˆ˜
 
     private Dictionary<string, List<GameObject>> activeMonsters = new Dictionary<string, List<GameObject>>();
     private int totalMonsterCount = 0;
     public GameObject TimeManager;
 
     [Header("Spawn Time Settings")]
-    public int spawnStartHour = 18; // ½ºÆù ½ÃÀÛ ½Ã°£ 
-    public int spawnEndHour = 6;    // ½ºÆù Á¾·á ½Ã°£ 
+    public int spawnStartHour = 18; // ìŠ¤í° ì‹œì‘ ì‹œê°„ 
+    public int spawnEndHour = 6;    // ìŠ¤í° ì¢…ë£Œ ì‹œê°„ 
 
     void Start()
     {
         if (playerTransform == null)
         {
             Debug.LogError("Player Transform is not assigned in the MonsterSpawner inspector!");
-            // ½ºÆ÷³Ê°¡ ÀÛµ¿ÇÏÁö ¾Êµµ·Ï ¿©±â¼­ ¸ØÃã
+            // ìŠ¤í¬ë„ˆê°€ ì‘ë™í•˜ì§€ ì•Šë„ë¡ ì—¬ê¸°ì„œ ë©ˆì¶¤
             this.enabled = false;
             return;
         }
 
-        // ½ºÆù °¡´ÉÇÑ ¸ğµç ¸ó½ºÅÍ Á¾·ù¿¡ ´ëÇØ ÃÊ±âÈ­ ¹× °³º° ½ºÆù ÄÚ·çÆ¾ ½ÃÀÛ
+        // ìŠ¤í° ê°€ëŠ¥í•œ ëª¨ë“  ëª¬ìŠ¤í„° ì¢…ë¥˜ì— ëŒ€í•´ ì´ˆê¸°í™” ë° ê°œë³„ ìŠ¤í° ì½”ë£¨í‹´ ì‹œì‘
         foreach (var monsterData in spawnableMonsters)
         {
-            // µñ¼Å³Ê¸® ÃÊ±âÈ­
+            // ë”•ì…”ë„ˆë¦¬ ì´ˆê¸°í™”
             activeMonsters[monsterData.monsterName] = new List<GameObject>();
-            // ¸ó½ºÅÍ µ¥ÀÌÅÍº°·Î °³º° ÄÚ·çÆ¾ ½ÃÀÛ
+            // ëª¬ìŠ¤í„° ë°ì´í„°ë³„ë¡œ ê°œë³„ ì½”ë£¨í‹´ ì‹œì‘
             StartCoroutine(SpawnMonsterCoroutine(monsterData));
         }
     }
@@ -47,7 +47,7 @@ public class MonsterSpawner : MonoBehaviour
         TimeManager tm = TimeManager.GetComponent<TimeManager>();
         while (true)
         {
-            // 1. Á×Àº ¸ó½ºÅÍ¸¦ ¸®½ºÆ®¿¡¼­ Á¦°ÅÇÏ¿© ÇöÀç ¸ó½ºÅÍ ¼ö¸¦ Á¤È®ÇÏ°Ô À¯Áö
+            // 1. ì£½ì€ ëª¬ìŠ¤í„°ë¥¼ ë¦¬ìŠ¤íŠ¸ì—ì„œ ì œê±°í•˜ì—¬ í˜„ì¬ ëª¬ìŠ¤í„° ìˆ˜ë¥¼ ì •í™•í•˜ê²Œ ìœ ì§€
             activeMonsters[monsterData.monsterName].RemoveAll(m => !m.activeInHierarchy);
             totalMonsterCount = 0;
             foreach (var list in activeMonsters.Values)
@@ -55,8 +55,8 @@ public class MonsterSpawner : MonoBehaviour
                 totalMonsterCount += list.Count;
             }
 
-            // Á¶°Ç A: ÀÌ ¸ó½ºÅÍ Å¸ÀÔÀÇ ¼ö°¡ Å¸ÀÔº° ÃÖ´ëÄ¡º¸´Ù ÀûÀº°¡?
-            // Á¶°Ç B: ÀüÃ¼ ¸ó½ºÅÍ ¼ö°¡ ÀüÃ¼ ÃÖ´ëÄ¡º¸´Ù ÀûÀº°¡?
+            // ì¡°ê±´ A: ì´ ëª¬ìŠ¤í„° íƒ€ì…ì˜ ìˆ˜ê°€ íƒ€ì…ë³„ ìµœëŒ€ì¹˜ë³´ë‹¤ ì ì€ê°€?
+            // ì¡°ê±´ B: ì „ì²´ ëª¬ìŠ¤í„° ìˆ˜ê°€ ì „ì²´ ìµœëŒ€ì¹˜ë³´ë‹¤ ì ì€ê°€?
             bool canSpawnByType = activeMonsters[monsterData.monsterName].Count < monsterData.maxAliveCount;
             bool canSpawnByTotal = totalMonsterCount < maxMonsters;
 
@@ -65,16 +65,16 @@ public class MonsterSpawner : MonoBehaviour
 
             //if (spawnStartHour < spawnEndHour)
             //{
-            //    // ½ºÆù °¡´ÉÇÑ ½Ã°£ÀÌ ÇÏ·ç ¾È¿¡¼­ ¿¬¼ÓÀûÀÎ ¹üÀ§ÀÏ ¶§
+            //    // ìŠ¤í° ê°€ëŠ¥í•œ ì‹œê°„ì´ í•˜ë£¨ ì•ˆì—ì„œ ì—°ì†ì ì¸ ë²”ìœ„ì¼ ë•Œ
             //    isSpawnTime = currentHour >= spawnStartHour && currentHour < spawnEndHour;
             //}
             //else
             //{
-            //    // ¹ã ½Ã°£ ¹üÀ§, ÇÏ·ç¸¦ ³Ñ´Â °æ¿ì
+            //    // ë°¤ ì‹œê°„ ë²”ìœ„, í•˜ë£¨ë¥¼ ë„˜ëŠ” ê²½ìš°
             //    isSpawnTime = currentHour >= spawnStartHour || currentHour < spawnEndHour;
             //}
 
-            //// 2. ÃÖ´ë ¸ó½ºÅÍ ¼öº¸´Ù ÀûÀ» ¶§¸¸ ½ºÆù + ÁöÁ¤ÇÑ ½ºÆù ½Ã°£ÀÏ ¶§¸¸ ½ºÆù
+            //// 2. ìµœëŒ€ ëª¬ìŠ¤í„° ìˆ˜ë³´ë‹¤ ì ì„ ë•Œë§Œ ìŠ¤í° + ì§€ì •í•œ ìŠ¤í° ì‹œê°„ì¼ ë•Œë§Œ ìŠ¤í°
             //if (canSpawnByType && canSpawnByTotal && isSpawnTime)
             //{
             if (canSpawnByType && canSpawnByTotal)
@@ -83,14 +83,14 @@ public class MonsterSpawner : MonoBehaviour
             }
             //}
 
-            // 3. Á¤ÇØÁø ½Ã°£¸¸Å­ ±â´Ù¸²
+            // 3. ì •í•´ì§„ ì‹œê°„ë§Œí¼ ê¸°ë‹¤ë¦¼
             yield return new WaitForSeconds(monsterData.spawnInterval);
         }
     }
 
     void SpawnMonster(MonsterData monsterToSpawn)
     {
-        // min ~ max »çÀÌÀÇ ¹«ÀÛÀ§ °Å¸®¸¦ Á¤ÇÔ
+        // min ~ max ì‚¬ì´ì˜ ë¬´ì‘ìœ„ ê±°ë¦¬ë¥¼ ì •í•¨
         float randomDistance = Random.Range(minSpawnRadius, maxSpawnRadius);
         Vector2 randomCircle = Random.insideUnitCircle.normalized * randomDistance;
         Vector3 randomPosition = playerTransform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
@@ -101,10 +101,10 @@ public class MonsterSpawner : MonoBehaviour
         {
             Vector3 spawnPosition = hit.position;
 
-            // ÃÖÁ¾ ½ºÆù À§Ä¡°¡ Á¤¸» ÃÖ¼Ò °Å¸®º¸´Ù ¸Ö¸® ÀÖ´ÂÁö È®ÀÎ
+            // ìµœì¢… ìŠ¤í° ìœ„ì¹˜ê°€ ì •ë§ ìµœì†Œ ê±°ë¦¬ë³´ë‹¤ ë©€ë¦¬ ìˆëŠ”ì§€ í™•ì¸
             if (Vector3.Distance(playerTransform.position, spawnPosition) < minSpawnRadius)
             {
-                // ÀÌ °æ¿ì´Â °ÅÀÇ ¹ß»ıÇÏÁö ¾Ê°ÚÁö¸¸, ¸¸¾àÀ» À§ÇÑ ¾ÈÀüÀåÄ¡
+                // ì´ ê²½ìš°ëŠ” ê±°ì˜ ë°œìƒí•˜ì§€ ì•Šê² ì§€ë§Œ, ë§Œì•½ì„ ìœ„í•œ ì•ˆì „ì¥ì¹˜
                 return;
             }
             GameObject monster = ObjectPooler.Instance.GetFromPool(monsterToSpawn.monsterName, spawnPosition, Quaternion.identity);
@@ -121,7 +121,7 @@ public class MonsterSpawner : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"½ºÆù À§Ä¡({randomPosition}) ÁÖº¯¿¡ À¯È¿ÇÑ NavMesh¸¦ Ã£Áö ¸øÇß½À´Ï´Ù.");
+            Debug.LogWarning($"ìŠ¤í° ìœ„ì¹˜({randomPosition}) ì£¼ë³€ì— ìœ íš¨í•œ NavMeshë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.");
         }
     }
 }

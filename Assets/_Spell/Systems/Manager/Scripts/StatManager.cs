@@ -4,7 +4,6 @@ using UnityEngine;
 public class StatManager : MonoBehaviour
 {
     public static StatManager Instance { get; private set; }
-
     public GameObject playerObject; // Reference to the Player script
     private Player player;
     public bool isPlayerDead { get; private set; } = false;
@@ -65,20 +64,23 @@ public class StatManager : MonoBehaviour
         // MP 모니터링 로직 추가 예정
     }
 
-    public void GainINT(int intAmount)
-    {
-        intelligence += intAmount;
-        Debug.Log("플레이어의 지능이 증가했습니다. 현재 지능: " + intelligence);
-        PlayerAttackManager playerAttackManager = playerObject.GetComponent<PlayerAttackManager>();
-        if (playerAttackManager != null)
-        {
-            List<WeaponData> weaponlist = playerAttackManager.equippedWeapons;
-            foreach (var weapon in weaponlist)
-            {
-                weapon.damage += 10; // 예시: 모든 무기의 데미지를 10 증가
-            }
-        }
-    }
+    // 버그 생겼음. 주석처리. 회의 후 수정 예정
+    // 지금 발사체 데미지만 있는데 스킬 자체 데미지가 없어서 문제가 생김
+    // 플레이어의 모든 공격의 위력을 증가시키려면 스킬 자체 데미지도 존재해야 함
+    // public void GainINT(int intAmount)
+    // {
+    //     intelligence += intAmount;
+    //     Debug.Log("플레이어의 지능이 증가했습니다. 현재 지능: " + intelligence);
+    //     PlayerAttackManager playerAttackManager = playerObject.GetComponent<PlayerAttackManager>();
+    //     if (playerAttackManager != null)
+    //     {
+    //         List<WeaponData> weaponlist = playerAttackManager.equippedWeapons;
+    //         foreach (var weapon in weaponlist)
+    //         {
+    //             weapon.damage += 10; // 예시: 모든 무기의 데미지를 10 증가
+    //         }
+    //     }
+    // }
 
     public void GainDEF(int amount)
     {

@@ -3,7 +3,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Projectile : Skill // SkillÀ» »ó¼Ó
+public class Projectile : Skill // Skillì„ ìƒì†
 {
     private float _speed, _lifetime, _damage;
     private Rigidbody _rb;
@@ -34,13 +34,13 @@ public class Projectile : Skill // SkillÀ» »ó¼Ó
 
     void OnTriggerEnter(Collider other)
     {
-        // ÀÚ±â ÀÚ½ÅÀÌ³ª ½ğ »ç¶÷°ú ºÎµúÈ÷¸é ¹«½Ã
+        // ìê¸° ìì‹ ì´ë‚˜ ìœ ì‚¬ëŒê³¼ ë¶€ë”ªíˆë©´ ë¬´ì‹œ
         if (other.gameObject == _caster) return;
 
-        // °°Àº Æí°ú ºÎµúÈ÷´Â °æ¿ì ¹«½Ã
+        // ê°™ì€ í¸ê³¼ ë¶€ë”ªíˆëŠ” ê²½ìš° ë¬´ì‹œ
         if (_caster != null && other.gameObject.layer == _caster.layer) return;
 
-        // °ø°İÇØ¾ß ÇÒ ´ë»ó°ú ºÎµúÇû´ÂÁö È®ÀÎ
+        // ê³µê²©í•´ì•¼ í•  ëŒ€ìƒê³¼ ë¶€ë”ªí˜”ëŠ”ì§€ í™•ì¸
         if (!string.IsNullOrEmpty(_targetTag) && other.CompareTag(_targetTag))
         {
             if (other.TryGetComponent<EnemyHealth>(out var enemy))
@@ -49,13 +49,13 @@ public class Projectile : Skill // SkillÀ» »ó¼Ó
             }
             // if(other.TryGetComponent<PlayerHealth>(out var player)) player.TakeDamage(_damage);
 
-            // °ø°İ ¼º°ø ½Ã »ç¶óÁü
+            // ê³µê²© ì„±ê³µ ì‹œ ì‚¬ë¼ì§
             StopAllCoroutines();
             gameObject.SetActive(false);
             return;
         }
 
-        // Trigger°¡ ¾Æ´Ñ ¹°¸®Àû Àå¾Ö¹°(º® µî)°ú ºÎµúÇûÀ» ¶§¸¸ »ç¶óÁü
+        // Triggerê°€ ì•„ë‹Œ ë¬¼ë¦¬ì  ì¥ì• ë¬¼(ë²½ ë“±)ê³¼ ë¶€ë”ªí˜”ì„ ë•Œë§Œ ì‚¬ë¼ì§
         if (!other.isTrigger)
         {
             StopAllCoroutines();

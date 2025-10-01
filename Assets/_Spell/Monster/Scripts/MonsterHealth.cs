@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    private float maxhealth; // ÇöÀç Ã¼·ÂÀº ³»ºÎ¿¡¼­¸¸ °ü¸®
+    private float maxhealth; // í˜„ì¬ ì²´ë ¥ì€ ë‚´ë¶€ì—ì„œë§Œ ê´€ë¦¬
     public float currentHealth { get; private set; }
 
-    // ¿ÀºêÁ§Æ®°¡ Ç®¿¡¼­ ³ª¿Í È°¼ºÈ­µÉ ¶§¸¶´Ù È£ÃâµÊ
+    // ì˜¤ë¸Œì íŠ¸ê°€ í’€ì—ì„œ ë‚˜ì™€ í™œì„±í™”ë  ë•Œë§ˆë‹¤ í˜¸ì¶œë¨
     public void Initialize(MonsterData data)
     {
-        // MonsterData·ÎºÎÅÍ ÃÖ´ë Ã¼·Â Á¤º¸¸¦ ¹Ş¾Æ¿Í ¼³Á¤
+        // MonsterDataë¡œë¶€í„° ìµœëŒ€ ì²´ë ¥ ì •ë³´ë¥¼ ë°›ì•„ì™€ ì„¤ì •
         maxhealth = data.maxHealth;
         currentHealth = maxhealth;
     }
@@ -23,15 +23,16 @@ public class EnemyHealth : MonoBehaviour
         currentHealth -= damage;
         if (currentHealth <= 0)
         {
+            StatManager.Instance.GainExperience(10); // ê²½í—˜ì¹˜ 10 íšë“ ì˜ˆì‹œ
             Die();
         }
     }
 
     private void Die()
     {
-        // ex) »ç¸Á »óÅÂ·Î ÀüÈ¯ÇÏ°Å³ª »ç¸Á ¾Ö´Ï¸ŞÀÌ¼Ç/ÀÌÆåÆ® Ã³¸®
-        // ¿¹: GetComponent<MonsterFSM>().StateMachine.SwitchState(_factory.Dead());
-        // Áö±İÀº °£´ÜÇÏ°Ô ¿ÀºêÁ§Æ® Ç®·Î ¹İÈ¯
+        // ex) ì‚¬ë§ ìƒíƒœë¡œ ì „í™˜í•˜ê±°ë‚˜ ì‚¬ë§ ì• ë‹ˆë©”ì´ì…˜/ì´í™íŠ¸ ì²˜ë¦¬
+        // ì˜ˆ: GetComponent<MonsterFSM>().StateMachine.SwitchState(_factory.Dead());
+        // ì§€ê¸ˆì€ ê°„ë‹¨í•˜ê²Œ ì˜¤ë¸Œì íŠ¸ í’€ë¡œ ë°˜í™˜
         gameObject.SetActive(false);
     }
 }
