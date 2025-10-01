@@ -1,14 +1,37 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+// 몬스터 프리팹에 필요한 컴포넌트들을 자동으로 추가해주고, 삭제하지 못하게 막는 어트리뷰트
+[RequireComponent(typeof(NavMeshAgent), typeof(MonsterStateMachine), typeof(EnemyHealth))]
 public class MonsterFSM : MonoBehaviour
 {
-    public Transform target; // 플레이어(위저드) Transfrom
-    private NavMeshAgent agent;
+    [Header("AI Data")]
+    public MonsterData monsterData;
+    public Transform target;
+
+    public Collider targetCollider { get; private set; }
+    public NavMeshAgent agent { get; private set; }
+    public MonsterStateMachine stateMachine { get; private set; }
+    public EnemyHealth health { get; private set; }
+    public Animator animator { get; private set; }
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        stateMachine = GetComponent<MonsterStateMachine>();
+        health = GetComponent<EnemyHealth>();
+        animator = GetComponentInChildren<Animator>();
+    }
+
+    public void Initialize(MonsterData data, Transform playerTarget)
+    {
+        this.monsterData = data;
+        this.target = playerTarget;
+
+        agent.speed = monsterData.speed;
+        // 내가 가진 monsterData를 Health 컴포넌트에게 전달하여 초기화시킨다.
+        health.Initialize(monsterData);
+        stateMachine.Initialize(monsterData);
     }
 
     // 오브젝트가 활성화될 때마다 호출되는 함수
@@ -18,23 +41,7 @@ public class MonsterFSM : MonoBehaviour
         if (agent != null)
         {
             agent.enabled = true;
-
-            // 이전 경로와 상태를 완전히 초기화
-            agent.Warp(transform.position);
-
-            // 활성화된 직후 바로 목표를 향해 가도록 설정
-            if (target != null)
-            {
-                agent.SetDestination(target.position);
-            }
-        }
-    }
-
-    void Update()
-    {
-        if (target && agent.enabled && agent.isOnNavMesh)
-        {
-            agent.SetDestination(target.position);
+            agent.Warp(transform.position); // 이전 경로와 상태를 완전히 초기화
         }
     }
 
@@ -46,6 +53,24 @@ public class MonsterFSM : MonoBehaviour
             agent.ResetPath();
             agent.enabled = false;
         }
+    }
+
+    public bool IsPlayerInAttackRange()
+    {
+        // target이나 monsterData가 할당되지 않은 예외 상황을 안전하게 처리.
+        if (target == null || monsterData == null) return false;
+
+        // 몬스터의 현재 위치와 타겟의 위치 사이의 거리를 계산하고,
+        // 그 거리가 monsterData에 정의된 attackRange보다 작거나 같은지 확인.
+        return Vector3.Distance(transform.position, target.position) <= monsterData.attackRange;
+    }
+
+    // 디버깅용: 씬(Scene) 뷰에서 몬스터의 공격 범위를 시각적으로 보여줌
+    void OnDrawGizmosSelected()
+    {
+        if (monsterData == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, monsterData.attackRange);
     }
 }
 

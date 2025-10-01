@@ -21,33 +21,40 @@ public class Player : MonoBehaviour
     public LayerMask groundMask;             // Ground 레이어 설정
     public float jumpHeight = 1.6f;          // 목표 점프 높이(물리식으로 계산)
     public float groundCheckRadius = 0.25f;  // 발 위치 반경
-    public float maxSnapFallSpeed = 1f;
     public float jumpCutMultiplier = 0.5f;   // 점프 컷 비율(0~1)
 
     // 점프 컷용, 점프키를 빨리 떼면 살짝 낮게(속도감)
     public bool jumpCut = true;              //코드 내에선 항상 true상태, inspector내에서 토글용도(체크 해제시 jumpcut 기능사라짐)
-    private bool jumpReleaseQueued;
+    public bool jumpReleaseQueued;
 
     // 점프 컷 안정화용(최소 유지시간 + 점프 직후 접지 무시)
-    public float minJumpCutDelay = 0.06f;    // 게임 감각 보정 (최소 점프 시간)
+    public float minJumpCutDelay = 0.06f;     // 게임 감각 보정 (최소 점프 시간)
     public float jumpUngroundGrace = 0.05f;   // 물리 판정 보정 (착지 오탐 방지) 
-    private float jumpStartTime;
-    private float ungroundedUntil;
+    public float jumpStartTime;
 
-    [Header("Health")]
-    public int maxHealth = 5;
-    public int currentHealth;
-    
+    [Tooltip("땅에서 떨어진 후 Fall 상태로 전환되기까지의 유예 시간")] // 땅바닥 울퉁불퉁한곳 fall state 진입 방지용
+    public float groundedGracePeriod = 0.1f;
+
     // 점프 큐와 바닥 상태
-    Vector3 groundNormal = Vector3.up;       // 경사면 노멀 캐싱
-    private float castDist = 0.3f;                   // sphere cast에서 사용됨 / public 불필요 자세한 내용은 함수 주석확인
-    private bool jumpQueued;
-    private bool isGrounded;
+    public  bool jumpQueued;
+    public bool isGrounded;
+    private bool _isGroundedThisFrame; // 이번 프레임에 물리적으로 땅에 닿았는가?
+    private float _leftGroundTimer; // 땅에서 떨어진 시간을 재는 타이머
+    [Tooltip("isGrounded가 false로 바뀌기까지 필요한 최소 시간")]
+    public float groundCheckDelay = 0.05f; // 0.05초 정도면 충분
 
+    private float castDist = 0.3f;  // sphere cast에서 사용됨 / public 불필요 자세한 내용은 함수 주석확인
+    Vector3 groundNormal = Vector3.up; // 경사면 노멀 캐싱
+
+    public Rigidbody Rigidbody { get { return rb; } }
+    public Vector3 moveDir; // Update에서 받은 입력을 FixedUpdate에서 사용
+    public bool wantRotate;
     private Rigidbody rb;
     private Camera cam;
-    private Vector3 moveDir;                         // Update에서 받은 입력을 FixedUpdate에서 사용
-    private bool wantRotate;
+
+    public PlayerStateMachine stateMachine;
+    public PlayerAttackManager attackManager { get; private set; }
+    public bool IsAttacking { get; private set; }
 
     void Start()
     {
@@ -57,6 +64,18 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
+        stateMachine = GetComponent<PlayerStateMachine>();
+        if (stateMachine == null)
+        {
+            Debug.LogError("PlayerStateMachine 컴포넌트가 없습니다!");
+        }
+
+        attackManager = GetComponent<PlayerAttackManager>();
+        if (attackManager == null)
+        {
+            Debug.LogWarning("PlayerAttackManager 컴포넌트가 없습니다!");
+        }
+
         if (groundCheck == null) Debug.LogError("groundCheck가 할당되지 않았습니다!");
         cam = Camera.main; // 카메라 캐싱
         rb = GetComponent<Rigidbody>();
@@ -91,6 +110,11 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (Mouse.current != null)
+        {
+            IsAttacking = Mouse.current.leftButton.isPressed;
+        }
+
         if (moveDir.sqrMagnitude > 0.0001f)
         {
             wantRotate = true;
@@ -100,79 +124,25 @@ public class Player : MonoBehaviour
         {
             wantRotate = false;
         }
+
+        updateGroundedState();
+
+        if (stateMachine != null)
+        {
+            stateMachine.Update();
+        }
     }
 
     void FixedUpdate()
     {
-        // 바닥 체크(Overlap + SphereCast로 안정화)
-        updateGroundState();
+        // 평소에는 물리 체크 실행
+        checkGroundStatus();
 
-        // 점프 직후 일정 시간 접지 무시
-        if (Time.time < ungroundedUntil)
+        if (stateMachine != null)
         {
-            isGrounded = false;
-        }
-
-        // 이동(가속/감속 기반, velocity 제어)
-        applyMovementPhysics();
-
-        // 낙하 중일 때만 중력 강화
-        if (!isGrounded && rb.linearVelocity.y < 0f)
-        {
-            rb.AddForce(Physics.gravity * (fallMultiplier - 1f), ForceMode.Acceleration);
-        }
-
-        // 점프(물리에서 처리)
-        if (jumpQueued)
-        {
-            jumpQueued = false;
-
-            if (isGrounded)
-            {
-                // (물리식) 목표 높이 h에 도달할 초기 속도: v = sqrt(2gh)
-                float vy = Mathf.Sqrt(Mathf.Max(0f, -2f * Physics.gravity.y * jumpHeight));
-
-                Vector3 v = rb.linearVelocity;
-
-                // 수직 성분 초기화(일관된 높이)
-                v.y = 0f;
-
-                rb.linearVelocity = v;
-
-                // 위로만 즉시 속도 부여(질량 무관)
-                rb.AddForce(Vector3.up * vy, ForceMode.VelocityChange);
-
-                // 여기서 기록
-                jumpStartTime = Time.time;
-                ungroundedUntil = Time.time + jumpUngroundGrace;
-            }
-        }
-
-        // 컷 처리
-        bool canCutNow = jumpCut && rb.linearVelocity.y > 0f && (Time.time - jumpStartTime) >= minJumpCutDelay;
-        if (canCutNow && jumpReleaseQueued)
-        {
-            jumpReleaseQueued = false; // 소비
-
-            Vector3 v = rb.linearVelocity;
-            v.y *= Mathf.Clamp01(jumpCutMultiplier);
-            rb.linearVelocity = v;
-        }
-
-        // 회전(카메라 Yaw 기준)
-        if (wantRotate)
-        {
-            faceCameraYaw();
-        }
-
-        // --- 착지 시 큐 초기화 (중요!) ---
-        if (isGrounded)
-        {
-            jumpReleaseQueued = false; // 땅에 있을 땐 컷 플래그 항상 클리어
+            stateMachine.FixedUpdate();
         }
     }
-
-    // ---------------------------------       Update()       ----------------------------------------------------------------------
 
     // 카메라 기준으로 입력 읽기(ref 버전)
     void readMoveInput(ref Vector3 moveDir)
@@ -216,23 +186,34 @@ public class Player : MonoBehaviour
         moveDir = forward * input.y + right * input.x;
     }
 
-    // ---------------------------------     FixedUpdate()    ----------------------------------------------------------------------
+    private void updateGroundedState()
+    {
+        if (_isGroundedThisFrame)
+        {
+            _leftGroundTimer = 0f;
+            isGrounded = true;
+        }
+        else
+        {
+            // Update에서 호출되므로 Time.deltaTime을 사용
+            _leftGroundTimer += Time.deltaTime;
+            if (_leftGroundTimer > groundCheckDelay)
+            {
+                isGrounded = false;
+            }
+        }
+    }
 
     // 바닥 체크(Overlap + SphereCast)
-    void updateGroundState()
+    void checkGroundStatus()
     {
-        bool wasGrounded = isGrounded; // 이전 값 저장
-
-        isGrounded = false;
+        _isGroundedThisFrame = false;
         groundNormal = Vector3.up; // 평지 구분
-
         if (groundCheck == null) return;
-
         const float skin = 0.02f;
 
         // 1. 이미 겹쳐 있나? (딱 붙어있는 평지)
         // Physics.CheckSphere(center, radius, layerMask, queryTriggerInteraction) <- 함수 원형
-
         bool overlap = Physics.CheckSphere(
             //플레이어 에게 상속 되어 있는 groundcheck 오브젝트 위치
             groundCheck.position,
@@ -247,9 +228,9 @@ public class Player : MonoBehaviour
             QueryTriggerInteraction.Ignore
         );
 
-        if (overlap && rb.linearVelocity.y >= -maxSnapFallSpeed)
+        if (overlap)
         {
-            isGrounded = true;
+            _isGroundedThisFrame = true;
 
             //딱붙었으면 평지니까 벡터up
             groundNormal = Vector3.up; // Overlap만으로는 노멀을 모르니 일단 Up
@@ -284,9 +265,9 @@ public class Player : MonoBehaviour
             // 위와 동일
             groundMask,
             QueryTriggerInteraction.Ignore
-        ) && rb.linearVelocity.y >= -maxSnapFallSpeed)
+        ))
         {
-            isGrounded = true;
+            _isGroundedThisFrame = true;
 
             //SphereCast로 맞은 표면의 법선 벡터(hit.normal)를 “지면 노멀” 변수(groundNormal)에 저장
             //혹시 나중에 벽에 비볐을때 cast 오작동으로 grounded 상태가 될 수 있음. 추후 필요 시(버그 발생 시) 바닥과의 각도 계산 필요
@@ -294,95 +275,8 @@ public class Player : MonoBehaviour
         }
     }
 
-    // 가속/감속 기반 이동 적용
-    void applyMovementPhysics()
-    {
-        float dt = Time.fixedDeltaTime;
-
-        Vector3 v = rb.linearVelocity;
-
-        // 평면벡터 만들기 (x축과 z축만 사용)
-        Vector3 planar = new Vector3(v.x, 0f, v.z);
-
-        // clamp사용으로 입력값 정규화
-        float targetSpeed = moveSpeed * Mathf.Clamp01(moveDir.magnitude);
-        Vector3 wishDir = (moveDir.sqrMagnitude > 1e-6f) ? moveDir.normalized : Vector3.zero;
-
-        if (isGrounded)
-        {
-            if (wishDir != Vector3.zero)
-            {
-                // 지상: 입력 방향으로 '가속만' 더해줌(감속은 별도)
-                // 현재 속도의 "wishDir 방향 성분" (투영값)
-                // → 예: wishDir=전방, planar=전방 3 + 옆 1 → curAlong=3
-                float curAlong = Vector3.Dot(planar, wishDir); // 입력 방향 성분 속도
-
-                // → curAlong < target → 양수 (가속 필요), > target → 음수 (이미 빠름)
-                float addNeeded = targetSpeed - curAlong; // 목표까지 필요한 증가량
-
-                if (addNeeded > 0f)
-                {
-                    // 부드러운 가속을 위한 Min사용 급가속 방지
-                    float add = Mathf.Min(acceleration * dt, addNeeded);
-                    planar += wishDir * add;
-                }
-                else
-                {
-                    // 반대 방향 입력: 적당히 감속
-                    float reduce = Mathf.Min(deceleration * dt, -addNeeded);
-                    planar += wishDir * (-reduce);
-                }
-
-                // 최고 속도 살짝 클램프(넘치면 조금만 깎기)
-                // 가속 후 magnitude가 targetSpeed 초과하면(옆 입력 등으로), 초과분만 deceleration*dt만큼 깎음.
-                // normalized * (magnitude - cut): 방향 유지하면서 길이만 줄임 → "슬라이드" 방지
-                if (planar.magnitude > targetSpeed)
-                {
-                    float over = planar.magnitude - targetSpeed;
-                    float cut = Mathf.Min(deceleration * dt, over);
-                    planar = planar.normalized * (planar.magnitude - cut);
-                }
-            }
-            else
-            {
-                // 입력 없으면 서서히 감속
-                // MoveTowards는 클램프 내장 → over-shoot 없음
-                planar = Vector3.MoveTowards(planar, Vector3.zero, deceleration * dt);
-            }
-
-        }
-        else
-        {
-            // 공중 로직은 관성 유지 + 입력 방향 가속
-            if (wishDir != Vector3.zero)
-            {
-                float proj = Vector3.Dot(planar, wishDir);
-                float addNeeded = targetSpeed - proj;
-                if (addNeeded > 0f)
-                {
-                    float add = Mathf.Min(airAcceleration * dt, addNeeded);
-                    planar += wishDir * add;
-                }
-                else if (addNeeded < 0f && airDeceleration > 0f)
-                {
-                    float reduce = Mathf.Min(airDeceleration * dt, -addNeeded);
-                    planar += wishDir * (-reduce);
-                }
-            }
-            else
-            {
-                if (airDeceleration > 0f)
-                    planar = Vector3.MoveTowards(planar, Vector3.zero, airDeceleration * dt);
-            }
-        }
-
-        v.x = planar.x;
-        v.z = planar.z;
-        rb.linearVelocity = v;
-    }
-
     //플레이어 몸통 회전 관련 코드
-    void faceCameraYaw()
+    public void faceCameraYaw()
     {
         if (cam == null) return;
 
@@ -412,11 +306,12 @@ public class Player : MonoBehaviour
 
         // 표시할 디버그 정보 문자열 생성
         string debugInfo =
-            $"isGrounded: {isGrounded}\n" +
-            $"Velocity: {rb.linearVelocity.ToString("F2")}\n" + // 소수점 2자리까지 표시
-            $"Input moveDir: {moveDir.ToString("F2")}\n" +
-            $"wantRotate: {wantRotate}\n" +
-            $"Ground Normal: {groundNormal.ToString("F2")}";
+    $"isGrounded: {isGrounded}\n" +
+    $"Velocity: {rb.linearVelocity.ToString("F2")}\n" +
+    $"jumpReleaseQueued: {jumpReleaseQueued}\n" +
+    $"jumpCut: {jumpCut}\n" +
+    $"vy: {rb.linearVelocity.y:F2}\n" +
+    $"State: {stateMachine?.CurrentState.GetType().Name ?? "None"}"; // 현재 상태 표시!
 
         // 화면에 텍스트 표시
         GUI.Label(rect, debugInfo, style);

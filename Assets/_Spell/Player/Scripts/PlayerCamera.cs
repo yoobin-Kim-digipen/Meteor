@@ -3,23 +3,28 @@ using UnityEngine.InputSystem;
 
 public class PlayerCamera : MonoBehaviour
 {
-    public Transform target;                 // ë”°ë¼ê°ˆ ëŒ€ìƒ(í”Œë ˆì´ì–´)
-    public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // ë¨¸ë¦¬ ë†’ì´
+    public Transform target;                 // µû¶ó°¥ ´ë»ó(ÇÃ·¹ÀÌ¾î)
+    public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // ¸Ó¸® ³ôÀÌ
 
-    public float distance = 15f;             // ê¸°ë³¸ ê±°ë¦¬
-    public float minDistance = 5f;           // ìµœì†Œ
-    public float maxDistance = 20f;          // ìµœëŒ€
+    public float distance = 5f;             // ±âº» °Å¸®
+    public float minDistance = 5f;           // ÃÖ¼Ò
+    public float maxDistance = 20f;          // ÃÖ´ë
+    public float maxHeightOffset = 5f;       // ÃÖ´ë ÁÜ ¾Æ¿ô ½Ã Ãß°¡µÉ ³ôÀÌ
 
-    public float yaw = 0f;                   // ì¢Œìš° ê°ë„
-    public float pitch = 15f;                // ìœ„ì•„ë˜ ê°ë„
-    public float minPitch = -30f;            // ì•„ë˜ë¡œ ìµœëŒ€
-    public float maxPitch = 70f;             // ìœ„ë¡œ ìµœëŒ€
-    public float sensitivity = 0.12f;        // ë§ˆìš°ìŠ¤ ë¯¼ê°ë„
-    public bool invertY = false;             // ë§ˆìš°ìŠ¤ Y ë°˜ì „
+    public float yaw = 0f;                   // ÁÂ¿ì °¢µµ
+    public float pitch = 15f;                // À§¾Æ·¡ °¢µµ
+    public float minPitch = -85f;            // ¾Æ·¡·Î ÃÖ´ë
+    public float maxPitch = 85f;             // À§·Î ÃÖ´ë
+    public float sensitivity = 0.12f;        // ¸¶¿ì½º ¹Î°¨µµ
+    public bool invertY = false;             // ¸¶¿ì½º Y ¹İÀü
 
-    public float zoomStep = 25f;             // íœ  í•œ ì¹¸ ë‹¹ ê±°ë¦¬ ë³€í™”
+    public float zoomStep = 25f;             // ÈÙ ÇÑ Ä­ ´ç °Å¸® º¯È­
 
-    // ì´ˆê¸°ê°’ ë°±ì—…(íœ  í´ë¦­ ë¦¬ì…‹ìš©)
+    [Header("Collision")]
+    public LayerMask collisionMask;      // Ä«¸Ş¶ó°¡ Ãæµ¹ÇÒ ·¹ÀÌ¾îµé (¿¹: Ground, Wall)
+    public float collisionPadding = 0.2f; // Ãæµ¹ ÁöÁ¡¿¡¼­ »ìÂ¦ ¶¿ °Å¸® (Ä«¸Ş¶ó°¡ º®¿¡ ³Ê¹« ºÙÁö ¾Ê°Ô)
+
+    // ÃÊ±â°ª ¹é¾÷(ÈÙ Å¬¸¯ ¸®¼Â¿ë)
     private float defaultYaw, defaultPitch, defaultDistance;
     private Vector3 defaultPivotOffset;
 
@@ -33,7 +38,7 @@ public class PlayerCamera : MonoBehaviour
 
     void Start()
     {
-        // target ë¹„ì—ˆìœ¼ë©´ Player íƒœê·¸ ìë™ í• ë‹¹
+        // target ºñ¾úÀ¸¸é Player ÅÂ±× ÀÚµ¿ ÇÒ´ç
         if (target == null)
         {
             GameObject p = GameObject.FindWithTag("Player");
@@ -45,19 +50,21 @@ public class PlayerCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        CheckResetInput();
-        Camera_Movement();
-        Camera_Zoomsetup();
+        checkResetInput();
+        camera_Movement();
+        camera_Zoomsetup();
 
         Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 focus = target.position + pivotOffset;
         Vector3 pos = focus - rot * Vector3.forward * distance;
 
-        transform.position = pos;
+        Vector3 finalPos = camera_Raycast(focus, pos); //º®¶Õ ¹Ù´Ú¶Õ ¹æÁö¿ë
+
+        transform.position = finalPos;
         transform.LookAt(focus);
     }
 
-    void CheckResetInput()
+    void checkResetInput()
     {
         if (Mouse.current != null && Mouse.current.middleButton.wasPressedThisFrame)
         {
@@ -67,7 +74,7 @@ public class PlayerCamera : MonoBehaviour
         }
     }
 
-    void Camera_Movement()
+    void camera_Movement()
     {
         if (Mouse.current == null) return;
 
@@ -79,15 +86,51 @@ public class PlayerCamera : MonoBehaviour
         pitch = Mathf.Clamp(pitch + my, minPitch, maxPitch);
     }
 
-    void Camera_Zoomsetup()
+    void camera_Zoomsetup()
     {
         if (Mouse.current == null) return;
 
-        float scroll = Mouse.current.scroll.ReadValue().y; // ë³´í†µ Â±120
+        // 1. ±âÁ¸ ÁÜ ·ÎÁ÷
+        float scroll = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            float steps = scroll / 120f; // í•œ ì¹¸ ë‹¨ìœ„
+            float steps = scroll / 15f;
             distance = Mathf.Clamp(distance - steps * zoomStep, minDistance, maxDistance);
+        }
+
+        // 2. Ãß°¡µÈ ·ÎÁ÷: °Å¸®¿¡ ºñ·ÊÇÏ¿© pivotOffsetÀÇ y°ªÀ» Á¶Àı
+        // ÇöÀç ÁÜ »óÅÂ°¡ ÃÖ¼Ò(0)ÀÎÁö ÃÖ´ë(1)ÀÎÁö ºñÀ²À» °è»ê
+        float zoomRatio = (distance - minDistance) / (maxDistance - minDistance);
+
+        // ±âº» ³ôÀÌ(defaultPivotOffset.y)¿¡¼­ Ãß°¡µÉ ÃÖ´ë ³ôÀÌ(maxHeightOffset) »çÀÌ¸¦ º¸°£
+        float newOffsetY = Mathf.Lerp(defaultPivotOffset.y, defaultPivotOffset.y + maxHeightOffset, zoomRatio);
+
+        // pivotOffsetÀÇ y°ª¸¸ ¾÷µ¥ÀÌÆ®
+        pivotOffset.y = newOffsetY;
+    }
+
+    Vector3 camera_Raycast(Vector3 focus, Vector3 pos)
+    {
+        RaycastHit hit;
+
+        // ÇÃ·¹ÀÌ¾î ¸Ó¸®(focus)¿¡¼­ ÀÌ»óÀûÀÎ Ä«¸Ş¶ó À§Ä¡(pos) ¹æÇâÀ¸·Î Ray¸¦ ½ğ´Ù.
+        // Vector3.forward ´ë½Å (pos - focus).normalized ¸¦ »ç¿ëÇØ Á¤È®ÇÑ ¹æÇâÀ» ±¸ÇÑ´Ù.
+        Vector3 direction = pos - focus;
+        float rayDistance = direction.magnitude; // ±¤¼±ÀÇ ÃÖ´ë °Å¸®´Â ¿ø·¡ distance¿Í °°´Ù.
+        Vector3 finalPosition = pos; // ÃÖÁ¾ À§Ä¡´Â ÀÏ´Ü ÀÓÀÇ·Î ÃÊ±âÈ­
+
+        // Raycast ½ÇÇà
+        if (Physics.Raycast(focus, direction.normalized, out hit, rayDistance, collisionMask))
+        {
+            // ¸¸¾à Ray°¡ ¹«¾ğ°¡¿¡ ºÎµúÇû´Ù¸é,
+            // ÃÖÁ¾ À§Ä¡¸¦ 'ºÎµúÈù ÁöÁ¡'¿¡¼­ 'ÆĞµù'¸¸Å­ »ìÂ¦ ¾ÕÀ¸·Î ´ç±ä °÷À¸·Î ¼³Á¤ÇÑ´Ù.
+            Debug.DrawLine(focus, hit.point, Color.red); // µğ¹ö±ë¿ë: Ãæµ¹ ÁöÁ¡±îÁö »¡°£ ¼± ±×¸®±â
+            return hit.point + hit.normal * collisionPadding;
+        }
+        else
+        {
+            Debug.DrawLine(focus, pos, Color.green); // µğ¹ö±ë¿ë: Ãæµ¹ ¾øÀ» ¶§ ÃÊ·Ï ¼± ±×¸®±â
+            return pos;
         }
     }
 }

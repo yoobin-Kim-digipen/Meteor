@@ -1,23 +1,37 @@
 using UnityEngine;
-using System.Collections.Generic;
 
-public class MonsterHealth : MonoBehaviour
+public class EnemyHealth : MonoBehaviour
 {
-    public float maxHealth = 50f; 
-    private float health; 
+    private float maxhealth; // 현재 체력은 내부에서만 관리
+    public float currentHealth { get; private set; }
+
+    // 오브젝트가 풀에서 나와 활성화될 때마다 호출됨
+    public void Initialize(MonsterData data)
+    {
+        // MonsterData로부터 최대 체력 정보를 받아와 설정
+        maxhealth = data.maxHealth;
+        currentHealth = maxhealth;
+    }
 
     void OnEnable()
     {
-        health = maxHealth;
+        currentHealth = maxhealth;
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float damage)
     {
-        health -= amount;
-        //Debug.Log(gameObject.name + " took " + amount + " damage. Health: " + health);
-        if (health <= 0)
+        currentHealth -= damage;
+        if (currentHealth <= 0)
         {
-            gameObject.SetActive(false);
+            Die();
         }
+    }
+
+    private void Die()
+    {
+        // ex) 사망 상태로 전환하거나 사망 애니메이션/이펙트 처리
+        // 예: GetComponent<MonsterFSM>().StateMachine.SwitchState(_factory.Dead());
+        // 지금은 간단하게 오브젝트 풀로 반환
+        gameObject.SetActive(false);
     }
 }

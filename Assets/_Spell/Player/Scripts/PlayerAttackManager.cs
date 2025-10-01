@@ -4,67 +4,150 @@ using UnityEngine;
 public class PlayerAttackManager : MonoBehaviour
 {
     [Header("Attack Settings")]
-    public Transform spawnPoint; // ë°œì‚¬ì²´ê°€ ìƒì„±ë  ìœ„ì¹˜
-    public List<WeaponData> equippedWeapons; // ì¸ìŠ¤í™í„°ì—ì„œ ìœ ì €ê°€ ì§‘ì–´ë„£ì€ ë¬´ê¸° ì •ë³´
+    public List<WeaponData> equippedWeapons; // ÀÎ½ºÆåÅÍ¿¡¼­ À¯Àú°¡ Áı¾î³ÖÀº ¹«±â Á¤º¸
+    private Dictionary<WeaponData, float> weaponCooldowns;
+    private bool _isFirstShot = true;
 
-    //Dictionary í•¨ìˆ˜ ê° ì•„ì´í…œì´ ê³ ìœ í•œ Keyì™€ ê·¸ì— í•´ë‹¹í•˜ëŠ” Valueë¡œ êµ¬ì„±ë¨
-    private Dictionary<WeaponData, float> weaponCooldowns; 
+    [Header("Aiming Settings")]
+    public float rotationSpeed = 720f;
+
+    private Rigidbody _playerRb;
+    private Camera _mainCam;
+    private int _layerMask;
+    // NonAllocÀ» À§ÇÑ °á°ú ÀúÀå¿ë ¹è¿­. ¿ì¸®´Â ÇÏ³ª¸¸ ÇÊ¿äÇÏ¹Ç·Î Å©±â´Â 1.
+    private readonly RaycastHit[] _raycastHits = new RaycastHit[1];
+
     void Start()
     {
-        //Debug.Log("Equipped weapons count: " + equippedWeapons.Count);
+        _playerRb = GetComponentInParent<Rigidbody>();
+        _mainCam = Camera.main;
+        _layerMask = ~(1 << LayerMask.NameToLayer("Player"));
+
         weaponCooldowns = new Dictionary<WeaponData, float>();
 
-        //foreach (var ì•„ì´í…œ in ì»¬ë ‰ì…˜) ì´ëŸ° ê¸°ëŠ¥ë„ ìˆë…¸ ì¢…ë‚˜ ì‹ ê¸°í•˜ë„¤
-            foreach (var weapon in equippedWeapons)
+        foreach (var weapon in equippedWeapons)
         {
-            // ì¿¨ë‹¤ìš´ íƒ€ì´ë¨¸ ì´ˆê¸°í™”(ì–´ë–¤ ìŠ¤í‚¬ì´ë“  ì´ˆíƒ„ ì¥ì „ìƒíƒœ)
             weaponCooldowns[weapon] = 0f;
         }
     }
 
-    void Update()
+    public void HandleAimAndAttack()
     {
-        foreach (var weapon in equippedWeapons)
+        if (equippedWeapons.Count == 0 || _playerRb == null) return;
+
+        Vector3 targetPoint = FindTargetPoint();
+        RotateBodyTowards(targetPoint);
+
+        WeaponData currentWeapon = equippedWeapons[0];
+        TryAttack(currentWeapon, targetPoint);
+    }
+
+    private void RotateBodyTowards(Vector3 targetPoint)
+    {
+        Vector3 direction = (targetPoint - _playerRb.position).normalized;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.0001f) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        Quaternion newRotation = Quaternion.RotateTowards(_playerRb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+        _playerRb.MoveRotation(newRotation);
+    }
+
+    public void OnStopAttack()
+    {
+        _isFirstShot = true;
+    }
+
+    private void TryAttack(WeaponData weapon, Vector3 targetPoint)
+    {
+        if (Time.time >= weaponCooldowns[weapon])
         {
-            //ì²˜ìŒì—” 0ì´ˆë‹ˆê¹Œ ì¼ë‹¨ ì˜ê³  ì¿¨ ì •í•´ì£¼ëŠ” ëŠë‚Œ
-            if (Time.time >= weaponCooldowns[weapon])
+            Attack(weapon, targetPoint);
+            weaponCooldowns[weapon] = Time.time + weapon.cooldown;
+            _isFirstShot = false;
+        }
+    }
+
+    void Attack(WeaponData weapon, Vector3 targetPoint)
+    {
+        if (weapon.skills == null || weapon.skills.Count == 0) return;
+
+        SkillData skillToUse = weapon.skills[0];
+
+        Vector3 spawnPos;
+        Quaternion spawnRotation;
+
+        // SkillData¿¡ Á¤ÀÇµÈ ½ºÆù Å¸ÀÔ¿¡ µû¶ó À§Ä¡¿Í È¸Àü°ªÀ» °è»ê
+        switch (skillToUse.spawnType)
+        {
+            case SkillSpawnType.FromCaster:
+                // ±âº» ½ºÆù À§Ä¡´Â ÀÌÁ¦ ÇÃ·¹ÀÌ¾îÀÇ Áß½É À§Ä¡
+                Vector3 baseSpawnPos = transform.position;
+
+                // Ã¹ ¹ß º¸Á¤ Æ®¸¯: ÀÌ»óÀûÀÎ È¸Àü°ªÀ» ±âÁØÀ¸·Î ¿ÀÇÁ¼ÂÀ» Àû¿ëÇÕ´Ï´Ù.
+                if (_isFirstShot)
+                {
+                    Vector3 idealDirection = (targetPoint - baseSpawnPos).normalized;
+                    idealDirection.y = 0f;
+                    Quaternion idealRotation = Quaternion.LookRotation(idealDirection);
+                    // ÀÌ»óÀûÀÎ È¸Àü * ·ÎÄÃ ¿ÀÇÁ¼Â = ¿ùµå ¿ÀÇÁ¼Â
+                    spawnPos = baseSpawnPos + idealRotation * skillToUse.spawnOffset;
+                }
+                else
+                {
+                    // µÎ ¹øÂ° ¹ßºÎÅÍ´Â ÇöÀç Ä³¸¯ÅÍÀÇ È¸ÀüÀ» ±âÁØÀ¸·Î ¿ÀÇÁ¼ÂÀ» Àû¿ë
+                    spawnPos = baseSpawnPos + transform.rotation * skillToUse.spawnOffset;
+                }
+
+                spawnRotation = Quaternion.LookRotation((targetPoint - spawnPos).normalized);
+                break;
+
+            case SkillSpawnType.OnTarget:
+                spawnPos = targetPoint + Vector3.up * skillToUse.spawnHeightOffset;
+                spawnRotation = Quaternion.LookRotation(Vector3.down);
+                break;
+
+            default: // ¿¹¿Ü Ã³¸®
+                spawnPos = transform.position;
+                spawnRotation = Quaternion.identity;
+                break;
+        }
+
+        GameObject skillObj = ObjectPooler.Instance.GetFromPool(skillToUse.skillName, spawnPos, spawnRotation);
+
+        if (skillObj != null)
+        {
+            Skill skill = skillObj.GetComponent<Skill>();
+            if (skill != null)
             {
-               // Debug.Log("Attack condition met for: " + weapon.weaponName);
-                Attack(weapon);
-                //ì¿¨íƒ€ì„ ì½ì–´ì˜´
-                weaponCooldowns[weapon] = Time.time + weapon.cooldown;
+                skill.Activate(gameObject, skillToUse);
             }
         }
     }
 
-    void Attack(WeaponData weapon)
+
+    private Vector3 FindTargetPoint()
     {
-        for (int i = 0; i < weapon.projectileAmount; i++)
+        // Ä«¸Ş¶ó È­¸éÀÇ Á¤Áß¾Ó ÁÂÇ¥¸¦ °¡Á®¿Â´Ù. (x: 0.5, y: 0.5)
+        Ray ray = _mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 targetPoint;
+        int hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 1000f, _layerMask);
+
+        if (hitCount > 0) // ÇÑ °³ ÀÌ»ó ¸Â¾Ò´Ù¸é
         {
-            Quaternion spawnRotation = FindBestTargetDirection();
-            string poolTag = weapon.weaponName;
-
-            GameObject projectileObj = ObjectPooler.Instance.GetFromPool(poolTag, spawnPoint.position, spawnRotation);
-
-            if (projectileObj == null) continue;
-
-            Projectile projectileScript = projectileObj.GetComponent<Projectile>();
-
-            if (projectileScript != null)
-            {
-                projectileScript.Initialize(weapon);
-
-                //this.speed = weaponData.projectileSpeed;   <- ì´ëŸ°ê²ƒë“¤ í•´ì¤Œ
-                //this.lifetime = weaponData.projectileLifetime;
-                //this.damage = weaponData.damage;
-            }
+            // Ray°¡ ºÎµúÈù ÁöÁ¡À» ¸ñÇ¥ ÁöÁ¡À¸·Î ¼³Á¤ÇÑ´Ù.
+            targetPoint = _raycastHits[0].point;
+            Debug.DrawLine(ray.origin, targetPoint, Color.green, 1f); // µğ¹ö±ë¿ë: ³ì»ö ¼±
         }
-    }
+        else
+        {
+            // Ray°¡ ¾Æ¹«°Í¿¡µµ ºÎµúÈ÷Áö ¾Ê¾Ò´Ù¸é (Çã°øÀ» ½ò ¶§),
+            // Ä«¸Ş¶ó ¹æÇâÀ¸·Î ¾ÆÁÖ ¸Õ ÁöÁ¡À» ¸ñÇ¥·Î ¼³Á¤ÇÑ´Ù.
+            targetPoint = ray.GetPoint(1000f);
+            Debug.DrawLine(ray.origin, targetPoint, Color.yellow, 1f); // µğ¹ö±ë¿ë: ³ë¶õ ¼±
+        }
 
-    private Quaternion FindBestTargetDirection()
-    {
-        // TODO: ì£¼ë³€ì˜ ì ì„ ì°¾ì•„ ë°©í–¥ì„ ì •í•˜ëŠ” ë¡œì§
-        // ì§€ê¸ˆì€ ì¼ë‹¨ í”Œë ˆì´ì–´ì˜ ì •ë©´ìœ¼ë¡œ ë°œì‚¬
-        return Camera.main.transform.rotation; // <- ë©”ì¸ ì¹´ë©”ë¼ì˜ íšŒì „ê°’
+        return targetPoint;
     }
 }

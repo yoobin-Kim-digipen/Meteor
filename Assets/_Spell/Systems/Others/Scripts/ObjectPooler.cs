@@ -23,27 +23,50 @@ public class ObjectPooler : MonoBehaviour
 
     void InitializePools()
     {
-        if (weaponDB == null) Debug.LogError("WeaponDatabase is not assigned in ObjectPooler!");
-        if (monsterDB == null) Debug.LogError("MonsterDatabase is not assigned in ObjectPooler!");
+        if (weaponDB == null) Debug.LogError("WeaponDatabase is not assigned!");
+        if (monsterDB == null) Debug.LogError("MonsterDatabase is not assigned!");
 
-        // 1. 무기 목록을 순회하며 풀 생성 함수 호출
         if (weaponDB != null)
         {
             foreach (var weaponData in weaponDB.allWeapons)
             {
-                CreatePool(weaponData.weaponName, weaponData.projectilePrefab, weaponData.poolSize);
+                if (weaponData == null || weaponData.skills == null) continue;
+
+                foreach (var skillData in weaponData.skills)
+                {
+                    if (skillData != null && skillData.skillPrefab != null)
+                    {
+                        CreatePool(skillData.skillName, skillData.skillPrefab, skillData.poolSize); // skillData.poolSize 로 수정
+                    }
+                }
             }
         }
 
-        // 2. 몬스터 목록을 순회하며 똑같은 풀 생성 함수 호출
         if (monsterDB != null)
         {
             foreach (var monsterData in monsterDB.allMonsters)
             {
-                CreatePool(monsterData.monsterName, monsterData.monsterPrefab, monsterData.poolSize);
+                if (monsterData == null) continue;
+
+                if (monsterData.monsterPrefab != null)
+                {
+                    CreatePool(monsterData.monsterName, monsterData.monsterPrefab, monsterData.poolSize);
+                }
+
+                if (monsterData is RangeMonsterData rangedData && rangedData.skills != null)
+                {
+                    foreach (var skillData in rangedData.skills)
+                    {
+                        if (skillData != null && skillData.skillPrefab != null)
+                        {
+                            CreatePool(skillData.skillName, skillData.skillPrefab, skillData.poolSize); // skillData.poolSize 로 수정
+                        }
+                    }
+                }
             }
         }
     }
+
     private void CreatePool(string tag, GameObject prefab, int size)
     {
         //1. 현재 무기에 할당된 발사체 프리팹(설계도)이 없는가?
