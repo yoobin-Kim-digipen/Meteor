@@ -33,6 +33,10 @@ public class Player : MonoBehaviour
     public float jumpUngroundGrace = 0.05f;   // 물리 판정 보정 (착지 오탐 방지) 
     private float jumpStartTime;
     private float ungroundedUntil;
+
+    [Header("Health")]
+    public int maxHealth = 5;
+    public int currentHealth;
     
     // 점프 큐와 바닥 상태
     Vector3 groundNormal = Vector3.up;       // 경사면 노멀 캐싱

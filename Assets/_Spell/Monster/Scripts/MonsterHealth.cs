@@ -1,11 +1,11 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class EnemyHealth : MonoBehaviour
+public class MonsterHealth : MonoBehaviour
 {
-    public float maxHealth = 50f; // 최대 체력을 변수로 관리
-    private float health; // 현재 체력은 내부에서만 관리
+    public float maxHealth = 50f; 
+    private float health; 
 
-    // 오브젝트가 풀에서 나와 활성화될 때마다 호출됨
     void OnEnable()
     {
         health = maxHealth;

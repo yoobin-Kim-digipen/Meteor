@@ -4,20 +4,20 @@ using UnityEngine;
 public class PlayerAttackManager : MonoBehaviour
 {
     [Header("Attack Settings")]
-    public Transform spawnPoint; // ¹ß»çÃ¼°¡ »ı¼ºµÉ À§Ä¡
-    public List<WeaponData> equippedWeapons; // ÀÎ½ºÆåÅÍ¿¡¼­ À¯Àú°¡ Áı¾î³ÖÀº ¹«±â Á¤º¸
+    public Transform spawnPoint; // ë°œì‚¬ì²´ê°€ ìƒì„±ë  ìœ„ì¹˜
+    public List<WeaponData> equippedWeapons; // ì¸ìŠ¤í™í„°ì—ì„œ ìœ ì €ê°€ ì§‘ì–´ë„£ì€ ë¬´ê¸° ì •ë³´
 
-    //Dictionary ÇÔ¼ö °¢ ¾ÆÀÌÅÛÀÌ °íÀ¯ÇÑ Key¿Í ±×¿¡ ÇØ´çÇÏ´Â Value·Î ±¸¼ºµÊ
+    //Dictionary í•¨ìˆ˜ ê° ì•„ì´í…œì´ ê³ ìœ í•œ Keyì™€ ê·¸ì— í•´ë‹¹í•˜ëŠ” Valueë¡œ êµ¬ì„±ë¨
     private Dictionary<WeaponData, float> weaponCooldowns; 
     void Start()
     {
         //Debug.Log("Equipped weapons count: " + equippedWeapons.Count);
         weaponCooldowns = new Dictionary<WeaponData, float>();
 
-        //foreach (var ¾ÆÀÌÅÛ in ÄÃ·º¼Ç) ÀÌ·± ±â´Éµµ ÀÖ³ë Á¾³ª ½Å±âÇÏ³×
+        //foreach (var ì•„ì´í…œ in ì»¬ë ‰ì…˜) ì´ëŸ° ê¸°ëŠ¥ë„ ìˆë…¸ ì¢…ë‚˜ ì‹ ê¸°í•˜ë„¤
             foreach (var weapon in equippedWeapons)
         {
-            // Äğ´Ù¿î Å¸ÀÌ¸Ó ÃÊ±âÈ­(¾î¶² ½ºÅ³ÀÌµç ÃÊÅº ÀåÀü»óÅÂ)
+            // ì¿¨ë‹¤ìš´ íƒ€ì´ë¨¸ ì´ˆê¸°í™”(ì–´ë–¤ ìŠ¤í‚¬ì´ë“  ì´ˆíƒ„ ì¥ì „ìƒíƒœ)
             weaponCooldowns[weapon] = 0f;
         }
     }
@@ -26,12 +26,12 @@ public class PlayerAttackManager : MonoBehaviour
     {
         foreach (var weapon in equippedWeapons)
         {
-            //Ã³À½¿£ 0ÃÊ´Ï±î ÀÏ´Ü ½î°í Äğ Á¤ÇØÁÖ´Â ´À³¦
+            //ì²˜ìŒì—” 0ì´ˆë‹ˆê¹Œ ì¼ë‹¨ ì˜ê³  ì¿¨ ì •í•´ì£¼ëŠ” ëŠë‚Œ
             if (Time.time >= weaponCooldowns[weapon])
             {
                // Debug.Log("Attack condition met for: " + weapon.weaponName);
                 Attack(weapon);
-                //ÄğÅ¸ÀÓ ÀĞ¾î¿È
+                //ì¿¨íƒ€ì„ ì½ì–´ì˜´
                 weaponCooldowns[weapon] = Time.time + weapon.cooldown;
             }
         }
@@ -54,7 +54,7 @@ public class PlayerAttackManager : MonoBehaviour
             {
                 projectileScript.Initialize(weapon);
 
-                //this.speed = weaponData.projectileSpeed;   <- ÀÌ·±°Íµé ÇØÁÜ
+                //this.speed = weaponData.projectileSpeed;   <- ì´ëŸ°ê²ƒë“¤ í•´ì¤Œ
                 //this.lifetime = weaponData.projectileLifetime;
                 //this.damage = weaponData.damage;
             }
@@ -63,8 +63,8 @@ public class PlayerAttackManager : MonoBehaviour
 
     private Quaternion FindBestTargetDirection()
     {
-        // TODO: ÁÖº¯ÀÇ ÀûÀ» Ã£¾Æ ¹æÇâÀ» Á¤ÇÏ´Â ·ÎÁ÷
-        // Áö±İÀº ÀÏ´Ü ÇÃ·¹ÀÌ¾îÀÇ Á¤¸éÀ¸·Î ¹ß»ç
-        return Camera.main.transform.rotation; // <- ¸ŞÀÎ Ä«¸Ş¶óÀÇ È¸Àü°ª
+        // TODO: ì£¼ë³€ì˜ ì ì„ ì°¾ì•„ ë°©í–¥ì„ ì •í•˜ëŠ” ë¡œì§
+        // ì§€ê¸ˆì€ ì¼ë‹¨ í”Œë ˆì´ì–´ì˜ ì •ë©´ìœ¼ë¡œ ë°œì‚¬
+        return Camera.main.transform.rotation; // <- ë©”ì¸ ì¹´ë©”ë¼ì˜ íšŒì „ê°’
     }
 }

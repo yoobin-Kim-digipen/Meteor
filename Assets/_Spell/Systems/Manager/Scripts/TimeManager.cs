@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class TimeManager : MonoBehaviour
 {
+    public static TimeManager Instance { get; private set; }
+
     [SerializeField] private Texture2D skyboxNight;
     [SerializeField] private Texture2D skyboxSunrise;
     [SerializeField] private Texture2D skyboxDay;
@@ -16,7 +18,6 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private Gradient graddientSunsetToNight;
 
     [SerializeField] private Light globalLight;
-
     [SerializeField] private Transform MagneticFieldTransform;
 
     public int morningHour = 6;
@@ -34,10 +35,22 @@ public class TimeManager : MonoBehaviour
 
     public Vector3 shrinkSpeed = new Vector3(0.1f, 0.0f, 0.1f);
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        // 싱글톤 인스턴스 초기화
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬 이동 시에도 유지하고 싶으면 활성화
+        }
+        else
+        {
+            Destroy(gameObject); // 이미 인스턴스가 있으면 중복 제거
+        }
+    }
+
     void Start()
     {
-        // Material 인스턴스화
         if (RenderSettings.skybox != null)
         {
             Material skyboxMaterial = new Material(RenderSettings.skybox);
@@ -67,8 +80,6 @@ public class TimeManager : MonoBehaviour
             }
         }
 
-        // 매 프레임마다 현재 시간과 전환 조건을 확인합니다.
-        // 그리고 이미 전환 코루틴이 실행 중이 아닌지 체크합니다.
         CheckForTransition();
         MagneticfieldAdjestment();
     }
@@ -105,7 +116,7 @@ public class TimeManager : MonoBehaviour
     private IEnumerator LerpSkybox(Texture2D a, Texture2D b, float time)
     {
         RenderSettings.skybox.SetTexture("_Texture2", b);
-        RenderSettings.skybox.SetFloat("_Blend", 0); // 시작 블렌드 값 초기화
+        RenderSettings.skybox.SetFloat("_Blend", 0);
 
         for (float i = 0; i < time; i += Time.deltaTime)
         {
@@ -117,7 +128,6 @@ public class TimeManager : MonoBehaviour
         RenderSettings.skybox.SetTexture("_Texture1", b);
         RenderSettings.skybox.SetFloat("_Blend", 0);
 
-        // 코루틴 완료 후 핸들을 null로 초기화
         skyboxTransitionCoroutine = null;
     }
 
@@ -136,11 +146,8 @@ public class TimeManager : MonoBehaviour
         if ((hours >= 18 || hours < 6) && MagneticFieldTransform.localScale.x > 50)
         {
             Vector3 newScale = MagneticFieldTransform.localScale - shrinkSpeed * Time.deltaTime * 16;
-
-            // 스케일이 음수가 되지 않도록 최소값 제한
             newScale.x = Mathf.Max(newScale.x, 0f);
             newScale.z = Mathf.Max(newScale.z, 0f);
-
             MagneticFieldTransform.localScale = newScale;
         }
     }
