@@ -3,23 +3,23 @@ using UnityEngine.InputSystem;
 
 public class PlayerCamera : MonoBehaviour
 {
-    public Transform target;                 // µû¶ó°¥ ´ë»ó(ÇÃ·¹ÀÌ¾î)
-    public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // ¸Ó¸® ³ôÀÌ
+    public Transform target;                 // ë”°ë¼ê°ˆ ëŒ€ìƒ(í”Œë ˆì´ì–´)
+    public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // ë¨¸ë¦¬ ë†’ì´
 
-    public float distance = 15f;             // ±âº» °Å¸®
-    public float minDistance = 5f;           // ÃÖ¼Ò
-    public float maxDistance = 20f;          // ÃÖ´ë
+    public float distance = 15f;             // ê¸°ë³¸ ê±°ë¦¬
+    public float minDistance = 5f;           // ìµœì†Œ
+    public float maxDistance = 20f;          // ìµœëŒ€
 
-    public float yaw = 0f;                   // ÁÂ¿ì °¢µµ
-    public float pitch = 15f;                // À§¾Æ·¡ °¢µµ
-    public float minPitch = -30f;            // ¾Æ·¡·Î ÃÖ´ë
-    public float maxPitch = 70f;             // À§·Î ÃÖ´ë
-    public float sensitivity = 0.12f;        // ¸¶¿ì½º ¹Î°¨µµ
-    public bool invertY = false;             // ¸¶¿ì½º Y ¹ÝÀü
+    public float yaw = 0f;                   // ì¢Œìš° ê°ë„
+    public float pitch = 15f;                // ìœ„ì•„ëž˜ ê°ë„
+    public float minPitch = -30f;            // ì•„ëž˜ë¡œ ìµœëŒ€
+    public float maxPitch = 70f;             // ìœ„ë¡œ ìµœëŒ€
+    public float sensitivity = 0.12f;        // ë§ˆìš°ìŠ¤ ë¯¼ê°ë„
+    public bool invertY = false;             // ë§ˆìš°ìŠ¤ Y ë°˜ì „
 
-    public float zoomStep = 25f;             // ÈÙ ÇÑ Ä­ ´ç °Å¸® º¯È­
+    public float zoomStep = 25f;             // íœ  í•œ ì¹¸ ë‹¹ ê±°ë¦¬ ë³€í™”
 
-    // ÃÊ±â°ª ¹é¾÷(ÈÙ Å¬¸¯ ¸®¼Â¿ë)
+    // ì´ˆê¸°ê°’ ë°±ì—…(íœ  í´ë¦­ ë¦¬ì…‹ìš©)
     private float defaultYaw, defaultPitch, defaultDistance;
     private Vector3 defaultPivotOffset;
 
@@ -33,7 +33,7 @@ public class PlayerCamera : MonoBehaviour
 
     void Start()
     {
-        // target ºñ¾úÀ¸¸é Player ÅÂ±× ÀÚµ¿ ÇÒ´ç
+        // target ë¹„ì—ˆìœ¼ë©´ Player íƒœê·¸ ìžë™ í• ë‹¹
         if (target == null)
         {
             GameObject p = GameObject.FindWithTag("Player");
@@ -83,10 +83,10 @@ public class PlayerCamera : MonoBehaviour
     {
         if (Mouse.current == null) return;
 
-        float scroll = Mouse.current.scroll.ReadValue().y; // º¸Åë ¡¾120
+        float scroll = Mouse.current.scroll.ReadValue().y; // ë³´í†µ Â±120
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            float steps = scroll / 120f; // ÇÑ Ä­ ´ÜÀ§
+            float steps = scroll / 120f; // í•œ ì¹¸ ë‹¨ìœ„
             distance = Mathf.Clamp(distance - steps * zoomStep, minDistance, maxDistance);
         }
     }
