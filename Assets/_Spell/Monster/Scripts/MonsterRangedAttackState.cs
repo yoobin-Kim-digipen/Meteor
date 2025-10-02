@@ -4,29 +4,30 @@ public class MonsterRangedAttackState : MonsterBaseState
 {
     private RangeMonsterData _rangedData;
     private float _attackCooldownTimer;
+    private PlayerHealth playerHealth;
 
     public MonsterRangedAttackState(MonsterStateMachine context, MonsterStateFactory factory) : base(context, factory)
     {
-        // FSMÀÌ °¡Áö°í ÀÖ´Â µ¥ÀÌÅÍ¸¦ RangedMonsterData Å¸ÀÔÀ¸·Î °¡Á®¿È
+        // FSMì´ ê°€ì§€ê³  ìˆëŠ” ë°ì´í„°ë¥¼ RangedMonsterData íƒ€ì…ìœ¼ë¡œ ê°€ì ¸ì˜´
         _rangedData = _monster.monsterData as RangeMonsterData;
     }
 
     public override void EnterState()
     {
-        _attackCooldownTimer = _rangedData.attackCooldown * 0.5f; // Ã³À½¿£ ´õ »¡¸® ½îµµ·Ï
-        _monster.agent.isStopped = false; // °Å¸® Á¶ÀıÀ» À§ÇØ °è¼Ó ¿òÁ÷ÀÏ ¼ö ÀÖ°Ô ÇÔ
+        _attackCooldownTimer = _rangedData.attackCooldown * 0.5f; // ì²˜ìŒì—” ë” ë¹¨ë¦¬ ì˜ë„ë¡
+        _monster.agent.isStopped = false; // ê±°ë¦¬ ì¡°ì ˆì„ ìœ„í•´ ê³„ì† ì›€ì§ì¼ ìˆ˜ ìˆê²Œ í•¨
     }
 
     public override void UpdateState()
     {
-        // 1. °ø°İÇÒ ´ë»óÀÌ ¾øÀ¸¸é ÃßÀû »óÅÂ·Î ÀüÈ¯
+        // 1. ê³µê²©í•  ëŒ€ìƒì´ ì—†ìœ¼ë©´ ì¶”ì  ìƒíƒœë¡œ ì „í™˜
         if (_monster.target == null)
         {
             _ctx.SwitchState(_factory.Chase());
             return;
         }
 
-        // 2. ÇÃ·¹ÀÌ¾î¸¦ °è¼Ó ¹Ù¶óº¸µµ·Ï ÇÔ
+        // 2. í”Œë ˆì´ì–´ë¥¼ ê³„ì† ë°”ë¼ë³´ë„ë¡ í•¨
         Vector3 lookDirection = (_monster.target.position - _monster.transform.position);
         lookDirection.y = 0;
         if (lookDirection != Vector3.zero)
@@ -34,7 +35,7 @@ public class MonsterRangedAttackState : MonsterBaseState
             _monster.transform.rotation = Quaternion.LookRotation(lookDirection);
         }
 
-        // 3. °Å¸® À¯Áö ¹× °ø°İ
+        // 3. ê±°ë¦¬ ìœ ì§€ ë° ê³µê²©
         HandleBehavior();
     }
 
@@ -42,24 +43,24 @@ public class MonsterRangedAttackState : MonsterBaseState
     {
         float distance = Vector3.Distance(_monster.transform.position, _monster.target.position);
 
-        // ³Ê¹« ¸Ö¾îÁö¸é ´Ù½Ã ÃßÀû »óÅÂ·Î
+        // ë„ˆë¬´ ë©€ì–´ì§€ë©´ ë‹¤ì‹œ ì¶”ì  ìƒíƒœë¡œ
         if (distance > _rangedData.attackRange)
         {
             _ctx.SwitchState(_factory.Chase());
             return;
         }
 
-        // ³Ê¹« °¡±î¿öÁö¸é µÚ·Î ¹°·¯³²
+        // ë„ˆë¬´ ê°€ê¹Œì›Œì§€ë©´ ë’¤ë¡œ ë¬¼ëŸ¬ë‚¨
         if (distance < _rangedData.tooCloseDistance)
         {
             Vector3 awayFromTarget = (_monster.transform.position - _monster.target.position).normalized;
             _monster.agent.SetDestination(_monster.transform.position + awayFromTarget);
         }
-        else // ÀûÁ¤ °Å¸®¸é °ø°İ
+        else // ì ì • ê±°ë¦¬ë©´ ê³µê²©
         {
-            _monster.agent.ResetPath(); // Á¦ÀÚ¸®¿¡ ¸ØÃã
+            _monster.agent.ResetPath(); // ì œìë¦¬ì— ë©ˆì¶¤
 
-            // ÄğÅ¸ÀÓ¸¶´Ù °ø°İ ½ÇÇà
+            // ì¿¨íƒ€ì„ë§ˆë‹¤ ê³µê²© ì‹¤í–‰
             _attackCooldownTimer -= Time.deltaTime;
             if (_attackCooldownTimer <= 0)
             {
@@ -70,39 +71,44 @@ public class MonsterRangedAttackState : MonsterBaseState
 
     private void PerformAttack()
     {
-        // 1. ÄğÅ¸ÀÓ Àç¼³Á¤ÇÏ°í »ç¿ëÇÒ ½ºÅ³ µ¥ÀÌÅÍ °¡Á®¿À±â
-        _attackCooldownTimer = _rangedData.attackCooldown;
+        // 1. ì¿¨íƒ€ì„ ì¬ì„¤ì •í•˜ê³  ì‚¬ìš©í•  ìŠ¤í‚¬ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
+            _attackCooldownTimer = _rangedData.attackCooldown;
         if (_rangedData.skills == null || _rangedData.skills.Count == 0) return;
         SkillData skillToUse = _rangedData.skills[0];
 
-        // 2. ½ºÅ³ ¹ß»ç ½ÃÀÛ À§Ä¡ °è»ê (¸ó½ºÅÍ ¸öÅë ¾Õ)
+        // 2. ìŠ¤í‚¬ ë°œì‚¬ ì‹œì‘ ìœ„ì¹˜ ê³„ì‚° (ëª¬ìŠ¤í„° ëª¸í†µ ì•)
         Vector3 spawnPos = _monster.transform.position + _monster.transform.rotation * skillToUse.spawnOffset;
 
         Vector3 finalTargetPoint = _monster.target.position;
 
-        // 3. ¸ó½ºÅÍ°¡ Å¸°ÙÀÇ Äİ¶óÀÌ´õ Á¤º¸¸¦ °¡Áö°í ÀÖ´ÂÁö È®ÀÎ
+        // 3. ëª¬ìŠ¤í„°ê°€ íƒ€ê²Ÿì˜ ì½œë¼ì´ë” ì •ë³´ë¥¼ ê°€ì§€ê³  ìˆëŠ”ì§€ í™•ì¸
         if (_monster.targetCollider != null)
         {
-            // Äİ¶óÀÌ´õ°¡ ÀÖÀ¸¸é, ±×°ÍÀÇ Á¤È®ÇÑ Áß½ÉÁ¡À» Á¶ÁØÁ¡À¸·Î »ç¿ë
+            // ì½œë¼ì´ë”ê°€ ìˆìœ¼ë©´, ê·¸ê²ƒì˜ ì •í™•í•œ ì¤‘ì‹¬ì ì„ ì¡°ì¤€ì ìœ¼ë¡œ ì‚¬ìš©
             Vector3 targetCenter = _monster.targetCollider.bounds.center;
 
-            targetCenter.y -= 1.5f; // ±ÍÂú¾Æ¼­ ÀÏ´Ü ³ôÀÌ Á» ³·Ãã
+            targetCenter.y -= 1.5f; // ê·€ì°®ì•„ì„œ ì¼ë‹¨ ë†’ì´ ì¢€ ë‚®ì¶¤
             finalTargetPoint = targetCenter;
         }
 
-        // 4. ÃÖÁ¾ ¸ñÇ¥ ÁöÁ¡À» Á¤È®È÷ ¹Ù¶óº¸´Â ¹ß»ç °¢µµ¸¦ °è»ê
+        // 4. ìµœì¢… ëª©í‘œ ì§€ì ì„ ì •í™•íˆ ë°”ë¼ë³´ëŠ” ë°œì‚¬ ê°ë„ë¥¼ ê³„ì‚°
         Quaternion spawnRotation = Quaternion.LookRotation((finalTargetPoint - spawnPos).normalized);
 
-        // 5. ¿ÀºêÁ§Æ® Ç®¿¡¼­ ½ºÅ³ ¿ÀºêÁ§Æ®¸¦ °¡Á®¿È
+        // 5. ì˜¤ë¸Œì íŠ¸ í’€ì—ì„œ ìŠ¤í‚¬ ì˜¤ë¸Œì íŠ¸ë¥¼ ê°€ì ¸ì˜´
         GameObject skillObj = ObjectPooler.Instance.GetFromPool(skillToUse.skillName, spawnPos, spawnRotation);
 
         if (skillObj != null)
         {
-            // 6. ½ºÅ³ ÄÄÆ÷³ÍÆ®¸¦ Ã£¾Æ¼­ Activate ÇÔ¼ö È£Ãâ. "³»°¡ ÀÌ ½ºÅ³ ½ğ´Ù!"°í ¾Ë·ÁÁÜ
+            // 6. ìŠ¤í‚¬ ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì•„ì„œ Activate í•¨ìˆ˜ í˜¸ì¶œ. "ë‚´ê°€ ì´ ìŠ¤í‚¬ ìœë‹¤!"ê³  ì•Œë ¤ì¤Œ
             Skill skill = skillObj.GetComponent<Skill>();
             if (skill != null)
             {
                 skill.Activate(_monster.gameObject, skillToUse);
+                playerHealth = StatManager.Instance.playerObject.GetComponent<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    playerHealth.TakeDamage(5); // ì˜ˆì‹œë¡œ í”Œë ˆì´ì–´ì—ê²Œ 5 ë°ë¯¸ì§€
+                }
             }
         }
     }

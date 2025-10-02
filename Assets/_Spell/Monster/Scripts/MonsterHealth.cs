@@ -23,6 +23,8 @@ public class EnemyHealth : MonoBehaviour
         currentHealth -= damage;
         if (currentHealth <= 0)
         {
+            // 지금은 몬스터 종류 관계없이 경험치 10 획득
+            // 이후 몬스터 종류별로 경험치 다르게 주도록 변경해야함
             StatManager.Instance.GainExperience(10); // 경험치 10 획득 예시
             Die();
         }
