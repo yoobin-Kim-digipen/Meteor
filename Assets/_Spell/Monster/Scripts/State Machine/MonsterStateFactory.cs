@@ -4,14 +4,14 @@ public class MonsterStateFactory
 
     // 각 상태 객체를 저장할 변수들
     private MonsterChaseState _chaseState;
-    private MonsterAttackState _attackState; // 근접 공격 상태
+    private MonsterMeleeAttackState _attackState; // 근접 공격 상태
     private MonsterRangedAttackState _rangedAttackState; // 원거리 공격 상태
 
     public MonsterStateFactory(MonsterStateMachine currentContext)
     {
         _context = currentContext;
         _chaseState = new MonsterChaseState(_context, this);
-        _attackState = new MonsterAttackState(_context, this);
+        _attackState = new MonsterMeleeAttackState(_context, this);
         _rangedAttackState = new MonsterRangedAttackState(_context, this);
     }
 

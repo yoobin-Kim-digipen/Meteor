@@ -95,7 +95,7 @@ public class Player : MonoBehaviour
         readMoveInput(ref moveDir);
 
         // 점프 입력은 프레임 단위로 '한 번만' 감지 + 홀드/릴리즈
-        if (Keyboard.current != null)
+        if (Keyboard.current != null && isGrounded)
         {
             var space = Keyboard.current.spaceKey;
 

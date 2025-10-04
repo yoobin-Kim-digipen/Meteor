@@ -6,7 +6,7 @@ public class MonsterStateMachine : MonoBehaviour
 
     private MonsterBaseState _currentState;
     private MonsterStateFactory _states;
-
+    public MonsterBaseState CurrentState { get { return _currentState; } }
     void Awake()
     {
         MonsterFSM = GetComponent<MonsterFSM>();
