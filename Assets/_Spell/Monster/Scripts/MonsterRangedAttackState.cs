@@ -4,7 +4,6 @@ public class MonsterRangedAttackState : MonsterBaseState
 {
     private RangeMonsterData _rangedData;
     private float _attackCooldownTimer;
-    private PlayerHealth playerHealth;
 
     public MonsterRangedAttackState(MonsterStateMachine context, MonsterStateFactory factory) : base(context, factory)
     {
@@ -104,11 +103,6 @@ public class MonsterRangedAttackState : MonsterBaseState
             if (skill != null)
             {
                 skill.Activate(_monster.gameObject, skillToUse);
-                playerHealth = StatManager.Instance.playerObject.GetComponent<PlayerHealth>();
-                if (playerHealth != null)
-                {
-                    playerHealth.TakeDamage(5); // 예시로 플레이어에게 5 데미지
-                }
             }
         }
     }
