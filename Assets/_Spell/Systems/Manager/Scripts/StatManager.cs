@@ -4,26 +4,23 @@ using UnityEngine;
 public class StatManager : MonoBehaviour
 {
     public static StatManager Instance { get; private set; }
-    public GameObject playerObject; // Reference to the Player script
+    public GameObject playerObject;
     private Player player;
-    public WeaponData weaponData; // Reference to the WeaponData ScriptableObject
+    public WeaponData weaponData;
     public bool isPlayerDead { get; private set; } = false;
-    private int intelligence = 0; // 플레이어의 지능 수치
-    private int defense = 0; // 플레이어의 방어력 수치
-    public float criticalHitChance = 0.1f; // 치명타 확률 (예: 10%)
-    public float criticalHitMultiplier = 1.5f; // 치명타 피해 배율 (예: 1.5배)
-    private int experiencePoints = 0; // 플레이어의 경험치
-    private int currentLevel = 1; // 플레이어의 현재 레벨
-    private float previousHealth = -1f; // 이전 프레임의 체력 값 추적
-    [SerializeField] private int baseXPForNextLevel = 100; // 1레벨에서 2레벨까지의 기본 XP (100)
+    public float criticalHitChance = 0.3f; // 치명타 확률 (예: 10%)
+    public float criticalHitMultiplier = 0.5f; // 치명타 피해 배율 (예: 50% 증가)
+    private int intelligence = 20; // 플레이어의 지능
+    private int defense = 20; // 플레이어 방어력
+    private int experiencePoints = 0;
+    private int currentLevel = 1;
+    private float previousHealth = -1f;
+    [SerializeField] private int baseXPForNextLevel = 100;
 
-
-    // 다음 레벨에 필요한 총 경험치
     private int XPRequired => currentLevel * baseXPForNextLevel;
 
     private void Awake()
     {
-        // 싱글톤 인스턴스 할당 및 중복 제거
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -34,10 +31,7 @@ public class StatManager : MonoBehaviour
 
         player = playerObject.GetComponent<Player>();
         if (player == null)
-        {
-            Debug.LogError("StatManager: Player script not found on the assigned playerObject.");
-        }
-        
+            Debug.LogError("StatManager: Player script not found on playerObject.");
     }
 
     void Update()
@@ -47,37 +41,32 @@ public class StatManager : MonoBehaviour
     }
 
     public void MornitoringHP()
-{
-    PlayerHealth playerHealth = playerObject.GetComponent<PlayerHealth>();
-    if (playerHealth != null)
     {
-        float health = playerHealth.currentHealth;
-
-        // 이전 체력과 다를 때만 로그 출력
-        if (health != previousHealth)
+        PlayerHealth playerHealth = playerObject.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
         {
-            Debug.Log("StatManager가 확인한 플레이어 체력: " + health);
-            previousHealth = health;
-        }
-
+            float health = playerHealth.currentHealth;
+            if (health != previousHealth)
+            {
+                Debug.Log("StatManager가 확인한 플레이어 체력: " + health);
+                previousHealth = health;
+            }
             if (health <= 0 && !isPlayerDead)
             {
                 isPlayerDead = true;
                 Debug.LogWarning("플레이어가 사망하였습니다.");
                 Time.timeScale = 0f;
-            // 사망 시 추가 로직
+                // 사망 시 추가 로직
             }
+        }
     }
-}
 
     public void MornitoringMP()
     {
         // MP 모니터링 로직 추가 예정
     }
 
-    // 회의 후 수정 예정
-    // 지금 발사체 데미지만 있는데 스킬 자체 데미지가 없어서 회의 필요
-    // 플레이어의 모든 공격의 위력을 증가시키려면 스킬 자체 데미지도 존재해야 함
+    // 플레이어의 지능 증가
     public void GainINT(int intAmount)
     {
         intelligence += intAmount;
@@ -88,13 +77,13 @@ public class StatManager : MonoBehaviour
             if (skill is ProjectileSkillData projSkill)
             {
                 float originalDamage = projSkill.damage;
-                float increasedDamage = originalDamage * (1 + intelligence * 0.05f); // 지능 1당 5% 증가
+                float increasedDamage = originalDamage * (1 + intelligence * 0.05f);
                 projSkill.damage = increasedDamage;
                 Debug.Log($"스킬 {projSkill.skillName}의 데미지가 {originalDamage}에서 {increasedDamage}로 증가했습니다.");
             }
-            // 다른 스킬 타입에 대한 처리도 여기에 추가 가능
+            // 다른 스킬 타입도 처리 추가 가능
         }
-        weaponData.skills = skilllist; // 변경된 스킬 리스트를 다시 할당
+        weaponData.skills = skilllist;
     }
 
     public void GainDEF(int amount)
@@ -114,9 +103,7 @@ public class StatManager : MonoBehaviour
         experiencePoints += amount;
         Debug.Log("플레이어가 " + amount + " 경험치를 획득했습니다. 현재 경험치: " + experiencePoints);
         if (experiencePoints >= XPRequired)
-        {
             LevelUp();
-        }
     }
 
     public int GetXP()
@@ -130,5 +117,39 @@ public class StatManager : MonoBehaviour
         experiencePoints -= xpNeeded;
         currentLevel++;
         Debug.Log($"Level Up! 현재 레벨: {currentLevel}, 다음 레벨 필요 XP: {XPRequired}");
+    }
+
+    // ===== 핵심 데미지 계산 메서드 =====
+    private const int DamageDefenseConstant = 100; // K 값, 방어 상수
+
+    /// <summary>
+    /// 최종 데미지 계산 (스킬 위력/지능/방어/치명타)
+    public int CalculateFinalDamage(int baseSkillDamage, int monsterMDEF)
+    {
+        // 변수 정의
+        int INT = intelligence;
+        float CR = criticalHitChance;
+        float CD = criticalHitMultiplier;
+
+        // Q = P × (1 + 0.1 × INT)
+        float Q = baseSkillDamage * (1 + 0.1f * INT);
+
+        // D = Q × (K / (MDEF + K))
+        float D = Q * (DamageDefenseConstant / (float)(monsterMDEF + DamageDefenseConstant));
+
+        // 치명타 판정
+        bool isCritical = UnityEngine.Random.value < CR;
+        float F;
+        if (isCritical)
+        {
+            F = D * (1 + CD); // CD ex: 0.5 = 50%
+            Debug.Log("<color=yellow>치명타! 데미지: " + Mathf.FloorToInt(F) + "</color>");
+        }
+        else
+        {
+            F = D;
+            Debug.Log("일반 공격 데미지: " + Mathf.FloorToInt(F));
+        }
+        return Mathf.FloorToInt(F); // 깔끔하게 소수점 절삭
     }
 }

@@ -20,12 +20,11 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
+        currentHealth -= StatManager.Instance.CalculateFinalDamage((int)damage, 20); // 몬스터는 방어력 20으로 가정
+        if (currentHealth < 0) currentHealth = 0;
+        if (currentHealth == 0)
         {
-            // 지금은 몬스터 종류 관계없이 경험치 10 획득
-            // 이후 몬스터 종류별로 경험치 다르게 주도록 변경해야함
-            StatManager.Instance.GainExperience(10); // 경험치 10 획득 예시
+            StatManager.Instance.GainExperience(10); // 예시로 10 경험치 획득
             Die();
         }
     }
