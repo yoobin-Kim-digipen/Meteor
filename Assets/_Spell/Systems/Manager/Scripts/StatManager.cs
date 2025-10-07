@@ -102,6 +102,7 @@ public class StatManager : MonoBehaviour
     {
         experiencePoints += amount;
         Debug.Log("플레이어가 " + amount + " 경험치를 획득했습니다. 현재 경험치: " + experiencePoints);
+        // 이후 레벨업 과정 수정 예정
         if (experiencePoints >= XPRequired)
             LevelUp();
     }
@@ -117,6 +118,7 @@ public class StatManager : MonoBehaviour
         experiencePoints -= xpNeeded;
         currentLevel++;
         Debug.Log($"Level Up! 현재 레벨: {currentLevel}, 다음 레벨 필요 XP: {XPRequired}");
+        // 레벨업 시 추가 스탯 증가 로직 추가 예정
     }
 
     // ===== 핵심 데미지 계산 메서드 =====
