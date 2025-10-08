@@ -15,9 +15,12 @@ public class StatManager : MonoBehaviour
     private int experiencePoints = 0;
     private int currentLevel = 1;
     private float previousHealth = -1f;
-    [SerializeField] private int baseXPForNextLevel = 100;
+    //[SerializeField] private int baseXPForNextLevel = 100;
+    //private int XPRequired => currentLevel * baseXPForNextLevel;
 
-    private int XPRequired => currentLevel * baseXPForNextLevel;
+    // 예시: 레벨 1~9까지
+    private int[] requiredXPTable = { 100, 200, 300, 450, 650, 900, 1200, 1600 }; // 1단계~8단계 누적 경험치
+
 
     private void Awake()
     {
@@ -103,8 +106,6 @@ public class StatManager : MonoBehaviour
         experiencePoints += amount;
         Debug.Log("플레이어가 " + amount + " 경험치를 획득했습니다. 현재 경험치: " + experiencePoints);
         // 이후 레벨업 과정 수정 예정
-        if (experiencePoints >= XPRequired)
-            LevelUp();
     }
 
     public int GetXP()
@@ -112,13 +113,22 @@ public class StatManager : MonoBehaviour
         return experiencePoints;
     }
 
+    public int GetRequiredXP()
+    {
+        // currentLevel은 1부터 시작, 인덱스는 0부터 시작하므로 -1
+        if (currentLevel - 1 < requiredXPTable.Length)
+            return requiredXPTable[currentLevel - 1];
+        else
+            return requiredXPTable[requiredXPTable.Length - 1]; // 최대값 고정
+    }
+
     public void LevelUp()
     {
-        int xpNeeded = XPRequired;
+        int xpNeeded = GetRequiredXP();
         experiencePoints -= xpNeeded;
         currentLevel++;
-        Debug.Log($"Level Up! 현재 레벨: {currentLevel}, 다음 레벨 필요 XP: {XPRequired}");
-        // 레벨업 시 추가 스탯 증가 로직 추가 예정
+        Debug.Log($"<color=red>Level Up! 현재 레벨: {currentLevel}</color>, 다음 레벨 필요 XP: {GetRequiredXP()}");
+        // 추가 성장 로직
     }
 
     // ===== 핵심 데미지 계산 메서드 =====
