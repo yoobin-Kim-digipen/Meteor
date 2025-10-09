@@ -22,6 +22,9 @@ public class Player : MonoBehaviour
     public float jumpHeight = 1.6f;          // 목표 점프 높이(물리식으로 계산)
     public float groundCheckRadius = 0.25f;  // 발 위치 반경
     public float jumpCutMultiplier = 0.5f;   // 점프 컷 비율(0~1)
+    public bool canDoubleJump = true;        // 더블 점프 기능 활성화 여부
+    public float doubleJumpHeight = 1.2f;    // 두 번째 점프의 높이 (첫 점프보다 낮은 게 자연스러움)
+    public bool _hasDoubleJumped;           // 이번 공중 체공 동안 더블 점프를 이미 사용했는지 확인하는 플래그
 
     // 점프 컷용, 점프키를 빨리 떼면 살짝 낮게(속도감)
     public bool jumpCut = true;              //코드 내에선 항상 true상태, inspector내에서 토글용도(체크 해제시 jumpcut 기능사라짐)
@@ -95,7 +98,7 @@ public class Player : MonoBehaviour
         readMoveInput(ref moveDir);
 
         // 점프 입력은 프레임 단위로 '한 번만' 감지 + 홀드/릴리즈
-        if (Keyboard.current != null && isGrounded)
+        if (Keyboard.current != null && !_hasDoubleJumped)
         {
             var space = Keyboard.current.spaceKey;
 
@@ -106,7 +109,7 @@ public class Player : MonoBehaviour
 
             if (space.wasReleasedThisFrame)
             {
-                jumpReleaseQueued = true; // FixedUpdate에서 소비
+                jumpReleaseQueued = true;
             }
         }
 
@@ -192,10 +195,10 @@ public class Player : MonoBehaviour
         {
             _leftGroundTimer = 0f;
             isGrounded = true;
+            _hasDoubleJumped = false;
         }
         else
         {
-            // Update에서 호출되므로 Time.deltaTime을 사용
             _leftGroundTimer += Time.deltaTime;
             if (_leftGroundTimer > groundCheckDelay)
             {
