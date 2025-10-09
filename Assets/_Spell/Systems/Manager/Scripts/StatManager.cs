@@ -122,14 +122,181 @@ public class StatManager : MonoBehaviour
             return requiredXPTable[requiredXPTable.Length - 1]; // 최대값 고정
     }
 
+    private int lastChosenRouteIdx = -1;
+    private int[] mainCoreLevels = new int[3]; // 0: 망령화, 1: 분노, 2: 냉철함
+    private int[] subCoreLevels = new int[3]; // 0: 망령화, 1: 분노, 2: 냉철함
+
+    // 단순 레벨업 처리 (경험치 감소 및 레벨 증가에만 집중)
     public void LevelUp()
     {
         int xpNeeded = GetRequiredXP();
         experiencePoints -= xpNeeded;
         currentLevel++;
-        Debug.Log($"<color=red>Level Up! 현재 레벨: {currentLevel}</color>, 다음 레벨 필요 XP: {GetRequiredXP()}");
-        Object.FindAnyObjectByType<PopupManager>()?.ShowPopup("Level Up!");
-        // 추가 성장 로직
+        Debug.Log($"Level Up! 현재 레벨: {currentLevel}");
+
+        // 성장 선택 UI 표시 (선택 완료되면 콜백에서 실제 성장 적용)
+        string[] options = { "Ghosting", "Anger", "Cool-headedness" };
+        Object.FindAnyObjectByType<LevelUpChoiceUI>()?.ShowLevelUpChoices(options, OnChooseGrowthOption);
+    }
+
+    // 성장 선택 콜백에서 실제 성장 처리
+    private void OnChooseGrowthOption(int selectedIdx)
+    {
+        lastChosenRouteIdx = selectedIdx;
+        //Debug.Log($"선택한 성장 옵션 인덱스: {lastChosenRouteIdx}");
+
+        // 선택 완료 후 메인/서브코어 업그레이드 및 효과 적용
+        if (currentLevel == 2 || currentLevel == 4 || currentLevel == 6 || currentLevel == 8 || currentLevel == 9)
+        {
+            ApplyMainCoreUpgrade(lastChosenRouteIdx);
+            ApplyMainCoreEffect(lastChosenRouteIdx, mainCoreLevels[lastChosenRouteIdx]);
+        }
+        if (currentLevel == 3 || currentLevel == 5 || currentLevel == 7)
+        {
+            ApplySubCoreUpgrade(lastChosenRouteIdx);
+            ApplySubCoreEffect(lastChosenRouteIdx, subCoreLevels[lastChosenRouteIdx]);
+        }
+    }
+
+
+    private static readonly string[] RouteNames = { "망령화", "분노", "냉철함" };
+
+    private void ApplyMainCoreUpgrade(int routeIdx)
+    {
+        if (routeIdx >= 0 && routeIdx < mainCoreLevels.Length)
+        {
+            mainCoreLevels[routeIdx]++;
+            Debug.Log($"<color=yellow>{RouteNames[routeIdx]} 메인코어 {mainCoreLevels[routeIdx]}단계 달성.</color>");
+        }
+    }
+
+    private void ApplySubCoreUpgrade(int routeIdx)
+    {
+        if (routeIdx >= 0 && routeIdx < subCoreLevels.Length)
+        {
+            subCoreLevels[routeIdx]++;
+            Debug.Log($"<color=yellow>{RouteNames[routeIdx]} 서브코어 {subCoreLevels[routeIdx]}단계 달성.</color>");
+        }
+    }
+
+    // ===== 메인코어 스탯스킬트리 =====
+    private void ApplyMainCoreEffect(int routeIdx, int level)
+    {
+        // 각 루트/단계별 효과 부여
+        if (routeIdx == 0) // 망령화 루트
+        {
+            switch (level)
+            {
+                case 1:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 2:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 3:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 4:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 5:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+            }
+        }
+        if (routeIdx == 1) // 분노 루트 
+        {
+            switch (level)
+            {
+                case 1:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 2:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 3:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 4:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 5:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+            }
+        }
+        if (routeIdx == 2) // 냉철함 루트
+        {
+            switch (level)
+            {
+                case 1:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 2:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 3:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 4:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 5:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+            }
+        }
+    }
+
+    // ===== 서브코어 스탯스킬트리 =====
+    private void ApplySubCoreEffect(int routeIdx, int level)
+    {
+        // 각 루트/단계별 효과 부여
+        if (routeIdx == 0) // 망령화 루트
+        {
+            switch (level)
+            {
+                case 1:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 2:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 3:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+            }
+        }
+        if (routeIdx == 1) // 분노 루트
+        {
+            switch (level)
+            {
+                case 1:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 2:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 3:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+            }
+        }
+        if (routeIdx == 2) // 냉철함 루트
+        {
+            switch (level)
+            {
+                case 1:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 2:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+                case 3:
+                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    break;
+            }
+        }
     }
 
     // ===== 핵심 데미지 계산 메서드 =====
