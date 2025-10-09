@@ -128,6 +128,7 @@ public class StatManager : MonoBehaviour
         experiencePoints -= xpNeeded;
         currentLevel++;
         Debug.Log($"<color=red>Level Up! 현재 레벨: {currentLevel}</color>, 다음 레벨 필요 XP: {GetRequiredXP()}");
+        Object.FindAnyObjectByType<PopupManager>()?.ShowPopup("Level Up!");
         // 추가 성장 로직
     }
 
