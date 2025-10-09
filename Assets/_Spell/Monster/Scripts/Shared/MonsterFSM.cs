@@ -57,12 +57,19 @@ public class MonsterFSM : MonoBehaviour
 
     public bool IsPlayerInAttackRange()
     {
-        // target이나 monsterData가 할당되지 않은 예외 상황을 안전하게 처리.
         if (target == null || monsterData == null) return false;
 
-        // 몬스터의 현재 위치와 타겟의 위치 사이의 거리를 계산하고,
-        // 그 거리가 monsterData에 정의된 attackRange보다 작거나 같은지 확인.
-        return Vector3.Distance(transform.position, target.position) <= monsterData.attackRange;
+        Vector3 monsterPos = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 targetPos = new Vector3(target.position.x, 0, target.position.z);
+
+        if (Vector3.Distance(monsterPos, targetPos) > monsterData.attackRange)
+        {
+            return false; // 범위를 벗어났음
+        }
+        else
+        {
+            return true; // 범위 안에 있음
+        }
     }
 
     // 디버깅용: 씬(Scene) 뷰에서 몬스터의 공격 범위를 시각적으로 보여줌

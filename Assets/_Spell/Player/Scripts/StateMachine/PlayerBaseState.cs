@@ -37,9 +37,6 @@ public abstract class PlayerBaseState // abstract -> 자식클래스 override 필수
 
             // 점프 컷 등을 위한 변수들 초기화
             _player.jumpStartTime = Time.time;
-
-            // 만약 더블 점프 후에도 점프 컷을 허용하고 싶다면 아래 주석 해제
-            // _player.jumpReleaseQueued = false;
         }
     }
 }

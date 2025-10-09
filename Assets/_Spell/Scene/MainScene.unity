@@ -893,7 +893,6 @@ MonoBehaviour:
   playerTransform: {fileID: 1036380668}
   spawnableMonsters:
   - {fileID: 11400000, guid: f010ce5b90d257c41bd66131d4342fcb, type: 2}
-  - {fileID: 11400000, guid: 4a3313588b1d0014ba46eb10f7376c5b, type: 2}
   maxSpawnRadius: 70
   minSpawnRadius: 40
   maxMonsters: 30
@@ -991,6 +990,9 @@ MonoBehaviour:
   jumpHeight: 1.6
   groundCheckRadius: 0.2
   jumpCutMultiplier: 0.5
+  canDoubleJump: 1
+  doubleJumpHeight: 1.2
+  _hasDoubleJumped: 0
   jumpCut: 1
   jumpReleaseQueued: 0
   minJumpCutDelay: 0.06

@@ -15,10 +15,13 @@ MonoBehaviour:
   monsterName: MeleeMonster
   monsterPrefab: {fileID: 422378310355384057, guid: 9d2d6bb9a0620f74b9dc87d70b1dc0c4, type: 3}
   maxHealth: 100
-  speed: 3.5
-  attackRange: 3
+  speed: 8.5
+  attackRange: 1.8
   poolSize: 10
   spawnInterval: 5
-  maxAliveCount: 5
-  attackCooldown: 1.5
+  maxAliveCount: 1
+  attackWindupTime: 1
+  attackCooldown: 0.5
   damage: 15
+  attackAngle: 45
+  attackHeight: 1.5
