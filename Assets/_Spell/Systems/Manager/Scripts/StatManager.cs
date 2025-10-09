@@ -8,13 +8,14 @@ public class StatManager : MonoBehaviour
     private Player player;
     public WeaponData weaponData;
     public bool isPlayerDead { get; private set; } = false;
-    public float criticalHitChance = 0.3f; // 치명타 확률 (예: 10%)
-    public float criticalHitMultiplier = 0.5f; // 치명타 피해 배율 (예: 50% 증가)
+    private float criticalHitChance = 0.3f; // 치명타 확률 (예: 10%)
+    private float criticalHitMultiplier = 0.5f; // 치명타 피해 배율 (예: 50% 증가)
     private int intelligence = 20; // 플레이어의 지능
     private int defense = 20; // 플레이어 방어력
     private int experiencePoints = 0;
     private int currentLevel = 1;
     private float previousHealth = -1f;
+    private PlayerHealth playerHealth;
     //[SerializeField] private int baseXPForNextLevel = 100;
     //private int XPRequired => currentLevel * baseXPForNextLevel;
 
@@ -35,6 +36,11 @@ public class StatManager : MonoBehaviour
         player = playerObject.GetComponent<Player>();
         if (player == null)
             Debug.LogError("StatManager: Player script not found on playerObject.");
+
+        playerHealth = playerObject.GetComponent<PlayerHealth>();
+        if (playerHealth == null)
+            Debug.LogError("StatManager: PlayerHealth script not found on playerObject.");
+
     }
 
     void Update()
@@ -43,24 +49,26 @@ public class StatManager : MonoBehaviour
         //MornitoringMP();
     }
 
+    public void AdjustingHP(int amount)
+    {
+        playerHealth.maxHealth += amount;
+        Debug.Log("플레이어의 최대 체력이 " + amount + "만큼 조정되었습니다. 현재 최대 체력: " + playerHealth.maxHealth);
+    }
+
     public void MornitoringHP()
     {
-        PlayerHealth playerHealth = playerObject.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
+        float health = playerHealth.currentHealth;
+        if (health != previousHealth)
         {
-            float health = playerHealth.currentHealth;
-            if (health != previousHealth)
-            {
-                Debug.Log("StatManager가 확인한 플레이어 체력: " + health);
-                previousHealth = health;
-            }
-            if (health <= 0 && !isPlayerDead)
-            {
-                isPlayerDead = true;
-                Debug.LogWarning("플레이어가 사망하였습니다.");
-                Time.timeScale = 0f;
-                // 사망 시 추가 로직
-            }
+            Debug.Log("StatManager가 확인한 플레이어 체력: " + health);
+            previousHealth = health;
+        }
+        if (health <= 0 && !isPlayerDead)
+        {
+            isPlayerDead = true;
+            Debug.LogWarning("플레이어가 사망하였습니다.");
+            Time.timeScale = 0f;
+            // 사망 시 추가 로직
         }
     }
 
@@ -69,25 +77,28 @@ public class StatManager : MonoBehaviour
         // MP 모니터링 로직 추가 예정
     }
 
+    private float damageMultiplier = 1f;  // 지능 증가에 따른 데미지 배율
     // 플레이어의 지능 증가
     public void GainINT(int intAmount)
     {
         intelligence += intAmount;
+        damageMultiplier = 1f + intelligence * 0.05f;  // 지능에 따라 데미지 배율 업데이트
+
         Debug.Log("플레이어의 지능이 증가했습니다. 현재 지능: " + intelligence);
-        List<SkillData> skilllist = weaponData.skills;
-        foreach (var skill in skilllist)
+
+        // 스킬별 원본 데미지는 그대로 유지, 로그 출력용만 데미지 계산해서 보여줌
+        foreach (var skill in weaponData.skills)
         {
             if (skill is ProjectileSkillData projSkill)
             {
                 float originalDamage = projSkill.damage;
-                float increasedDamage = originalDamage * (1 + intelligence * 0.05f);
-                projSkill.damage = increasedDamage;
+                float increasedDamage = originalDamage * damageMultiplier;
                 Debug.Log($"스킬 {projSkill.skillName}의 데미지가 {originalDamage}에서 {increasedDamage}로 증가했습니다.");
             }
-            // 다른 스킬 타입도 처리 추가 가능
+            // 다른 스킬 타입도 비슷하게 처리 가능
         }
-        weaponData.skills = skilllist;
     }
+
 
     public void GainDEF(int amount)
     {
@@ -95,10 +106,19 @@ public class StatManager : MonoBehaviour
         Debug.Log("플레이어의 방어력이 증가했습니다. 현재 방어력: " + defense);
     }
 
+    private int spd = 20;
+
+    public float CalculateMoveSpeed()
+    {
+        float calculated = player.moveSpeed * (1 + 0.01f * spd);
+        return Mathf.Max(player.moveSpeed, calculated);
+    }
+
     public void AdjustingSPD(int amount)
     {
-        player.moveSpeed += amount;
-        Debug.Log("플레이어의 이동 속도가 증가했습니다. 현재 이동 속도: " + player.moveSpeed);
+        spd += amount;
+        player.moveSpeed = CalculateMoveSpeed();
+        Debug.Log($"SPD: {spd}, 적용된 이동속도: {player.moveSpeed}");
     }
 
     public void GainExperience(int amount)
@@ -125,6 +145,7 @@ public class StatManager : MonoBehaviour
     private int lastChosenRouteIdx = -1;
     private int[] mainCoreLevels = new int[3]; // 0: 망령화, 1: 분노, 2: 냉철함
     private int[] subCoreLevels = new int[3]; // 0: 망령화, 1: 분노, 2: 냉철함
+    private bool hasChosenRoute = false;
 
     // 단순 레벨업 처리 (경험치 감소 및 레벨 증가에만 집중)
     public void LevelUp()
@@ -132,25 +153,41 @@ public class StatManager : MonoBehaviour
         int xpNeeded = GetRequiredXP();
         experiencePoints -= xpNeeded;
         currentLevel++;
-        Debug.Log($"Level Up! 현재 레벨: {currentLevel}");
+        Debug.Log($"<color=yellow>Level Up! 현재 레벨: {currentLevel}</color>");
 
-        // 성장 선택 UI 표시 (선택 완료되면 콜백에서 실제 성장 적용)
-        string[] options = { "Ghosting", "Anger", "Cool-headedness" };
-        Object.FindAnyObjectByType<LevelUpChoiceUI>()?.ShowLevelUpChoices(options, OnChooseGrowthOption);
+        // 최초 레벨업 때만 성장 루트 선택 UI 표시
+        if (!hasChosenRoute)
+        {
+            string[] options = { "Ghosting", "Anger", "Cool-headedness" };
+            Object.FindAnyObjectByType<LevelUpChoiceUI>()?.ShowLevelUpChoices(options, OnChooseGrowthOption);
+        }
+        else
+        {
+            // 이미 선택된 루트로 계속 성장 처리
+            ApplyGrowthByChosenRoute();
+        }
+        playerHealth.currentHealth = playerHealth.maxHealth; // 레벨업 시 체력 회복
+        previousHealth = playerHealth.currentHealth; // 체력 모니터링 초기화
     }
 
     // 성장 선택 콜백에서 실제 성장 처리
     private void OnChooseGrowthOption(int selectedIdx)
     {
         lastChosenRouteIdx = selectedIdx;
-        //Debug.Log($"선택한 성장 옵션 인덱스: {lastChosenRouteIdx}");
+        hasChosenRoute = true;  // 선택 완료 표시
+        Debug.Log($"선택한 성장 옵션 인덱스: {lastChosenRouteIdx}");
 
-        // 선택 완료 후 메인/서브코어 업그레이드 및 효과 적용
+        ApplyGrowthByChosenRoute();
+    }
+
+    private void ApplyGrowthByChosenRoute()
+    {
         if (currentLevel == 2 || currentLevel == 4 || currentLevel == 6 || currentLevel == 8 || currentLevel == 9)
         {
             ApplyMainCoreUpgrade(lastChosenRouteIdx);
             ApplyMainCoreEffect(lastChosenRouteIdx, mainCoreLevels[lastChosenRouteIdx]);
         }
+
         if (currentLevel == 3 || currentLevel == 5 || currentLevel == 7)
         {
             ApplySubCoreUpgrade(lastChosenRouteIdx);
@@ -248,7 +285,7 @@ public class StatManager : MonoBehaviour
         }
     }
 
-    // ===== 서브코어 스탯스킬트리 =====
+    // ===== 서브코어 스탯트리 ===== (기획 바탕으로 임시 완성)
     private void ApplySubCoreEffect(int routeIdx, int level)
     {
         // 각 루트/단계별 효과 부여
@@ -257,13 +294,22 @@ public class StatManager : MonoBehaviour
             switch (level)
             {
                 case 1:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP(100);
+                    GainINT(10);
+                    GainDEF(10);
+                    AdjustingSPD(5);
                     break;
                 case 2:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP(150);
+                    GainINT(15);
+                    GainDEF(15);
+                    AdjustingSPD(10);
                     break;
                 case 3:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP((int)(experiencePoints * 0.05f));
+                    GainINT((int)(intelligence * 0.05f));
+                    GainDEF((int)(defense * 0.05f));
+                    AdjustingSPD((int)(player.moveSpeed * 0.07f));
                     break;
             }
         }
@@ -272,13 +318,22 @@ public class StatManager : MonoBehaviour
             switch (level)
             {
                 case 1:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP(100);
+                    GainINT(10);
+                    GainDEF(10);
+                    AdjustingSPD(5);
                     break;
                 case 2:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP(150);
+                    GainINT(15);
+                    GainDEF(15);
+                    AdjustingSPD(10);
                     break;
                 case 3:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP((int)(experiencePoints * 0.05f));
+                    GainINT((int)(intelligence * 0.07f));
+                    GainDEF((int)(defense * 0.05f));
+                    AdjustingSPD((int)(player.moveSpeed * 0.05f));
                     break;
             }
         }
@@ -287,13 +342,22 @@ public class StatManager : MonoBehaviour
             switch (level)
             {
                 case 1:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP(100);
+                    GainINT(10);
+                    GainDEF(10);
+                    AdjustingSPD(5);
                     break;
                 case 2:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP(150);
+                    GainINT(15);
+                    GainDEF(15);
+                    AdjustingSPD(10);
                     break;
                 case 3:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    AdjustingHP((int)(experiencePoints * 0.05f));
+                    GainINT((int)(intelligence * 0.05f));
+                    GainDEF((int)(defense * 0.07f));
+                    AdjustingSPD((int)(player.moveSpeed * 0.05f));
                     break;
             }
         }
@@ -306,23 +370,21 @@ public class StatManager : MonoBehaviour
     /// 최종 데미지 계산 (스킬 위력/지능/방어/치명타)
     public int CalculateFinalDamage(int baseSkillDamage, int monsterMDEF)
     {
-        // 변수 정의
         int INT = intelligence;
         float CR = criticalHitChance;
         float CD = criticalHitMultiplier;
 
-        // Q = P × (1 + 0.1 × INT)
-        float Q = baseSkillDamage * (1 + 0.1f * INT);
+        float effectiveDamage = baseSkillDamage * damageMultiplier;
 
-        // D = Q × (K / (MDEF + K))
+        float Q = effectiveDamage * (1 + 0.1f * INT);
         float D = Q * (DamageDefenseConstant / (float)(monsterMDEF + DamageDefenseConstant));
 
-        // 치명타 판정
         bool isCritical = UnityEngine.Random.value < CR;
         float F;
+
         if (isCritical)
         {
-            F = D * (1 + CD); // CD ex: 0.5 = 50%
+            F = D * (1 + CD);
             Debug.Log("<color=yellow>치명타! 데미지: " + Mathf.FloorToInt(F) + "</color>");
         }
         else
@@ -330,6 +392,7 @@ public class StatManager : MonoBehaviour
             F = D;
             Debug.Log("일반 공격 데미지: " + Mathf.FloorToInt(F));
         }
-        return Mathf.FloorToInt(F); // 깔끔하게 소수점 절삭
+        return Mathf.FloorToInt(F);
     }
+
 }

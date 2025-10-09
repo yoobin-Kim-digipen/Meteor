@@ -571,8 +571,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatManager
   playerObject: {fileID: 1036380662}
   weaponData: {fileID: 11400000, guid: 7f98d879d5f2ac042822aa8cb40f0873, type: 2}
-  criticalHitChance: 0.1
-  criticalHitMultiplier: 1.5
 --- !u!4 &224195935
 Transform:
   m_ObjectHideFlags: 0
@@ -1694,7 +1692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d1033e609d1b4543a60409ca3542b6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  moveSpeed: 7
+  moveSpeed: 5
   turnSpeed: 720
   acceleration: 20
   deceleration: 30
