@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IStats
 {
     [Header("Move")]
     public float moveSpeed = 7f;
     public float turnSpeed = 720f; // 도/초
+
+    public float MoveSpeed
+    {
+        get { return moveSpeed; }  // MoveSpeed를 읽으려고 하면, moveSpeed 변수 값을 줌
+        set { moveSpeed = value; } // MoveSpeed를 바꾸려고 하면, moveSpeed 변수 값을 바꿈
+    }
 
     [Header("Acceleration")]
     public float acceleration = 20f;         // 지상 가속
@@ -59,6 +65,10 @@ public class Player : MonoBehaviour
     public PlayerAttackManager attackManager { get; private set; }
     public bool IsAttacking { get; private set; }
 
+    private CapsuleCollider _collider;
+    public float CharacterHeight => _collider != null ? _collider.height : 2.0f;
+    public Vector3 CharacterCenterInLocalSpace => _collider != null ? _collider.center : Vector3.up;
+
     void Start()
     {
         // 마우스 위치안보이게 하기
@@ -90,6 +100,8 @@ public class Player : MonoBehaviour
 
         // 캐릭이 회전할때는 y축만 쓰므로 X/Z 축 회전을 잠가서 캐릭터가 넘어지거나 기울어지지 않게 함
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        _collider = GetComponent<CapsuleCollider>();
     }
 
     void Update()
@@ -295,6 +307,13 @@ public class Player : MonoBehaviour
 
         //현재 회전(rb.rotation)에서 목표 회전(targetRot) 쪽으로 회전
         rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, targetRot, turnSpeed * Time.fixedDeltaTime));
+    }
+
+    // 외부에서 플레이어에게 넉백을 적용할 때 호출하는 함수
+    public void ApplyKnockback(Vector3 direction, float force)
+    {
+        Rigidbody.AddForce(direction * force, ForceMode.Impulse);
+        Debug.Log("플레이어가 넉백되었습니다!");
     }
 
     // ---------------------------------        Debug         ----------------------------------------------------------------------

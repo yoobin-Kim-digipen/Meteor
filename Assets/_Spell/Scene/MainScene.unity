@@ -892,7 +892,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
   playerTransform: {fileID: 1036380668}
   spawnableMonsters:
-  - {fileID: 11400000, guid: f010ce5b90d257c41bd66131d4342fcb, type: 2}
+  - {fileID: 11400000, guid: 3c8aa46acc59f9843b14a37d7866de7e, type: 2}
   maxSpawnRadius: 70
   minSpawnRadius: 40
   maxMonsters: 30
@@ -926,10 +926,11 @@ GameObject:
   - component: {fileID: 1036380667}
   - component: {fileID: 1036380666}
   - component: {fileID: 1036380665}
-  - component: {fileID: 1036380664}
   - component: {fileID: 1036380663}
+  - component: {fileID: 1036380664}
   - component: {fileID: 1036380669}
   - component: {fileID: 1036380670}
+  - component: {fileID: 1036380671}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -1131,6 +1132,18 @@ MonoBehaviour:
   playerMovement: {fileID: 0}
   playerAttack: {fileID: 0}
   animator: {fileID: 0}
+--- !u!114 &1036380671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036380662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d50a281340959647b9b8e0f61fd6061, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStatus
 --- !u!1 &1069140842
 GameObject:
   m_ObjectHideFlags: 0
