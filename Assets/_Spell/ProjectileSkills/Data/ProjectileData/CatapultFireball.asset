@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: CatapultFireball
   m_EditorClassIdentifier: Assembly-CSharp::LobbedSkillData
   skillName: CatapultFireball
-  skillPrefab: {fileID: 0}
+  skillPrefab: {fileID: 9209319087193056292, guid: ed1933e0f07cda848abd2c6c151f923c, type: 3}
   poolSize: 20
-  spawnStrategy: {fileID: 0}
-  spawnOffset: {x: 0, y: 1, z: 0}
+  spawnStrategy: {fileID: 11400000, guid: 2947e3455da40a248bea4734aaba9664, type: 2}
+  spawnOffset: {x: 0, y: 0.5, z: 0.5}
   spawnHeightOffset: 20
-  launchAngle: 45
+  launchAngle: 60
   damage: 50
   explosionRadius: 4
-  knockbackForce: 10
-  onHitEffects: []
+  knockbackForce: 20
+  onHitEffects:
+  - {fileID: 11400000, guid: 95615277d2cabd142bd8403e848b015e, type: 2}

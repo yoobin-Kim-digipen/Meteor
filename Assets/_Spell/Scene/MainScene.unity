@@ -404,6 +404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
   weaponDB: {fileID: 11400000, guid: 06bc2b4199cf77943bdceb97895ce100, type: 2}
   monsterDB: {fileID: 11400000, guid: a7ae35eddccb2b943b9a69eb9cec4145, type: 2}
+  effectDB: {fileID: 11400000, guid: 2c50f015591173541b8bce7f2bb9742f, type: 2}
 --- !u!4 &215413719
 Transform:
   m_ObjectHideFlags: 0
@@ -892,6 +893,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
   playerTransform: {fileID: 1036380668}
   spawnableMonsters:
+  - {fileID: 11400000, guid: ab698cc08d2b60b4d9b6033f028fe732, type: 2}
   - {fileID: 11400000, guid: 3c8aa46acc59f9843b14a37d7866de7e, type: 2}
   maxSpawnRadius: 70
   minSpawnRadius: 40

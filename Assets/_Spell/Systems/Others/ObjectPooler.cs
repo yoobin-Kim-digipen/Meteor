@@ -6,6 +6,7 @@ public class ObjectPooler : MonoBehaviour
     public static ObjectPooler Instance; // 싱글톤 패턴을 위한 자기 자신 참조
     public WeaponDatabase weaponDB;
     public MonsterDatabase monsterDB;
+    public EffectDatabase effectDB;
 
     private Dictionary<string, List<GameObject>> poolDictionary;
     private Dictionary<string, GameObject> prefabDictionary;
@@ -62,6 +63,18 @@ public class ObjectPooler : MonoBehaviour
                             CreatePool(skillData.skillName, skillData.skillPrefab, skillData.poolSize); // skillData.poolSize 로 수정
                         }
                     }
+                }
+            }
+        }
+
+        if (effectDB != null)
+        {
+            foreach (var effectPrefab in effectDB.allEffects)
+            {
+                if (effectPrefab != null)
+                {
+                    // 이펙트 프리팹의 '이름'을 태그로 사용하여 풀 생성
+                    CreatePool(effectPrefab.name, effectPrefab, 10);
                 }
             }
         }

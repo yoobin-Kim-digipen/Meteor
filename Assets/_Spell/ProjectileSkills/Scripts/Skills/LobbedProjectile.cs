@@ -27,6 +27,8 @@ public class LobbedProjectile : Skill
     {
         if (_data == null) return;
 
+        ObjectPooler.Instance.GetFromPool("ExplosionEffect", transform.position, Quaternion.identity);
+
         // 폭발 반경 내의 모든 콜라이더를 찾음
         Collider[] hits = Physics.OverlapSphere(transform.position, _data.explosionRadius);
         foreach (var hit in hits)
