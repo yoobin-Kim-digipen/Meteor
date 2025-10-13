@@ -2,9 +2,9 @@ using UnityEngine;
 
 public interface IFirePattern
 {
-    // caster: ½ºÅ³À» ½ğ ÁÖÃ¼
-    // data: »ç¿ëÇÒ ½ºÅ³ÀÇ ¸ğµç Á¤º¸
-    // spawnPos: ½ºÅ³ÀÌ ½ÃÀÛµÉ À§Ä¡
-    // baseRotation: ½ºÅ³ÀÇ ±âº» ¹ß»ç ¹æÇâ
+    // caster: ìŠ¤í‚¬ì„ ìœ ì£¼ì²´
+    // data: ì‚¬ìš©í•  ìŠ¤í‚¬ì˜ ëª¨ë“  ì •ë³´
+    // spawnPos: ìŠ¤í‚¬ì´ ì‹œì‘ë  ìœ„ì¹˜
+    // baseRotation: ìŠ¤í‚¬ì˜ ê¸°ë³¸ ë°œì‚¬ ë°©í–¥
     void Execute(GameObject caster, SkillData data, Vector3 spawnPos, Quaternion baseRotation, Vector3 targetPoint);
 }

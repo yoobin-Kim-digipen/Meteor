@@ -2,9 +2,9 @@ using UnityEngine;
 
 public abstract class SpawnStrategy : ScriptableObject
 {
-    // caster: ½ºÅ³À» ½ğ ÁÖÃ¼(ÇÃ·¹ÀÌ¾î ¶Ç´Â ¸ó½ºÅÍ)ÀÇ Transform
-    // targetPoint: Á¶ÁØÁ¡ (ÇÃ·¹ÀÌ¾îÀÇ °æ¿ì) ¶Ç´Â Å¸°ÙÀÇ À§Ä¡ (¸ó½ºÅÍÀÇ °æ¿ì)
-    // skillData: ÀÌ °è»ê¿¡ ÇÊ¿äÇÑ Ãß°¡ Á¤º¸ (¿¹: ³ôÀÌ ¿ÀÇÁ¼Â)
-    // out spawnPos, out spawnRot: ÀÌ ÇÔ¼ö°¡ °è»êÇØ¼­ µ¹·ÁÁÙ '°á°ú°ª' (½ºÆù À§Ä¡¿Í È¸Àü)
+    // caster: ìŠ¤í‚¬ì„ ìœ ì£¼ì²´(í”Œë ˆì´ì–´ ë˜ëŠ” ëª¬ìŠ¤í„°)ì˜ Transform
+    // targetPoint: ì¡°ì¤€ì  (í”Œë ˆì´ì–´ì˜ ê²½ìš°) ë˜ëŠ” íƒ€ê²Ÿì˜ ìœ„ì¹˜ (ëª¬ìŠ¤í„°ì˜ ê²½ìš°)
+    // skillData: ì´ ê³„ì‚°ì— í•„ìš”í•œ ì¶”ê°€ ì •ë³´ (ì˜ˆ: ë†’ì´ ì˜¤í”„ì…‹)
+    // out spawnPos, out spawnRot: ì´ í•¨ìˆ˜ê°€ ê³„ì‚°í•´ì„œ ëŒë ¤ì¤„ 'ê²°ê³¼ê°’' (ìŠ¤í° ìœ„ì¹˜ì™€ íšŒì „)
     public abstract void CalculateSpawnTransform(Transform caster, Vector3 targetPoint, SkillData skillData, out Vector3 spawnPos, out Quaternion spawnRot);
 }

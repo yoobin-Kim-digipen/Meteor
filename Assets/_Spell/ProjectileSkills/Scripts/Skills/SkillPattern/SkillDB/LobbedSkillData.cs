@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class LobbedSkillData : SkillData
 {
     [Header("Lobbed Projectile Stats")]
-    public float launchAngle = 45f; // πﬂªÁ ∞¢µµ
+    public float launchAngle = 45f; // Î∞úÏÇ¨ Í∞ÅÎèÑ
     public float damage = 50f;
     public float explosionRadius = 4f;
     public float knockbackForce = 10f;

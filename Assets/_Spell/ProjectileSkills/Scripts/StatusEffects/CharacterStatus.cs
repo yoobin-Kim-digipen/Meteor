@@ -4,16 +4,16 @@ using System.Collections.Generic;
 
 public class CharacterStatus : MonoBehaviour
 {
-    // ÀÌ Ä³¸¯ÅÍÀÇ ´É·ÂÄ¡ Á¤º¸ (Player ¶Ç´Â MonsterFSM)
+    // ì´ ìºë¦­í„°ì˜ ëŠ¥ë ¥ì¹˜ ì •ë³´ (Player ë˜ëŠ” MonsterFSM)
     private IStats _stats;
 
-    // È¿°ú¿¡ °É¸®±â ÀüÀÇ ¿ø·¡ ÀÌµ¿ ¼Óµµ¸¦ ÀúÀå
+    // íš¨ê³¼ì— ê±¸ë¦¬ê¸° ì „ì˜ ì›ë˜ ì´ë™ ì†ë„ë¥¼ ì €ì¥
     private float _originalMoveSpeed;
 
-    // ÇöÀç Àû¿ë ÁßÀÎ È¿°ú ÄÚ·çÆ¾µéÀ» °ü¸® (È¿°ú °»½Å/ÁßÃ¸À» À§ÇØ)
+    // í˜„ì¬ ì ìš© ì¤‘ì¸ íš¨ê³¼ ì½”ë£¨í‹´ë“¤ì„ ê´€ë¦¬ (íš¨ê³¼ ê°±ì‹ /ì¤‘ì²©ì„ ìœ„í•´)
     private Dictionary<System.Type, Coroutine> _activeCoroutines = new Dictionary<System.Type, Coroutine>();
 
-    // °ÔÀÓ ½ÃÀÛ ½Ã, ÀÚ½ÅÀÇ ´É·ÂÄ¡ Á¤º¸¸¦ Ã£¾Æ ÀúÀå
+    // ê²Œì„ ì‹œì‘ ì‹œ, ìì‹ ì˜ ëŠ¥ë ¥ì¹˜ ì •ë³´ë¥¼ ì°¾ì•„ ì €ì¥
     void Awake()
     {
         _stats = GetComponent<IStats>();
@@ -23,78 +23,78 @@ public class CharacterStatus : MonoBehaviour
         }
     }
 
-    // ¿ÀºêÁ§Æ® Ç®¿¡¼­ Àç»ç¿ëµÉ ¶§, ¸ğµç È¿°ú¸¦ ÃÊ±âÈ­
+    // ì˜¤ë¸Œì íŠ¸ í’€ì—ì„œ ì¬ì‚¬ìš©ë  ë•Œ, ëª¨ë“  íš¨ê³¼ë¥¼ ì´ˆê¸°í™”
     void OnEnable()
     {
-        // ¸ğµç ½ÇÇà ÁßÀÎ ÄÚ·çÆ¾À» ¸ØÃã
+        // ëª¨ë“  ì‹¤í–‰ ì¤‘ì¸ ì½”ë£¨í‹´ì„ ë©ˆì¶¤
         StopAllCoroutines();
         _activeCoroutines.Clear();
 
-        // ¼Óµµ¸¦ ¿ø·¡´ë·Î º¹±¸
+        // ì†ë„ë¥¼ ì›ë˜ëŒ€ë¡œ ë³µêµ¬
         if (_stats != null)
         {
             _stats.MoveSpeed = _originalMoveSpeed;
         }
     }
 
-    // ¿ÜºÎ¿¡¼­ È£ÃâÇÒ 'È¿°ú Àû¿ë' ÇÔ¼öµé
+    // ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•  'íš¨ê³¼ ì ìš©' í•¨ìˆ˜ë“¤
 
-    // µĞÈ­ È¿°ú¸¦ Àû¿ëÇÏ´Â ÇÔ¼ö
+    // ë‘”í™” íš¨ê³¼ë¥¼ ì ìš©í•˜ëŠ” í•¨ìˆ˜
     public void ApplySlow(float amount, float duration)
     {
         if (_stats == null) return;
 
-        // ÀÌ¹Ì °°Àº Á¾·ù(SlowEffect)ÀÇ È¿°ú°¡ °É·ÁÀÖ´Ù¸é, ÀÌÀü È¿°ú¸¦ ¸ØÃß°í »õ·Î ½ÃÀÛ (È¿°ú °»½Å)
+        // ì´ë¯¸ ê°™ì€ ì¢…ë¥˜(SlowEffect)ì˜ íš¨ê³¼ê°€ ê±¸ë ¤ìˆë‹¤ë©´, ì´ì „ íš¨ê³¼ë¥¼ ë©ˆì¶”ê³  ìƒˆë¡œ ì‹œì‘ (íš¨ê³¼ ê°±ì‹ )
         StopEffect(typeof(SlowEffect));
         _activeCoroutines[typeof(SlowEffect)] = StartCoroutine(SlowCoroutine(amount, duration));
     }
 
-    // È­»ó È¿°ú¸¦ Àû¿ëÇÏ´Â ÇÔ¼ö
+    // í™”ìƒ íš¨ê³¼ë¥¼ ì ìš©í•˜ëŠ” í•¨ìˆ˜
     public void ApplyBurn(float damagePerTick, float tickInterval, float duration)
     {
-        // ÀÌÀü È­»ó È¿°ú¸¦ ¸ØÃß°í »õ·Î¿î ÄÚ·çÆ¾ ½ÃÀÛ
+        // ì´ì „ í™”ìƒ íš¨ê³¼ë¥¼ ë©ˆì¶”ê³  ìƒˆë¡œìš´ ì½”ë£¨í‹´ ì‹œì‘
         StopEffect(typeof(BurnEffect));
         _activeCoroutines[typeof(BurnEffect)] = StartCoroutine(BurnCoroutine(damagePerTick, tickInterval, duration));
     }
 
 
-    // ½ÇÁ¦ È¿°ú¸¦ Ã³¸®ÇÏ´Â ÄÚ·çÆ¾µé
+    // ì‹¤ì œ íš¨ê³¼ë¥¼ ì²˜ë¦¬í•˜ëŠ” ì½”ë£¨í‹´ë“¤
 
     private IEnumerator SlowCoroutine(float amount, float duration)
     {
-        // 1. ½ÇÁ¦ ´É·ÂÄ¡ º¯°æ
+        // 1. ì‹¤ì œ ëŠ¥ë ¥ì¹˜ ë³€ê²½
         _stats.MoveSpeed = _originalMoveSpeed * (1f - amount);
 
-        // 2. Áö¼Ó ½Ã°£¸¸Å­ ´ë±â
+        // 2. ì§€ì† ì‹œê°„ë§Œí¼ ëŒ€ê¸°
         yield return new WaitForSeconds(duration);
 
-        // 3. ´É·ÂÄ¡ ¿ø»ó º¹±¸
+        // 3. ëŠ¥ë ¥ì¹˜ ì›ìƒ ë³µêµ¬
         _stats.MoveSpeed = _originalMoveSpeed;
 
-        // 4. °ü¸® ¸ñ·Ï¿¡¼­ Á¦°Å
+        // 4. ê´€ë¦¬ ëª©ë¡ì—ì„œ ì œê±°
         _activeCoroutines.Remove(typeof(SlowEffect));
     }
 
-    // --- ½ÇÁ¦ È­»ó È¿°ú¸¦ Ã³¸®ÇÏ´Â ÄÚ·çÆ¾ ---
+    // --- ì‹¤ì œ í™”ìƒ íš¨ê³¼ë¥¼ ì²˜ë¦¬í•˜ëŠ” ì½”ë£¨í‹´ ---
     private IEnumerator BurnCoroutine(float damagePerTick, float tickInterval, float duration)
     {
-        Debug.Log($"<color=red>È­»ó È¿°ú Àû¿ë!</color> {tickInterval}ÃÊ¸¶´Ù {damagePerTick}ÀÇ µ¥¹ÌÁö¸¦ ÀÔ½À´Ï´Ù. ({duration}ÃÊ Áö¼Ó)");
+        Debug.Log($"<color=red>í™”ìƒ íš¨ê³¼ ì ìš©!</color> {tickInterval}ì´ˆë§ˆë‹¤ {damagePerTick}ì˜ ë°ë¯¸ì§€ë¥¼ ì…ìŠµë‹ˆë‹¤. ({duration}ì´ˆ ì§€ì†)");
 
         float timer = duration;
         while (timer > 0)
         {
-            Debug.Log($"<color=red>È­»ó Æ½ µ¥¹ÌÁö! {-damagePerTick}</color>");
+            Debug.Log($"<color=red>í™”ìƒ í‹± ë°ë¯¸ì§€! {-damagePerTick}</color>");
 
-            // ´ÙÀ½ Æ½±îÁö ´ë±â
+            // ë‹¤ìŒ í‹±ê¹Œì§€ ëŒ€ê¸°
             yield return new WaitForSeconds(tickInterval);
             timer -= tickInterval;
         }
 
         _activeCoroutines.Remove(typeof(BurnEffect));
-        Debug.Log("<color=red>È­»ó È¿°ú°¡ ÇØÁ¦µÇ¾ú½À´Ï´Ù.</color>");
+        Debug.Log("<color=red>í™”ìƒ íš¨ê³¼ê°€ í•´ì œë˜ì—ˆìŠµë‹ˆë‹¤.</color>");
     }
 
-    // ÄÚ·çÆ¾À» ¾ÈÀüÇÏ°Ô ¸ØÃß±â À§ÇÑ ÇïÆÛ ÇÔ¼ö
+    // ì½”ë£¨í‹´ì„ ì•ˆì „í•˜ê²Œ ë©ˆì¶”ê¸° ìœ„í•œ í—¬í¼ í•¨ìˆ˜
     private void StopEffect(System.Type effectType)
     {
         if (_activeCoroutines.TryGetValue(effectType, out Coroutine coroutine))

@@ -23,7 +23,7 @@ public class Projectile : Skill // Skill을 상속
         {
             this._data = projData;
 
-            // 이제 _data를 통해 능력치를 설정합니다.
+            // 이제 _data를 통해 능력치를 설정
             _speed = _data.speed;
             _lifetime = _data.lifetime;
             _damage = _data.damage;

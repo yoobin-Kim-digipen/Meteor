@@ -13,7 +13,7 @@ public class SpreadFirePattern : IFirePattern
             for (int i = 0; i < count; i++)
             {
                 float currentAngle = startAngle + i * spreadData.angleBetweenProjectiles;
-                // ±âº» ¹ß»ç °¢µµ¿¡¼­ ÇöÀç °¢µµ¸¸Å­ Ãß°¡·Î È¸Àü½ÃÅ´
+                // ê¸°ë³¸ ë°œì‚¬ ê°ë„ì—ì„œ í˜„ìž¬ ê°ë„ë§Œí¼ ì¶”ê°€ë¡œ íšŒì „ì‹œí‚´
                 Quaternion rotation = baseRotation * Quaternion.Euler(0, currentAngle, 0);
 
                 GameObject skillObj = ObjectPooler.Instance.GetFromPool(spreadData.skillName, spawnPos, rotation);
@@ -22,7 +22,7 @@ public class SpreadFirePattern : IFirePattern
         }
         else
         {
-            // È¤½Ã Àß¸øµÈ µ¥ÀÌÅÍ°¡ µé¾î¿À¸é, ¾ÈÀüÇÏ°Ô ´ÜÀÏ ¹ß»ç·Î Ã³¸®
+            // í˜¹ì‹œ ìž˜ëª»ëœ ë°ì´í„°ê°€ ë“¤ì–´ì˜¤ë©´, ì•ˆì „í•˜ê²Œ ë‹¨ì¼ ë°œì‚¬ë¡œ ì²˜ë¦¬
             new SingleFirePattern().Execute(caster, data, spawnPos, baseRotation, targetPoint);
         }
     }

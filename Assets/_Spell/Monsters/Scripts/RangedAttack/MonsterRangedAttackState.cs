@@ -7,26 +7,26 @@ public class MonsterRangedAttackState : MonsterBaseState
 
     public MonsterRangedAttackState(MonsterStateMachine context, MonsterStateFactory factory) : base(context, factory)
     {
-        // FSMÀÌ °¡Áö°í ÀÖ´Â µ¥ÀÌÅÍ¸¦ RangedMonsterData Å¸ÀÔÀ¸·Î °¡Á®¿È
+        // FSMì´ ê°€ì§€ê³  ìˆëŠ” ë°ì´í„°ë¥¼ RangedMonsterData íƒ€ì…ìœ¼ë¡œ ê°€ì ¸ì˜´
         _rangedData = _monster.monsterData as RangeMonsterData;
     }
 
     public override void EnterState()
     {
-        _attackCooldownTimer = _rangedData.attackCooldown * 0.5f; // Ã³À½¿£ ´õ »¡¸® ½îµµ·Ï
-        _monster.agent.isStopped = false; // °Å¸® Á¶ÀıÀ» À§ÇØ °è¼Ó ¿òÁ÷ÀÏ ¼ö ÀÖ°Ô ÇÔ
+        _attackCooldownTimer = _rangedData.attackCooldown * 0.5f; // ì²˜ìŒì—” ë” ë¹¨ë¦¬ ì˜ë„ë¡
+        _monster.agent.isStopped = false; // ê±°ë¦¬ ì¡°ì ˆì„ ìœ„í•´ ê³„ì† ì›€ì§ì¼ ìˆ˜ ìˆê²Œ í•¨
     }
 
     public override void UpdateState()
     {
-        // 1. °ø°İÇÒ ´ë»óÀÌ ¾øÀ¸¸é ÃßÀû »óÅÂ·Î ÀüÈ¯
+        // 1. ê³µê²©í•  ëŒ€ìƒì´ ì—†ìœ¼ë©´ ì¶”ì  ìƒíƒœë¡œ ì „í™˜
         if (_monster.target == null)
         {
             _ctx.SwitchState(_factory.Chase());
             return;
         }
 
-        // 2. ÇÃ·¹ÀÌ¾î¸¦ °è¼Ó ¹Ù¶óº¸µµ·Ï ÇÔ
+        // 2. í”Œë ˆì´ì–´ë¥¼ ê³„ì† ë°”ë¼ë³´ë„ë¡ í•¨
         Vector3 lookDirection = (_monster.target.position - _monster.transform.position);
         lookDirection.y = 0;
         if (lookDirection != Vector3.zero)
@@ -34,7 +34,7 @@ public class MonsterRangedAttackState : MonsterBaseState
             _monster.transform.rotation = Quaternion.LookRotation(lookDirection);
         }
 
-        // 3. °Å¸® À¯Áö ¹× °ø°İ
+        // 3. ê±°ë¦¬ ìœ ì§€ ë° ê³µê²©
         HandleBehavior();
     }
 
@@ -42,24 +42,24 @@ public class MonsterRangedAttackState : MonsterBaseState
     {
         float distance = Vector3.Distance(_monster.transform.position, _monster.target.position);
 
-        // ³Ê¹« ¸Ö¾îÁö¸é ´Ù½Ã ÃßÀû »óÅÂ·Î
+        // ë„ˆë¬´ ë©€ì–´ì§€ë©´ ë‹¤ì‹œ ì¶”ì  ìƒíƒœë¡œ
         if (distance > _rangedData.attackRange)
         {
             _ctx.SwitchState(_factory.Chase());
             return;
         }
 
-        // ³Ê¹« °¡±î¿öÁö¸é µÚ·Î ¹°·¯³²
+        // ë„ˆë¬´ ê°€ê¹Œì›Œì§€ë©´ ë’¤ë¡œ ë¬¼ëŸ¬ë‚¨
         if (distance < _rangedData.tooCloseDistance)
         {
             Vector3 awayFromTarget = (_monster.transform.position - _monster.target.position).normalized;
             _monster.agent.SetDestination(_monster.transform.position + awayFromTarget);
         }
-        else // ÀûÁ¤ °Å¸®¸é °ø°İ
+        else // ì ì • ê±°ë¦¬ë©´ ê³µê²©
         {
-            _monster.agent.ResetPath(); // Á¦ÀÚ¸®¿¡ ¸ØÃã
+            _monster.agent.ResetPath(); // ì œìë¦¬ì— ë©ˆì¶¤
 
-            // ÄğÅ¸ÀÓ¸¶´Ù °ø°İ ½ÇÇà
+            // ì¿¨íƒ€ì„ë§ˆë‹¤ ê³µê²© ì‹¤í–‰
             _attackCooldownTimer -= Time.deltaTime;
             if (_attackCooldownTimer <= 0)
             {
@@ -70,13 +70,13 @@ public class MonsterRangedAttackState : MonsterBaseState
 
     private void PerformAttack()
     {
-        // 1. ÄğÅ¸ÀÓ Àç¼³Á¤ ¹× »ç¿ëÇÒ ½ºÅ³ µ¥ÀÌÅÍ °¡Á®¿À±â
+        // 1. ì¿¨íƒ€ì„ ì¬ì„¤ì • ë° ì‚¬ìš©í•  ìŠ¤í‚¬ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
         _attackCooldownTimer = _rangedData.attackCooldown;
         if (_rangedData.skills == null || _rangedData.skills.Count == 0) return;
         SkillData skillToUse = _rangedData.skills[0];
         Vector3 spawnPos = _monster.transform.position + _monster.transform.rotation * skillToUse.spawnOffset;
 
-        // 2. Á¤¹Ğ Á¶ÁØ: ÃÖÁ¾ ¸ñÇ¥ ÁöÁ¡(finalTargetPoint) °è»ê
+        // 2. ì •ë°€ ì¡°ì¤€: ìµœì¢… ëª©í‘œ ì§€ì (finalTargetPoint) ê³„ì‚°
         Vector3 finalTargetPoint = _monster.target.position + Vector3.up * 1.0f;
 
         Player targetPlayer = _monster.target.GetComponent<Player>();
@@ -86,15 +86,15 @@ public class MonsterRangedAttackState : MonsterBaseState
             finalTargetPoint = targetPlayer.transform.TransformPoint(localCenter);
         }
 
-        // 3. ±âº» ¹ß»ç °¢µµ(baseRotation) °è»ê
+        // 3. ê¸°ë³¸ ë°œì‚¬ ê°ë„(baseRotation) ê³„ì‚°
 
         Quaternion baseRotation = Quaternion.LookRotation((finalTargetPoint - spawnPos).normalized);
 
-        // 4. ¹ß»ç ÆĞÅÏ ½ÇÇà
+        // 4. ë°œì‚¬ íŒ¨í„´ ì‹¤í–‰
         IFirePattern firePattern = skillToUse.GetFirePattern();
         if (firePattern == null)
         {
-            Debug.LogError(skillToUse.name + "¿¡ FirePatternÀÌ Á¤ÀÇµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError(skillToUse.name + "ì— FirePatternì´ ì •ì˜ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 

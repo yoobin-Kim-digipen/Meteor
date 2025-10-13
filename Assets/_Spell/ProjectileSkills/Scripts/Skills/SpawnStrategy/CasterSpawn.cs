@@ -5,10 +5,10 @@ public class CasterSpawn : SpawnStrategy
 {
     public override void CalculateSpawnTransform(Transform caster, Vector3 targetPoint, SkillData skillData, out Vector3 spawnPos, out Quaternion spawnRot)
     {
-        // ½ÃÀüÀÚÀÇ ÇöÀç À§Ä¡¿Í È¸ÀüÀ» ±âÁØÀ¸·Î, SkillData¿¡ Á¤ÀÇµÈ ¿ÀÇÁ¼ÂÀ» Àû¿ë
+        // ì‹œì „ìì˜ í˜„ì¬ ìœ„ì¹˜ì™€ íšŒì „ì„ ê¸°ì¤€ìœ¼ë¡œ, SkillDataì— ì •ì˜ëœ ì˜¤í”„ì…‹ì„ ì ìš©
         spawnPos = caster.position + caster.rotation * skillData.spawnOffset;
 
-        // °è»êµÈ ½ºÆù À§Ä¡¿¡¼­ ¸ñÇ¥ ÁöÁ¡À» ¹Ù¶óº¸µµ·Ï È¸Àü°ªÀ» °è»ê
+        // ê³„ì‚°ëœ ìŠ¤í° ìœ„ì¹˜ì—ì„œ ëª©í‘œ ì§€ì ì„ ë°”ë¼ë³´ë„ë¡ íšŒì „ê°’ì„ ê³„ì‚°
         spawnRot = Quaternion.LookRotation((targetPoint - spawnPos).normalized);
     }
 }

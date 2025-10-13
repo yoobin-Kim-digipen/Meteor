@@ -1,21 +1,21 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Burn Effect", menuName = "Status Effects/Burn Effect")]
-public class BurnEffect : StatusEffect // StatusEffect ¼³°èµµ¸¦ »ó¼Ó
+public class BurnEffect : StatusEffect // StatusEffect ì„¤ê³„ë„ë¥¼ ìƒì†
 {
     [Header("Burn Specifics")]
-    [Tooltip("Æ½ ´ç ÀÔÈú µ¥¹ÌÁö")]
+    [Tooltip("í‹± ë‹¹ ì…í ë°ë¯¸ì§€")]
     public float damagePerTick = 5f;
 
-    [Tooltip("µ¥¹ÌÁö°¡ µé¾î¿À´Â ½Ã°£ °£°İ (ÃÊ)")]
+    [Tooltip("ë°ë¯¸ì§€ê°€ ë“¤ì–´ì˜¤ëŠ” ì‹œê°„ ê°„ê²© (ì´ˆ)")]
     public float tickInterval = 1f;
 
-    // 'StatusEffect'ÀÇ ±ÔÄ¢(ApplyEffect ÇÔ¼ö)À» ½ÇÁ¦·Î ±¸Çö
+    // 'StatusEffect'ì˜ ê·œì¹™(ApplyEffect í•¨ìˆ˜)ì„ ì‹¤ì œë¡œ êµ¬í˜„
     public override void ApplyEffect(CharacterStatus targetStatus)
     {
         if (targetStatus != null)
         {
-            // CharacterStatus¿¡°Ô "ÀÌ °ªµé·Î È­»ó È¿°ú¸¦ Àû¿ëÇØÁà" ¶ó°í ¸í·É
+            // CharacterStatusì—ê²Œ "ì´ ê°’ë“¤ë¡œ í™”ìƒ íš¨ê³¼ë¥¼ ì ìš©í•´ì¤˜" ë¼ê³  ëª…ë ¹
             targetStatus.ApplyBurn(damagePerTick, tickInterval, duration);
         }
     }

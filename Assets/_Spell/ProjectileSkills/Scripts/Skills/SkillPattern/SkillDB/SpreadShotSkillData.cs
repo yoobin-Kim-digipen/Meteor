@@ -1,16 +1,16 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Spread Shot Skill", menuName = "Skills/Spread Shot Skill")]
-public class SpreadShotSkillData : ProjectileSkillData // ±âº» Åõ»çÃ¼ µ¥ÀÌÅÍ¸¦ »ó¼Ó
+public class SpreadShotSkillData : ProjectileSkillData // ê¸°ë³¸ íˆ¬ì‚¬ì²´ ë°ì´í„°ë¥¼ ìƒì†
 {
     [Header("Spread Shot Stats")]
-    [Tooltip("ÃÑ ¹ß»çÇÒ Åõ»çÃ¼ÀÇ °³¼ö (È¦¼ö¸¦ ÃßÃµ)")]
-    public int numberOfProjectiles = 3; // ÁÂ/Áß/¿ì 3¹ß
+    [Tooltip("ì´ ë°œì‚¬í•  íˆ¬ì‚¬ì²´ì˜ ê°œìˆ˜ (í™€ìˆ˜ë¥¼ ì¶”ì²œ)")]
+    public int numberOfProjectiles = 3; // ì¢Œ/ì¤‘/ìš° 3ë°œ
 
-    [Tooltip("°¢ Åõ»çÃ¼ »çÀÌÀÇ °¢µµ (ÃÑ ºÎÃ¤²Ã °¢µµÀÇ Àı¹İÀÌ ¾Æ´Ô)")]
-    public float angleBetweenProjectiles = 15f; // ±âÈ¹¼­ÀÇ 15¡Æ
+    [Tooltip("ê° íˆ¬ì‚¬ì²´ ì‚¬ì´ì˜ ê°ë„ (ì´ ë¶€ì±„ê¼´ ê°ë„ì˜ ì ˆë°˜ì´ ì•„ë‹˜)")]
+    public float angleBetweenProjectiles = 15f; // ê¸°íšì„œì˜ 15Â°
 
-    // SpreadShotSkillData´Â 'È®»êÅº ¹ß»ç' ¹æ½ÄÀ» »ç¿ëÇÑ´Ù°í ¼±¾ğ
+    // SpreadShotSkillDataëŠ” 'í™•ì‚°íƒ„ ë°œì‚¬' ë°©ì‹ì„ ì‚¬ìš©í•œë‹¤ê³  ì„ ì–¸
     public override IFirePattern GetFirePattern()
     {
         return new SpreadFirePattern();

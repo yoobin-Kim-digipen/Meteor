@@ -3,7 +3,7 @@ using UnityEngine;
 public abstract class StatusEffect : ScriptableObject
 {
     [Header("Common Properties")]
-    [Tooltip("ÀÌ È¿°ú°¡ ¸î ÃÊ µ¿¾È Áö¼ÓµÉÁö")]
+    [Tooltip("ì´ íš¨ê³¼ê°€ ëª‡ ì´ˆ ë™ì•ˆ ì§€ì†ë ì§€")]
     public float duration;
 
     public abstract void ApplyEffect(CharacterStatus targetStatus);

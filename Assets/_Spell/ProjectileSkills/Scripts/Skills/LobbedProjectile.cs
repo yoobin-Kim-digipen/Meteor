@@ -29,47 +29,47 @@ public class LobbedProjectile : Skill
 
         ObjectPooler.Instance.GetFromPool("ExplosionEffect", transform.position, Quaternion.identity);
 
-        // Æø¹ß ¹İ°æ ³»ÀÇ ¸ğµç Äİ¶óÀÌ´õ¸¦ Ã£À½
+        // í­ë°œ ë°˜ê²½ ë‚´ì˜ ëª¨ë“  ì½œë¼ì´ë”ë¥¼ ì°¾ìŒ
         Collider[] hits = Physics.OverlapSphere(transform.position, _data.explosionRadius);
         foreach (var hit in hits)
         {
-            // ±× Áß¿¡¼­ °ø°İ ´ë»ó ÅÂ±×¿Í ÀÏÄ¡ÇÏ´Â °ÍÀ» Ã£À½
+            // ê·¸ ì¤‘ì—ì„œ ê³µê²© ëŒ€ìƒ íƒœê·¸ì™€ ì¼ì¹˜í•˜ëŠ” ê²ƒì„ ì°¾ìŒ
             if (hit.CompareTag(_targetTag))
             {
-                // --- 1. µ¥¹ÌÁö Ã³¸® (·Î±×) ---
-                Debug.Log($"<color=yellow>{hit.name}ÀÌ(°¡) Æø¹ß¿¡ ÈÖ¸»·Á {_data.damage}ÀÇ µ¥¹ÌÁö¸¦ ÀÔ¾ú½À´Ï´Ù!</color>");
+                // --- 1. ë°ë¯¸ì§€ ì²˜ë¦¬ (ë¡œê·¸) ---
+                Debug.Log($"<color=yellow>{hit.name}ì´(ê°€) í­ë°œì— íœ˜ë§ë ¤ {_data.damage}ì˜ ë°ë¯¸ì§€ë¥¼ ì…ì—ˆìŠµë‹ˆë‹¤!</color>");
  
-                // ºÎµúÈù ´ë»ó¿¡°Ô CharacterStatus ÄÄÆ÷³ÍÆ®°¡ ÀÖ´ÂÁö È®ÀÎ
+                // ë¶€ë”ªíŒ ëŒ€ìƒì—ê²Œ CharacterStatus ì»´í¬ë„ŒíŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
                 if (hit.TryGetComponent<CharacterStatus>(out var status))
                 {
-                    // ÀÌ ½ºÅ³ÀÌ °¡Áø ¸ğµç Æ¯¼ö È¿°ú¸¦ ¼ø¼­´ë·Î Àû¿ë
+                    // ì´ ìŠ¤í‚¬ì´ ê°€ì§„ ëª¨ë“  íŠ¹ìˆ˜ íš¨ê³¼ë¥¼ ìˆœì„œëŒ€ë¡œ ì ìš©
                     foreach (var effect in _data.onHitEffects)
                     {
                         effect?.ApplyEffect(status);
                     }
                 }
 
-                // ºÎµúÈù ´ë»óÀÌ Player ÄÄÆ÷³ÍÆ®¸¦ °¡Áö°í ÀÖ´ÂÁö È®ÀÎ
+                // ë¶€ë”ªíŒ ëŒ€ìƒì´ Player ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì§€ê³  ìˆëŠ”ì§€ í™•ì¸
                 if (hit.TryGetComponent<Player>(out var player))
                 {
-                    // Æø¹ß Áß½É¿¡¼­ ÇÃ·¹ÀÌ¾î¸¦ ÇâÇÏ´Â ¹æÇâÀ¸·Î ¹Ğ¾î³¿
+                    // í­ë°œ ì¤‘ì‹¬ì—ì„œ í”Œë ˆì´ì–´ë¥¼ í–¥í•˜ëŠ” ë°©í–¥ìœ¼ë¡œ ë°€ì–´ëƒ„
                     Vector3 knockbackDir = (hit.transform.position - transform.position).normalized;
 
-                    // »ìÂ¦ À§·Î ¶ç¿ì´Â È¿°ú¸¦ ÁÖ±â À§ÇØ Y°ªÀ» º¸Á¤
+                    // ì‚´ì§ ìœ„ë¡œ ë„ìš°ëŠ” íš¨ê³¼ë¥¼ ì£¼ê¸° ìœ„í•´ Yê°’ì„ ë³´ì •
                     knockbackDir.y = Mathf.Max(knockbackDir.y, 0.5f);
 
                     player.ApplyKnockback(knockbackDir, _data.knockbackForce);
-                    Debug.Log($"<color=lightblue>{hit.name}¿¡°Ô ³Ë¹éÀÌ Àû¿ëµË´Ï´Ù.</color>");
+                    Debug.Log($"<color=lightblue>{hit.name}ì—ê²Œ ë„‰ë°±ì´ ì ìš©ë©ë‹ˆë‹¤.</color>");
                 }
             }
         }
     }
     void OnDrawGizmos()
     {
-        // µ¥ÀÌÅÍ°¡ ÇÒ´çµÇÁö ¾Ê¾ÒÀ¸¸é ±×¸®Áö ¾ÊÀ½
+        // ë°ì´í„°ê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìœ¼ë©´ ê·¸ë¦¬ì§€ ì•ŠìŒ
         if (_data == null) return;
 
-        // Æø¹ß ¹üÀ§¸¦ ³ªÅ¸³»´Â ºÓÀº»ö ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸¸¦ ±×¸³´Ï´Ù.
+        // í­ë°œ ë²”ìœ„ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ë¶‰ì€ìƒ‰ ì™€ì´ì–´í”„ë ˆì„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, _data.explosionRadius);
     }

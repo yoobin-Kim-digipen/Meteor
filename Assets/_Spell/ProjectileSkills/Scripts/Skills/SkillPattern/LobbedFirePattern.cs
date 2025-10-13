@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// »õ·Î¿î ¹ß»ç ÆĞÅÏ: Æ÷¹°¼±
+// ìƒˆë¡œìš´ ë°œì‚¬ íŒ¨í„´: í¬ë¬¼ì„ 
 public class LobbedFirePattern : IFirePattern
 {
     public void Execute(GameObject caster, SkillData data, Vector3 spawnPos, Quaternion baseRotation, Vector3 targetPoint)
@@ -24,7 +24,7 @@ public class LobbedFirePattern : IFirePattern
         }
     }
 
-    // Æ÷¹°¼± ¼Óµµ °è»ê ÇÔ¼ö
+    // í¬ë¬¼ì„  ì†ë„ ê³„ì‚° í•¨ìˆ˜
     private Vector3? CalculateLaunchVelocity(Vector3 startPoint, Vector3 endPoint, float launchAngle)
     {
         float gravity = Physics.gravity.y;
@@ -37,7 +37,7 @@ public class LobbedFirePattern : IFirePattern
         float sinAngle = Mathf.Sin(angleInRadians);
         float tanAngle = Mathf.Tan(angleInRadians);
 
-        // ºĞ¸ğ°¡ 0¿¡ °¡±î¿öÁö°Å³ª À½¼ö°¡ µÇ¸é ¹ß»ç ºÒ°¡ (¼öÇĞÀû ¿À·ù)
+        // ë¶„ëª¨ê°€ 0ì— ê°€ê¹Œì›Œì§€ê±°ë‚˜ ìŒìˆ˜ê°€ ë˜ë©´ ë°œì‚¬ ë¶ˆê°€ (ìˆ˜í•™ì  ì˜¤ë¥˜)
         float denominator = 2 * (heightY - distanceXZ * tanAngle) * cosAngle * cosAngle;
         if (Mathf.Approximately(denominator, 0)) return null;
 
