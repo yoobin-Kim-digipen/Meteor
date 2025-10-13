@@ -16,4 +16,4 @@ MonoBehaviour:
   cooldown: 0.5
   projectileAmount: 1
   skills:
-  - {fileID: 11400000, guid: 089a45d80d8c6134e8a007b4d89adec0, type: 2}
+  - {fileID: 11400000, guid: 5430ee7c67a043c48a3849087a7533d3, type: 2}
