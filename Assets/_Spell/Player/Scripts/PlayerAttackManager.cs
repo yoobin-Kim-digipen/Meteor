@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerAttackManager : MonoBehaviour
 {
     [Header("Attack Settings")]
-    public List<WeaponData> equippedWeapons; // ÀÎ½ºÆåÅÍ¿¡¼­ À¯Àú°¡ Áı¾î³ÖÀº ¹«±â Á¤º¸
+    public List<WeaponData> equippedWeapons; // ì¸ìŠ¤í™í„°ì—ì„œ ìœ ì €ê°€ ì§‘ì–´ë„£ì€ ë¬´ê¸° ì •ë³´
     private Dictionary<WeaponData, float> weaponCooldowns;
 
     [Header("Aiming Settings")]
@@ -13,7 +13,7 @@ public class PlayerAttackManager : MonoBehaviour
     private Rigidbody _playerRb;
     private Camera _mainCam;
     private int _layerMask;
-    // NonAllocÀ» À§ÇÑ °á°ú ÀúÀå¿ë ¹è¿­. ¿ì¸®´Â ÇÏ³ª¸¸ ÇÊ¿äÇÏ¹Ç·Î Å©±â´Â 1.
+    // NonAllocì„ ìœ„í•œ ê²°ê³¼ ì €ì¥ìš© ë°°ì—´. ìš°ë¦¬ëŠ” í•˜ë‚˜ë§Œ í•„ìš”í•˜ë¯€ë¡œ í¬ê¸°ëŠ” 1.
     private readonly RaycastHit[] _raycastHits = new RaycastHit[1];
 
     void Start()
@@ -64,53 +64,53 @@ public class PlayerAttackManager : MonoBehaviour
 
     void Attack(WeaponData weapon, Vector3 targetPoint)
     {
-        // 1. »ç¿ëÇÒ ½ºÅ³ÀÌ ÀÖ´ÂÁö È®ÀÎ
+        // 1. ì‚¬ìš©í•  ìŠ¤í‚¬ì´ ìˆëŠ”ì§€ í™•ì¸
         if (weapon.skills == null || weapon.skills.Count == 0) return;
 
-        // (Áö±İÀº Ã¹ ¹øÂ° ½ºÅ³¸¸ »ç¿ë)
+        // (ì§€ê¸ˆì€ ì²« ë²ˆì§¸ ìŠ¤í‚¬ë§Œ ì‚¬ìš©)
         SkillData skillToUse = weapon.skills[0];
 
-        // ½ºÆù À§Ä¡/È¸Àü °è»ê
+        // ìŠ¤í° ìœ„ì¹˜/íšŒì „ ê³„ì‚°
         if (skillToUse.spawnStrategy == null)
         {
-            Debug.LogError(skillToUse.name + "¿¡ SpawnStrategy°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError(skillToUse.name + "ì— SpawnStrategyê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 
         skillToUse.spawnStrategy.CalculateSpawnTransform(transform, targetPoint, skillToUse, out Vector3 spawnPos, out Quaternion baseRotation);
 
 
-        // ¹ß»ç ÆĞÅÏ ½ÇÇà
+        // ë°œì‚¬ íŒ¨í„´ ì‹¤í–‰
         IFirePattern firePattern = skillToUse.GetFirePattern();
         if (firePattern == null)
         {
-            Debug.LogError(skillToUse.name + "¿¡ FirePatternÀÌ Á¤ÀÇµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError(skillToUse.name + "ì— FirePatternì´ ì •ì˜ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ¹ß»ç ÆĞÅÏ¿¡°Ô "°è»êµÈ À§Ä¡¿Í ¹æÇâÀ¸·Î ¹ß»ç¸¦ ½ÇÇàÇØ!" ¶ó°í ¸ğµç °ÍÀ» À§ÀÓ
+        // ë°œì‚¬ íŒ¨í„´ì—ê²Œ "ê³„ì‚°ëœ ìœ„ì¹˜ì™€ ë°©í–¥ìœ¼ë¡œ ë°œì‚¬ë¥¼ ì‹¤í–‰í•´!" ë¼ê³  ëª¨ë“  ê²ƒì„ ìœ„ì„
         firePattern.Execute(gameObject, skillToUse, spawnPos, baseRotation, targetPoint);
     }
 
     private Vector3 FindTargetPoint()
     {
-        // Ä«¸Ş¶ó È­¸éÀÇ Á¤Áß¾Ó ÁÂÇ¥¸¦ °¡Á®¿Â´Ù. (x: 0.5, y: 0.5)
+        // ì¹´ë©”ë¼ í™”ë©´ì˜ ì •ì¤‘ì•™ ì¢Œí‘œë¥¼ ê°€ì ¸ì˜¨ë‹¤. (x: 0.5, y: 0.5)
         Ray ray = _mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Vector3 targetPoint;
         int hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 1000f, _layerMask);
 
-        if (hitCount > 0) // ÇÑ °³ ÀÌ»ó ¸Â¾Ò´Ù¸é
+        if (hitCount > 0) // í•œ ê°œ ì´ìƒ ë§ì•˜ë‹¤ë©´
         {
-            // Ray°¡ ºÎµúÈù ÁöÁ¡À» ¸ñÇ¥ ÁöÁ¡À¸·Î ¼³Á¤ÇÑ´Ù.
+            // Rayê°€ ë¶€ë”ªíŒ ì§€ì ì„ ëª©í‘œ ì§€ì ìœ¼ë¡œ ì„¤ì •í•œë‹¤.
             targetPoint = _raycastHits[0].point;
-            Debug.DrawLine(ray.origin, targetPoint, Color.green, 1f); // µğ¹ö±ë¿ë: ³ì»ö ¼±
+            Debug.DrawLine(ray.origin, targetPoint, Color.green, 1f); // ë””ë²„ê¹…ìš©: ë…¹ìƒ‰ ì„ 
         }
         else
         {
-            // Ray°¡ ¾Æ¹«°Í¿¡µµ ºÎµúÈ÷Áö ¾Ê¾Ò´Ù¸é (Çã°øÀ» ½ò ¶§),
-            // Ä«¸Ş¶ó ¹æÇâÀ¸·Î ¾ÆÁÖ ¸Õ ÁöÁ¡À» ¸ñÇ¥·Î ¼³Á¤ÇÑ´Ù.
+            // Rayê°€ ì•„ë¬´ê²ƒì—ë„ ë¶€ë”ªíˆì§€ ì•Šì•˜ë‹¤ë©´ (í—ˆê³µì„ ì  ë•Œ),
+            // ì¹´ë©”ë¼ ë°©í–¥ìœ¼ë¡œ ì•„ì£¼ ë¨¼ ì§€ì ì„ ëª©í‘œë¡œ ì„¤ì •í•œë‹¤.
             targetPoint = ray.GetPoint(1000f);
-            Debug.DrawLine(ray.origin, targetPoint, Color.yellow, 1f); // µğ¹ö±ë¿ë: ³ë¶õ ¼±
+            Debug.DrawLine(ray.origin, targetPoint, Color.yellow, 1f); // ë””ë²„ê¹…ìš©: ë…¸ë€ ì„ 
         }
 
         return targetPoint;

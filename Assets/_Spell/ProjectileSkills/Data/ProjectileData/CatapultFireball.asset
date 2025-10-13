@@ -21,6 +21,6 @@ MonoBehaviour:
   launchAngle: 60
   damage: 50
   explosionRadius: 4
-  knockbackForce: 20
+  knockbackForce: 14
   onHitEffects:
   - {fileID: 11400000, guid: 95615277d2cabd142bd8403e848b015e, type: 2}

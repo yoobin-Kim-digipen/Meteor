@@ -10,7 +10,7 @@ public class ProjectileSkillData : SkillData
     public float damage;
 
     [Header("On-Hit Effects")]
-    [Tooltip("ÀÌ ¹ß»çÃ¼¿¡ ¸Â¾ÒÀ» ¶§ Àû¿ëµÉ ¸ğµç »óÅÂ ÀÌ»ó È¿°ú ¸ñ·Ï")]
+    [Tooltip("ì´ ë°œì‚¬ì²´ì— ë§ì•˜ì„ ë•Œ ì ìš©ë  ëª¨ë“  ìƒíƒœ ì´ìƒ íš¨ê³¼ ëª©ë¡")]
     public List<StatusEffect> onHitEffects = new List<StatusEffect>();
 
     public override IFirePattern GetFirePattern()
