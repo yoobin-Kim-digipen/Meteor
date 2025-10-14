@@ -7,6 +7,6 @@ public class MeleeMonsterData : MonsterData
     public float attackWindupTime = 0.5f;
     public float attackCooldown = 1.5f;
     public float damage = 15f;
-    public float attackAngle = 45f;     // °ø°İ ºÎÃ¤²ÃÀÇ ÃÑ °¢µµ
+    public float attackAngle = 45f;     // ê³µê²© ë¶€ì±„ê¼´ì˜ ì´ ê°ë„
     public float attackHeight = 2.0f;
 }

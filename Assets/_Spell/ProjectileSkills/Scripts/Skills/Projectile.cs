@@ -52,13 +52,13 @@ public class Projectile : Skill // Skill을 상속
             {
                 // 있다면, 데미지를 입힘!
                 enemyHealth.TakeDamage(_damage);
-                Debug.Log($"<color=yellow>{other.name}에게 {_damage}의 데미지를 입혔습니다!</color>");
+                //Debug.Log($"<color=yellow>{other.name}에게 {_damage}의 데미지를 입혔습니다!</color>");
             }
 
             // 플레이어 대상
             else
             {
-                Debug.Log($"<color=yellow>{other.name}이(가) {_damage}의 데미지를 입었습니다!</color>");
+                //Debug.Log($"<color=yellow>{other.name}이(가) {_damage}의 데미지를 입었습니다!</color>");
             }
 
             // 특수 효과 적용 로직

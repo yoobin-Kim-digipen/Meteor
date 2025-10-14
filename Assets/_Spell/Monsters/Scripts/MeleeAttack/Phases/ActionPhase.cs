@@ -2,7 +2,7 @@ using UnityEngine;
 public class ActionPhase : IAttackPhase
 {
     private MonsterMeleeAttackState _superState;
-    private bool _hasDealtDamage; // µ¥¹ÌÁö¸¦ ÇÑ ¹ø¸¸ ÁÖµµ·Ï Ã¼Å©ÇÏ´Â ÇÃ·¡±×
+    private bool _hasDealtDamage; // ë°ë¯¸ì§€ë¥¼ í•œ ë²ˆë§Œ ì£¼ë„ë¡ ì²´í¬í•˜ëŠ” í”Œë˜ê·¸
 
     public ActionPhase(MonsterMeleeAttackState superState)
     {
@@ -11,23 +11,23 @@ public class ActionPhase : IAttackPhase
 
     public void EnterPhase()
     {
-        _hasDealtDamage = false; // ´Ü°è ÁøÀÔ ½Ã ÇÃ·¡±× ÃÊ±âÈ­
+        _hasDealtDamage = false; // ë‹¨ê³„ ì§„ì… ì‹œ í”Œë˜ê·¸ ì´ˆê¸°í™”
 
-        // (¾Ö´Ï¸ŞÀÌ¼Ç) ½ÇÁ¦ °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı
+        // (ì• ë‹ˆë©”ì´ì…˜) ì‹¤ì œ ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
         // _superState.Monster.Animator.SetTrigger("AttackAction");
     }
 
     public void UpdatePhase()
     {
-        // ÀÌ ´Ü°è¿¡¼­´Â ÁøÀÔ ÈÄ Ã¹ ÇÁ·¹ÀÓ¿¡ µü ÇÑ ¹ø¸¸ µ¥¹ÌÁö ÆÇÁ¤À» ¼öÇà
+        // ì´ ë‹¨ê³„ì—ì„œëŠ” ì§„ì… í›„ ì²« í”„ë ˆì„ì— ë”± í•œ ë²ˆë§Œ ë°ë¯¸ì§€ íŒì •ì„ ìˆ˜í–‰
         if (!_hasDealtDamage)
         {
             PerformMeleeAttack();
             _hasDealtDamage = true;
         }
 
-        // ¾Ö´Ï¸ŞÀÌ¼ÇÀÌ ¾ø´Â ÇöÀç´Â, ÆÇÁ¤ ÈÄ Áï½Ã È¸º¹ ´Ü°è·Î ÀüÈ¯.
-        // (³ªÁß¿¡ ¾Ö´Ï¸ŞÀÌ¼Ç ±æÀÌ¿¡ ¸ÂÃç ÀüÈ¯ Å¸ÀÌ¹ÖÀ» Á¶ÀıÇÏ¸é ´õ ÀÚ¿¬½º·¯¿öÁü)
+        // ì• ë‹ˆë©”ì´ì…˜ì´ ì—†ëŠ” í˜„ì¬ëŠ”, íŒì • í›„ ì¦‰ì‹œ íšŒë³µ ë‹¨ê³„ë¡œ ì „í™˜.
+        // (ë‚˜ì¤‘ì— ì• ë‹ˆë©”ì´ì…˜ ê¸¸ì´ì— ë§ì¶° ì „í™˜ íƒ€ì´ë°ì„ ì¡°ì ˆí•˜ë©´ ë” ìì—°ìŠ¤ëŸ¬ì›Œì§)
         _superState.SwitchPhase(typeof(RecoveryPhase));
     }
 
@@ -37,25 +37,25 @@ public class ActionPhase : IAttackPhase
     {
         if (_superState.Monster.target == null) return;
 
-        // Á¶°Ç 1: °Å¸® (3D °Å¸®)
+        // ì¡°ê±´ 1: ê±°ë¦¬ (3D ê±°ë¦¬)
         float distance = Vector3.Distance(_superState.Monster.transform.position, _superState.Monster.target.position);
         bool isDistanceOK = distance <= _superState.MeleeData.attackRange;
 
-        // Á¶°Ç 2: °¢µµ (¼öÆò °¢µµ) - attackAngleÀÌ 360 ÀÌ»óÀÌ¸é ÀÌ Á¶°ÇÀº Ç×»ó Åë°úµÊ
+        // ì¡°ê±´ 2: ê°ë„ (ìˆ˜í‰ ê°ë„) - attackAngleì´ 360 ì´ìƒì´ë©´ ì´ ì¡°ê±´ì€ í•­ìƒ í†µê³¼ë¨
         Vector3 directionToPlayer3D = _superState.Monster.target.position - _superState.Monster.transform.position;
         Vector3 directionToPlayer2D = new Vector3(directionToPlayer3D.x, 0, directionToPlayer3D.z);
         float angle = (directionToPlayer2D.sqrMagnitude > 0.001f) ? Vector3.Angle(_superState.Monster.transform.forward, directionToPlayer2D.normalized) : 0f;
         bool isAngleOK = angle <= _superState.MeleeData.attackAngle / 2;
 
-        // Á¶°Ç 3: ³ôÀÌ
+        // ì¡°ê±´ 3: ë†’ì´
         float heightDifference = Mathf.Abs(directionToPlayer3D.y);
         bool isHeightOK = heightDifference <= _superState.MeleeData.attackHeight;
 
         if (isDistanceOK && isAngleOK && isHeightOK)
         {
-            Debug.Log($"<color=orange>{_superState.Monster.name}ÀÇ ±ÙÁ¢ °ø°İ ¼º°ø!</color>");
-
-            bool isParried = false; // ÀÓ½Ã
+            Debug.Log($"<color=orange>{_superState.Monster.name}ì˜ ê·¼ì ‘ ê³µê²© ì„±ê³µ!</color>");
+            StatManager.Instance.playerHealth.TakeDamage(_superState.MeleeData.damage);
+            bool isParried = false; // ì„ì‹œ
             if (!isParried)
             {
                 ApplySpecialEffect();
@@ -63,24 +63,24 @@ public class ActionPhase : IAttackPhase
         }
         else
         {
-            Debug.Log($"{_superState.Monster.name}ÀÇ Çê½ºÀ®! (°Å¸®OK: {isDistanceOK}, °¢µµOK: {isAngleOK}, ³ôÀÌOK: {isHeightOK})");
+            Debug.Log($"{_superState.Monster.name}ì˜ í—›ìŠ¤ìœ™! (ê±°ë¦¬OK: {isDistanceOK}, ê°ë„OK: {isAngleOK}, ë†’ì´OK: {isHeightOK})");
         }
     }
 
     private void ApplySpecialEffect()
     {
-        // ¾àÅ» ¸Á·É
+        // ì•½íƒˆ ë§ë ¹
         if (_superState.MeleeData is LootingMonsterData lootingData)
         {
-            // "¸¶·Â °áÁ¤À» 1°³ ÀÒ¾ú½À´Ï´Ù!" ·Î±× Ãâ·Â
-            Debug.Log($"<color=magenta>Æ¯¼ö È¿°ú ¹ßµ¿!</color> ¸¶·Â °áÁ¤À» {lootingData.manaCrystalDrain}°³ ÀÒ¾ú½À´Ï´Ù!");
+            // "ë§ˆë ¥ ê²°ì •ì„ 1ê°œ ìƒì—ˆìŠµë‹ˆë‹¤!" ë¡œê·¸ ì¶œë ¥
+            Debug.Log($"<color=magenta>íŠ¹ìˆ˜ íš¨ê³¼ ë°œë™!</color> ë§ˆë ¥ ê²°ì •ì„ {lootingData.manaCrystalDrain}ê°œ ìƒì—ˆìŠµë‹ˆë‹¤!");
 
         }
-        // ³Ã±â ¸Á·É
+        // ëƒ‰ê¸° ë§ë ¹
         else if (_superState.MeleeData is FrostMonsterData frostData)
         {
-            // "ÀÌµ¿¼Óµµ°¡ 3ÃÊ°£ 30% °¨¼ÒÇÕ´Ï´Ù!" ·Î±× Ãâ·Â
-            Debug.Log($"<color=cyan>Æ¯¼ö È¿°ú ¹ßµ¿!</color> ÀÌµ¿¼Óµµ°¡ {frostData.slowDuration}ÃÊ°£ {frostData.slowAmount * 100}% °¨¼ÒÇÕ´Ï´Ù!");
+            // "ì´ë™ì†ë„ê°€ 3ì´ˆê°„ 30% ê°ì†Œí•©ë‹ˆë‹¤!" ë¡œê·¸ ì¶œë ¥
+            Debug.Log($"<color=cyan>íŠ¹ìˆ˜ íš¨ê³¼ ë°œë™!</color> ì´ë™ì†ë„ê°€ {frostData.slowDuration}ì´ˆê°„ {frostData.slowAmount * 100}% ê°ì†Œí•©ë‹ˆë‹¤!");
 
         }
     }

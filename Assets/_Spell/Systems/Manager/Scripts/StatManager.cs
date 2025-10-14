@@ -15,7 +15,7 @@ public class StatManager : MonoBehaviour
     private int experiencePoints = 0;
     private int currentLevel = 1;
     private float previousHealth = -1f;
-    private PlayerHealth playerHealth;
+    public PlayerHealth playerHealth { get; private set; }
     //[SerializeField] private int baseXPForNextLevel = 100;
     //private int XPRequired => currentLevel * baseXPForNextLevel;
 
@@ -182,7 +182,7 @@ public class StatManager : MonoBehaviour
 
     private void ApplyGrowthByChosenRoute()
     {
-        if (currentLevel == 2 || currentLevel == 4 || currentLevel == 6 || currentLevel == 8 || currentLevel == 9)
+        if (currentLevel == 2 || currentLevel == 4 || currentLevel == 6 || currentLevel == 8 || currentLevel ==  9)
         {
             ApplyMainCoreUpgrade(lastChosenRouteIdx);
             ApplyMainCoreEffect(lastChosenRouteIdx, mainCoreLevels[lastChosenRouteIdx]);

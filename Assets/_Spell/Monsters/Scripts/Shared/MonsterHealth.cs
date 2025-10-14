@@ -24,7 +24,7 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth < 0) currentHealth = 0;
         if (currentHealth == 0)
         {
-            StatManager.Instance.GainExperience(10); // 예시로 10 경험치 획득
+            StatManager.Instance.GainExperience(30); // 예시로 10 경험치 획득
             Die();
         }
     }
