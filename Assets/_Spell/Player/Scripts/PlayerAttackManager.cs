@@ -4,9 +4,8 @@ using UnityEngine;
 public class PlayerAttackManager : MonoBehaviour
 {
     [Header("Attack Settings")]
-    public List<WeaponData> equippedWeapons; // ÀÎ½ºÆåÅÍ¿¡¼­ À¯Àú°¡ Áı¾î³ÖÀº ¹«±â Á¤º¸
+    public List<WeaponData> equippedWeapons; // ì¸ìŠ¤í™í„°ì—ì„œ ìœ ì €ê°€ ì§‘ì–´ë„£ì€ ë¬´ê¸° ì •ë³´
     private Dictionary<WeaponData, float> weaponCooldowns;
-    private bool _isFirstShot = true;
 
     [Header("Aiming Settings")]
     public float rotationSpeed = 720f;
@@ -14,7 +13,7 @@ public class PlayerAttackManager : MonoBehaviour
     private Rigidbody _playerRb;
     private Camera _mainCam;
     private int _layerMask;
-    // NonAllocÀ» À§ÇÑ °á°ú ÀúÀå¿ë ¹è¿­. ¿ì¸®´Â ÇÏ³ª¸¸ ÇÊ¿äÇÏ¹Ç·Î Å©±â´Â 1.
+    // NonAllocì„ ìœ„í•œ ê²°ê³¼ ì €ì¥ìš© ë°°ì—´. ìš°ë¦¬ëŠ” í•˜ë‚˜ë§Œ í•„ìš”í•˜ë¯€ë¡œ í¬ê¸°ëŠ” 1.
     private readonly RaycastHit[] _raycastHits = new RaycastHit[1];
 
     void Start()
@@ -54,98 +53,64 @@ public class PlayerAttackManager : MonoBehaviour
         _playerRb.MoveRotation(newRotation);
     }
 
-    public void OnStopAttack()
-    {
-        _isFirstShot = true;
-    }
-
     private void TryAttack(WeaponData weapon, Vector3 targetPoint)
     {
         if (Time.time >= weaponCooldowns[weapon])
         {
             Attack(weapon, targetPoint);
             weaponCooldowns[weapon] = Time.time + weapon.cooldown;
-            _isFirstShot = false;
         }
     }
 
     void Attack(WeaponData weapon, Vector3 targetPoint)
     {
+        // 1. ì‚¬ìš©í•  ìŠ¤í‚¬ì´ ìˆëŠ”ì§€ í™•ì¸
         if (weapon.skills == null || weapon.skills.Count == 0) return;
 
+        // (ì§€ê¸ˆì€ ì²« ë²ˆì§¸ ìŠ¤í‚¬ë§Œ ì‚¬ìš©)
         SkillData skillToUse = weapon.skills[0];
 
-        Vector3 spawnPos;
-        Quaternion spawnRotation;
-
-        // SkillData¿¡ Á¤ÀÇµÈ ½ºÆù Å¸ÀÔ¿¡ µû¶ó À§Ä¡¿Í È¸Àü°ªÀ» °è»ê
-        switch (skillToUse.spawnType)
+        // ìŠ¤í° ìœ„ì¹˜/íšŒì „ ê³„ì‚°
+        if (skillToUse.spawnStrategy == null)
         {
-            case SkillSpawnType.FromCaster:
-                // ±âº» ½ºÆù À§Ä¡´Â ÀÌÁ¦ ÇÃ·¹ÀÌ¾îÀÇ Áß½É À§Ä¡
-                Vector3 baseSpawnPos = transform.position;
-
-                // Ã¹ ¹ß º¸Á¤ Æ®¸¯: ÀÌ»óÀûÀÎ È¸Àü°ªÀ» ±âÁØÀ¸·Î ¿ÀÇÁ¼ÂÀ» Àû¿ëÇÕ´Ï´Ù.
-                if (_isFirstShot)
-                {
-                    Vector3 idealDirection = (targetPoint - baseSpawnPos).normalized;
-                    idealDirection.y = 0f;
-                    Quaternion idealRotation = Quaternion.LookRotation(idealDirection);
-                    // ÀÌ»óÀûÀÎ È¸Àü * ·ÎÄÃ ¿ÀÇÁ¼Â = ¿ùµå ¿ÀÇÁ¼Â
-                    spawnPos = baseSpawnPos + idealRotation * skillToUse.spawnOffset;
-                }
-                else
-                {
-                    // µÎ ¹øÂ° ¹ßºÎÅÍ´Â ÇöÀç Ä³¸¯ÅÍÀÇ È¸ÀüÀ» ±âÁØÀ¸·Î ¿ÀÇÁ¼ÂÀ» Àû¿ë
-                    spawnPos = baseSpawnPos + transform.rotation * skillToUse.spawnOffset;
-                }
-
-                spawnRotation = Quaternion.LookRotation((targetPoint - spawnPos).normalized);
-                break;
-
-            case SkillSpawnType.OnTarget:
-                spawnPos = targetPoint + Vector3.up * skillToUse.spawnHeightOffset;
-                spawnRotation = Quaternion.LookRotation(Vector3.down);
-                break;
-
-            default: // ¿¹¿Ü Ã³¸®
-                spawnPos = transform.position;
-                spawnRotation = Quaternion.identity;
-                break;
+            Debug.LogError(skillToUse.name + "ì— SpawnStrategyê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            return;
         }
 
-        GameObject skillObj = ObjectPooler.Instance.GetFromPool(skillToUse.skillName, spawnPos, spawnRotation);
+        skillToUse.spawnStrategy.CalculateSpawnTransform(transform, targetPoint, skillToUse, out Vector3 spawnPos, out Quaternion baseRotation);
 
-        if (skillObj != null)
+
+        // ë°œì‚¬ íŒ¨í„´ ì‹¤í–‰
+        IFirePattern firePattern = skillToUse.GetFirePattern();
+        if (firePattern == null)
         {
-            Skill skill = skillObj.GetComponent<Skill>();
-            if (skill != null)
-            {
-                skill.Activate(gameObject, skillToUse);
-            }
+            Debug.LogError(skillToUse.name + "ì— FirePatternì´ ì •ì˜ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            return;
         }
+
+        // ë°œì‚¬ íŒ¨í„´ì—ê²Œ "ê³„ì‚°ëœ ìœ„ì¹˜ì™€ ë°©í–¥ìœ¼ë¡œ ë°œì‚¬ë¥¼ ì‹¤í–‰í•´!" ë¼ê³  ëª¨ë“  ê²ƒì„ ìœ„ì„
+        firePattern.Execute(gameObject, skillToUse, spawnPos, baseRotation, targetPoint);
     }
-
 
     private Vector3 FindTargetPoint()
     {
-        // Ä«¸Ş¶ó È­¸éÀÇ Á¤Áß¾Ó ÁÂÇ¥¸¦ °¡Á®¿Â´Ù. (x: 0.5, y: 0.5)
+        // ì¹´ë©”ë¼ í™”ë©´ì˜ ì •ì¤‘ì•™ ì¢Œí‘œë¥¼ ê°€ì ¸ì˜¨ë‹¤. (x: 0.5, y: 0.5)
         Ray ray = _mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Vector3 targetPoint;
         int hitCount = Physics.RaycastNonAlloc(ray, _raycastHits, 1000f, _layerMask);
 
-        if (hitCount > 0) // ÇÑ °³ ÀÌ»ó ¸Â¾Ò´Ù¸é
+        if (hitCount > 0) // í•œ ê°œ ì´ìƒ ë§ì•˜ë‹¤ë©´
         {
-            // Ray°¡ ºÎµúÈù ÁöÁ¡À» ¸ñÇ¥ ÁöÁ¡À¸·Î ¼³Á¤ÇÑ´Ù.
+            // Rayê°€ ë¶€ë”ªíŒ ì§€ì ì„ ëª©í‘œ ì§€ì ìœ¼ë¡œ ì„¤ì •í•œë‹¤.
             targetPoint = _raycastHits[0].point;
-            Debug.DrawLine(ray.origin, targetPoint, Color.green, 1f); // µğ¹ö±ë¿ë: ³ì»ö ¼±
+            Debug.DrawLine(ray.origin, targetPoint, Color.green, 1f); // ë””ë²„ê¹…ìš©: ë…¹ìƒ‰ ì„ 
         }
         else
         {
-            // Ray°¡ ¾Æ¹«°Í¿¡µµ ºÎµúÈ÷Áö ¾Ê¾Ò´Ù¸é (Çã°øÀ» ½ò ¶§),
-            // Ä«¸Ş¶ó ¹æÇâÀ¸·Î ¾ÆÁÖ ¸Õ ÁöÁ¡À» ¸ñÇ¥·Î ¼³Á¤ÇÑ´Ù.
+            // Rayê°€ ì•„ë¬´ê²ƒì—ë„ ë¶€ë”ªíˆì§€ ì•Šì•˜ë‹¤ë©´ (í—ˆê³µì„ ì  ë•Œ),
+            // ì¹´ë©”ë¼ ë°©í–¥ìœ¼ë¡œ ì•„ì£¼ ë¨¼ ì§€ì ì„ ëª©í‘œë¡œ ì„¤ì •í•œë‹¤.
             targetPoint = ray.GetPoint(1000f);
-            Debug.DrawLine(ray.origin, targetPoint, Color.yellow, 1f); // µğ¹ö±ë¿ë: ³ë¶õ ¼±
+            Debug.DrawLine(ray.origin, targetPoint, Color.yellow, 1f); // ë””ë²„ê¹…ìš©: ë…¸ë€ ì„ 
         }
 
         return targetPoint;

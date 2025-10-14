@@ -41,11 +41,6 @@ public class PlayerGroundedState : PlayerBaseState
         else
         {
             // 3. 공격 중이 아닐 때는 평소처럼 이동과 회전을 모두 처리
-            if (_player.attackManager != null)
-            {
-                _player.attackManager.OnStopAttack();
-            }
-
             HandleGroundedMovement(applyRotation: true);
         }
     }

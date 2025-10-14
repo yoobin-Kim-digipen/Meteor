@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IStats
 {
     [Header("Move")]
     public float moveSpeed = 7f;
     public float turnSpeed = 720f; // 도/초
+
+    public float MoveSpeed
+    {
+        get { return moveSpeed; }  // MoveSpeed를 읽으려고 하면, moveSpeed 변수 값을 줌
+        set { moveSpeed = value; } // MoveSpeed를 바꾸려고 하면, moveSpeed 변수 값을 바꿈
+    }
 
     [Header("Acceleration")]
     public float acceleration = 20f;         // 지상 가속
@@ -22,6 +28,9 @@ public class Player : MonoBehaviour
     public float jumpHeight = 1.6f;          // 목표 점프 높이(물리식으로 계산)
     public float groundCheckRadius = 0.25f;  // 발 위치 반경
     public float jumpCutMultiplier = 0.5f;   // 점프 컷 비율(0~1)
+    public bool canDoubleJump = true;        // 더블 점프 기능 활성화 여부
+    public float doubleJumpHeight = 1.2f;    // 두 번째 점프의 높이 (첫 점프보다 낮은 게 자연스러움)
+    public bool _hasDoubleJumped;           // 이번 공중 체공 동안 더블 점프를 이미 사용했는지 확인하는 플래그
 
     // 점프 컷용, 점프키를 빨리 떼면 살짝 낮게(속도감)
     public bool jumpCut = true;              //코드 내에선 항상 true상태, inspector내에서 토글용도(체크 해제시 jumpcut 기능사라짐)
@@ -56,6 +65,10 @@ public class Player : MonoBehaviour
     public PlayerAttackManager attackManager { get; private set; }
     public bool IsAttacking { get; private set; }
 
+    private CapsuleCollider _collider;
+    public float CharacterHeight => _collider != null ? _collider.height : 2.0f;
+    public Vector3 CharacterCenterInLocalSpace => _collider != null ? _collider.center : Vector3.up;
+
     void Start()
     {
         // 마우스 위치안보이게 하기
@@ -87,6 +100,8 @@ public class Player : MonoBehaviour
 
         // 캐릭이 회전할때는 y축만 쓰므로 X/Z 축 회전을 잠가서 캐릭터가 넘어지거나 기울어지지 않게 함
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        _collider = GetComponent<CapsuleCollider>();
     }
 
     void Update()
@@ -95,7 +110,7 @@ public class Player : MonoBehaviour
         readMoveInput(ref moveDir);
 
         // 점프 입력은 프레임 단위로 '한 번만' 감지 + 홀드/릴리즈
-        if (Keyboard.current != null)
+        if (Keyboard.current != null && !_hasDoubleJumped)
         {
             var space = Keyboard.current.spaceKey;
 
@@ -106,7 +121,7 @@ public class Player : MonoBehaviour
 
             if (space.wasReleasedThisFrame)
             {
-                jumpReleaseQueued = true; // FixedUpdate에서 소비
+                jumpReleaseQueued = true;
             }
         }
 
@@ -192,10 +207,10 @@ public class Player : MonoBehaviour
         {
             _leftGroundTimer = 0f;
             isGrounded = true;
+            _hasDoubleJumped = false;
         }
         else
         {
-            // Update에서 호출되므로 Time.deltaTime을 사용
             _leftGroundTimer += Time.deltaTime;
             if (_leftGroundTimer > groundCheckDelay)
             {
@@ -292,6 +307,13 @@ public class Player : MonoBehaviour
 
         //현재 회전(rb.rotation)에서 목표 회전(targetRot) 쪽으로 회전
         rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, targetRot, turnSpeed * Time.fixedDeltaTime));
+    }
+
+    // 외부에서 플레이어에게 넉백을 적용할 때 호출하는 함수
+    public void ApplyKnockback(Vector3 direction, float force)
+    {
+        Rigidbody.AddForce(direction * force, ForceMode.Impulse);
+        Debug.Log("플레이어가 넉백되었습니다!");
     }
 
     // ---------------------------------        Debug         ----------------------------------------------------------------------

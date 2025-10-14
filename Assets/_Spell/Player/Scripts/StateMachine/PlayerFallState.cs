@@ -17,6 +17,7 @@ public class PlayerFallState : PlayerBaseState
     public override void UpdateState()
     {
         CheckSwitchStates();
+        HandleAirborneSwitchStates();
     }
 
     public override void FixedUpdateState()

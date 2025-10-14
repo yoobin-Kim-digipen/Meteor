@@ -36,6 +36,7 @@ public class PlayerJumpState : PlayerBaseState
     public override void UpdateState()
     {
         CheckSwitchStates();
+        HandleAirborneSwitchStates();
     }
 
     public override void FixedUpdateState()
