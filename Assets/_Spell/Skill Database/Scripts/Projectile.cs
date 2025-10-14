@@ -5,7 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Projectile : Skill // Skill을 상속
 {
-    private float _speed, _lifetime, _damage;
+    private float _speed, _lifetime;
+    public float Damage { get; private set; }
     private Rigidbody _rb;
     private string _targetTag;
     private GameObject _caster;
@@ -22,7 +23,7 @@ public class Projectile : Skill // Skill을 상속
         {
             _speed = projData.speed;
             _lifetime = projData.lifetime;
-            _damage = projData.damage;
+            Damage = projData.damage;
 
             if (caster.CompareTag("Player")) _targetTag = "Enemy";
             else if (caster.CompareTag("Enemy")) _targetTag = "Player";
@@ -45,9 +46,9 @@ public class Projectile : Skill // Skill을 상속
         {
             if (other.TryGetComponent<EnemyHealth>(out var enemy))
             {
-                enemy.TakeDamage(_damage);
+                enemy.TakeDamage(Damage);
             }
-            // if(other.TryGetComponent<PlayerHealth>(out var player)) player.TakeDamage(_damage);
+            if(other.TryGetComponent<PlayerHealth>(out var player)) player.TakeDamage(Damage);
 
             // 공격 성공 시 사라짐
             StopAllCoroutines();

@@ -20,4 +20,4 @@ MonoBehaviour:
   spawnHeightOffset: 20
   speed: 20
   lifetime: 5
-  damage: 50
+  damage: 100

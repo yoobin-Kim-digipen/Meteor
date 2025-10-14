@@ -20,10 +20,11 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
+        currentHealth -= StatManager.Instance.CalculateFinalDamage((int)damage, 20); // 몬스터는 방어력 20으로 가정
+        if (currentHealth < 0) currentHealth = 0;
+        if (currentHealth == 0)
         {
-            StatManager.Instance.GainExperience(10); // 경험치 10 획득 예시
+            StatManager.Instance.GainExperience(10); // 예시로 10 경험치 획득
             Die();
         }
     }
