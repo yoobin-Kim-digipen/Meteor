@@ -18,9 +18,8 @@ MonoBehaviour:
   spawnStrategy: {fileID: 11400000, guid: 2947e3455da40a248bea4734aaba9664, type: 2}
   spawnOffset: {x: 0, y: 0.5, z: 0.5}
   spawnHeightOffset: 20
-  launchAngle: 60
+  launchAngle: 45
   damage: 50
   explosionRadius: 4
-  knockbackForce: 14
-  onHitEffects:
-  - {fileID: 11400000, guid: 95615277d2cabd142bd8403e848b015e, type: 2}
+  knockbackForce: 0
+  onHitEffects: []

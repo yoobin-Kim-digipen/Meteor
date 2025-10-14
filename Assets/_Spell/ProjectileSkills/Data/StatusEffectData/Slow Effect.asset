@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Slow Effect
   m_EditorClassIdentifier: Assembly-CSharp::SlowEffect
   duration: 2
-  slowAmount: 0.5
+  slowAmount: 0.8

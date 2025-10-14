@@ -1020,7 +1020,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
   playerTransform: {fileID: 1036380668}
   spawnableMonsters:
-  - {fileID: 11400000, guid: f010ce5b90d257c41bd66131d4342fcb, type: 2}
+  - {fileID: 11400000, guid: ab698cc08d2b60b4d9b6033f028fe732, type: 2}
   maxSpawnRadius: 70
   minSpawnRadius: 40
   maxMonsters: 30
