@@ -7,6 +7,8 @@ public class MonsterStateFactory
     private MonsterMeleeAttackState _meleeAttackState; // 근접 공격 상태
     private MonsterRangedAttackState _rangedAttackState; // 원거리 공격 상태
     private MonsterSuicideAttackState _suicideAttackState; // 자폭 공격 상태
+    private MonsterIdleState _idleState;
+    private MonsterReturnState _returnState;
 
     public MonsterStateFactory(MonsterStateMachine currentContext)
     {
@@ -15,6 +17,8 @@ public class MonsterStateFactory
         _meleeAttackState = new MonsterMeleeAttackState(_context, this);
         _rangedAttackState = new MonsterRangedAttackState(_context, this);
         _suicideAttackState = new MonsterSuicideAttackState(_context, this);
+        _idleState = new MonsterIdleState(_context, this);
+        _returnState = new MonsterReturnState(_context, this);
     }
 
     // 상태를 요청하는 메서드들
@@ -39,4 +43,6 @@ public class MonsterStateFactory
             return _meleeAttackState;
         }
     }
+    public MonsterBaseState Idle() => _idleState;
+    public MonsterBaseState Return() => _returnState;
 }

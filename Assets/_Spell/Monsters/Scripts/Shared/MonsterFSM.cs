@@ -1,5 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
+public enum AIType
+{
+    LairGuardian, // 소굴을 지키는 타입
+    Wanderer      // 플레이어를 무조건 추격하는 타입
+}
 
 // 몬스터 프리팹에 필요한 컴포넌트들을 자동으로 추가해주고, 삭제하지 못하게 막는 어트리뷰트
 [RequireComponent(typeof(NavMeshAgent), typeof(MonsterStateMachine), typeof(EnemyHealth))]
@@ -7,7 +12,11 @@ public class MonsterFSM : MonoBehaviour, IStats
 {
     [Header("AI Data")]
     public MonsterData monsterData;
-    public Transform target;
+    public Transform target { get; private set; }
+    public AIType aiType { get; private set; }
+    private MonsterLair _lair;
+    public MonsterLair Lair => _lair;
+    private Vector3 _initialPosition;
 
     public Collider targetCollider { get; private set; }
     public NavMeshAgent agent { get; private set; }
@@ -22,6 +31,8 @@ public class MonsterFSM : MonoBehaviour, IStats
     public EnemyHealth health { get; private set; }
     public Animator animator { get; private set; }
 
+    public bool IsInLairCombat { get; private set; } = false; // 현재 소굴 전투 중인지
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -30,16 +41,49 @@ public class MonsterFSM : MonoBehaviour, IStats
         animator = GetComponentInChildren<Animator>();
     }
 
+    public void Initialize(MonsterData data, MonsterLair lair, Vector3 initialPosition)
+    {
+        this.monsterData = data;
+        this.aiType = AIType.LairGuardian; // "나는 소굴 소속이다"
+        this._lair = lair;
+        this._initialPosition = initialPosition;
+        this.target = null; // 처음에는 타겟이 없음
+
+        // ... (Agent, Health, StateMachine 초기화는 공통) ...
+        InitializeComponents(data);
+    }
+
     public void Initialize(MonsterData data, Transform playerTarget)
     {
         this.monsterData = data;
-        this.target = playerTarget;
+        this.aiType = AIType.Wanderer; // "나는 방랑자다"
+        this._lair = null;
+        this.target = playerTarget; // 처음부터 플레이어를 타겟으로
 
-        agent.speed = monsterData.speed;
-        // 내가 가진 monsterData를 Health 컴포넌트에게 전달하여 초기화시킨다.
-        health.Initialize(monsterData);
-        stateMachine.Initialize(monsterData);
+        InitializeComponents(data);
     }
+
+    private void InitializeComponents(MonsterData data)
+    {
+        agent.speed = data.speed;
+        health.Initialize(data);
+        stateMachine.Initialize(data);
+    }
+
+    public void SetTarget(Transform newTarget)
+    {
+        target = newTarget;
+        IsInLairCombat = (newTarget != null);
+    }
+
+    public void ReturnToLairPosition()
+    {
+        SetTarget(null); // 타겟을 잃어버림
+        stateMachine.SwitchToReturnState(); // 'Return' 상태로 전환
+        health.ResetHealth();
+    }
+
+    public Vector3 GetInitialPosition() => _initialPosition;
 
     // 오브젝트가 활성화될 때마다 호출되는 함수
     void OnEnable()
@@ -81,6 +125,13 @@ public class MonsterFSM : MonoBehaviour, IStats
         {
             return true; // 범위 안에 있음
         }
+    }
+
+    // 소굴 관리자로부터 정보를 받는 함수
+    public void SetLair(MonsterLair lair, Vector3 initialPosition)
+    {
+        _lair = lair;
+        _initialPosition = initialPosition;
     }
 
     // 디버깅용: 씬(Scene) 뷰에서 몬스터의 공격 범위를 시각적으로 보여줌
