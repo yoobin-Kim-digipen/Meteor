@@ -16,11 +16,11 @@ MonoBehaviour:
   skillDescription: 
   skillIcon: {fileID: 0}
   cooldown: 0
-  parryWindowDuration: 0.3
-  shieldPrefab: {fileID: 0}
+  parryWindowDuration: 0.5
+  shieldPrefab: {fileID: 4327875639880207152, guid: 4b9b379f6eda6415d8430407f38517da, type: 3}
   parryableLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   slowdownFactor: 0.5
   slowdownDuration: 3
-  successVFX: {fileID: 0}
+  successVFX: {fileID: 7673086088973738622, guid: aa9d8d653df004b7e95d2cc4d0a789f7, type: 3}

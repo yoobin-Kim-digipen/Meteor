@@ -456,11 +456,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatManager
   playerObject: {fileID: 1036380662}
   weaponData: {fileID: 11400000, guid: 7f98d879d5f2ac042822aa8cb40f0873, type: 2}
+  mp: 30
   isTeleportSynergyEnabled: 0
+  isParrySynergyEnabled: 0
+  isParryHealEnabled: 0
+  synergyFireInterval: 0.2
+  synergyMissileCount: 2
+  parryMissileCount: 2
+  bonusNormalHomingProjectiles: 0
+  bonusHomingDamage: 0
   BombProjectileSkillData: {fileID: 11400000, guid: 8ab40c3bba4a44f1a934d26a65b3f77d, type: 2}
   playerAttackManager: {fileID: 0}
   teleportData: {fileID: 11400000, guid: 5b3ca49d7b43e472ea72bbc11015eaa3, type: 2}
-  HomingSkillData: {fileID: 0}
+  HomingSkillData: {fileID: 11400000, guid: 6a1d86bff50114471b679055d457ada2, type: 2}
+  parryData: {fileID: 11400000, guid: 600167c2948d249628ed5c73c43bac23, type: 2}
 --- !u!4 &224195935
 Transform:
   m_ObjectHideFlags: 0
@@ -1025,10 +1034,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
   playerTransform: {fileID: 1036380668}
   spawnableMonsters:
-  - {fileID: 11400000, guid: f010ce5b90d257c41bd66131d4342fcb, type: 2}
+  - {fileID: 11400000, guid: 4a3313588b1d0014ba46eb10f7376c5b, type: 2}
   maxSpawnRadius: 70
   minSpawnRadius: 40
-  maxMonsters: 100
+  maxMonsters: 30
   TimeManager: {fileID: 1069140842}
   spawnStartHour: 18
   spawnEndHour: 6
@@ -1064,11 +1073,13 @@ GameObject:
   - component: {fileID: 1036380667}
   - component: {fileID: 1036380666}
   - component: {fileID: 1036380665}
+  - component: {fileID: 1036380676}
   - component: {fileID: 1036380663}
   - component: {fileID: 1036380664}
   - component: {fileID: 1036380669}
   - component: {fileID: 1036380674}
   - component: {fileID: 1036380673}
+  - component: {fileID: 1036380675}
   - component: {fileID: 1036380670}
   - component: {fileID: 1036380671}
   - component: {fileID: 1036380672}
@@ -1118,7 +1129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d1033e609d1b4543a60409ca3542b6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  moveSpeed: 7
+  moveSpeed: 10
   turnSpeed: 720
   acceleration: 20
   deceleration: 30
@@ -1166,7 +1177,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.4
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -1324,6 +1335,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillManager
   teleportSkillHandler: {fileID: 1036380673}
+  parrySkillHandler: {fileID: 1036380675}
+--- !u!114 &1036380675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036380662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 700d56bcf86b54be99b5966a2ed5a7d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ParrySkill
+  shieldSpawnOffset: {x: 0, y: 0.5, z: 0.8}
+  shieldRotationOffset: {x: -90, y: 0, z: 0}
+--- !u!135 &1036380676
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036380662}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.3
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1069140842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1897,6 +1944,24 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &1359558045 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1136286304250517901, guid: cc200122814d4460d99fdac01a9b10ce, type: 3}
+  m_PrefabInstance: {fileID: 7245119580389024729}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1359558049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359558045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc48a1ad756484e3c966f385b1fe7cdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoDestroyEffect
+  lifetime: 2
 --- !u!1 &1392237258
 GameObject:
   m_ObjectHideFlags: 0
@@ -2682,10 +2747,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: ExplosionEffect
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5574720199114868103, guid: cc200122814d4460d99fdac01a9b10ce, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1136286304250517901, guid: cc200122814d4460d99fdac01a9b10ce, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1359558049}
   m_SourcePrefab: {fileID: 100100000, guid: cc200122814d4460d99fdac01a9b10ce, type: 3}
 --- !u!1001 &8632836953568706337
 PrefabInstance:
@@ -2748,34 +2817,13 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1281786745503452591, guid: b03da7bdccfa141f1ab213f8bc9a1150, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4659030785401165461}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3509014615581772331, guid: b03da7bdccfa141f1ab213f8bc9a1150, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8632836953568706340}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b03da7bdccfa141f1ab213f8bc9a1150, type: 3}
---- !u!1 &8632836953568706338 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3509014615581772331, guid: b03da7bdccfa141f1ab213f8bc9a1150, type: 3}
-  m_PrefabInstance: {fileID: 8632836953568706337}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8632836953568706339 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1281786745503452591, guid: b03da7bdccfa141f1ab213f8bc9a1150, type: 3}
   m_PrefabInstance: {fileID: 8632836953568706337}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8632836953568706340
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8632836953568706338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc48a1ad756484e3c966f385b1fe7cdb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AutoDestroyEffect
-  lifetime: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
