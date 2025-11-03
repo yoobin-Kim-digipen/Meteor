@@ -6,8 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/TestSpace/TestArea.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Trader/Scenes/LocalMapScene.unity
+    guid: a85f4249875b84deb832b79283dce6d7
+  - enabled: 1
+    path: Assets/Trader/Scenes/EmptyMapScene.unity
+    guid: cfc891606abaf458589f929c7dbffd3d
+  - enabled: 1
+    path: Assets/Trader/Scenes/BattleMapScene.unity
+    guid: 4481bf4d74566480b9bfd0b68a1eb118
+  - enabled: 1
+    path: Assets/Trader/Scenes/WellMapScene.unity
+    guid: fd29d5987f2a2451a9107bc1c9c848e0
+  - enabled: 1
+    path: Assets/Trader/Scenes/TreasureMapScene.unity
+    guid: 26aff211f2ca14650afa9666bc4cd232
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
