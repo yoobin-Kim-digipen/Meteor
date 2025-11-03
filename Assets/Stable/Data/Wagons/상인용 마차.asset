@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f701877a8d92ba84481c33b4a2e8307a, type: 3}
+  m_Name: "\uC0C1\uC778\uC6A9 \uB9C8\uCC28"
+  m_EditorClassIdentifier: Assembly-CSharp::WagonData
+  wagonName: "\uC0C1\uC778\uC6A9 \uB9C8\uCC28"
+  wagonImage: {fileID: 21300000, guid: 0f17f871cc0b71e4db19fd05d1b6712b, type: 3}
+  description: 
+  baseLoadCapacity: 300
+  destinyUpgradeSlots: 1
