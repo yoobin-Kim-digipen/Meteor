@@ -20,6 +20,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Trader/Scenes/TreasureMapScene.unity
     guid: 26aff211f2ca14650afa9666bc4cd232
+  - enabled: 1
+    path: Assets/Trader/Scenes/DemoShopScene.unity
+    guid: 52d2b7ece60964856a76ad7e9c81d92b
+  - enabled: 1
+    path: Assets/Trader/Scenes/DemoStableScene.unity
+    guid: 3cdebf82800b14b49a6cbdb4f5013c03
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -37,6 +37,8 @@ public class GameManager : MonoBehaviour
     public TMP_Text nodeTypeDisplayText;  // 에디터에서 할당할 UI Text 컴포넌트
     public GameObject popupPanel;          // 팝업 패널 오브젝트 (에디터에서 할당)
     public TMP_Text popupMessageText;      // 팝업 내 메시지 텍스트
+    public Button shopEnterButton;        // 상점 입장 버튼 (에디터에서 할당)
+    public Button stableEnterButton;      // 마구간 입장 버튼 (에디터에서 할당)
     private System.Action onEnterAction;   // 입장 콜백
 
     [Header("애니메이션 설정")]
@@ -338,6 +340,16 @@ public class GameManager : MonoBehaviour
     public void OnPopupCancel()
     {
         popupPanel.SetActive(false);
+    }
+
+    public void OnShopEnterButton()
+    {
+        StartCoroutine(SwitchToOtherMapScene("DemoShopScene"));
+    }
+
+    public void OnStableEnterButton()
+    {
+        StartCoroutine(SwitchToOtherMapScene("DemoStableScene"));
     }
 
     public IEnumerator SwitchScene(string oldScene, string newScene, bool keepOldScene = true)
