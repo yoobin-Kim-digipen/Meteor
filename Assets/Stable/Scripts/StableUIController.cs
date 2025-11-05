@@ -1,148 +1,146 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // TextMeshPro¸¦ »ç¿ë
+using TMPro; // TextMeshProë¥¼ ì‚¬ìš©
 using System.Collections.Generic;
 
 public class StableUIController : MonoBehaviour
 {
-    // --- UI ¿ä¼Ò ¿¬°á (ÀÎ½ºÆåÅÍ Ã¢¿¡¼­ ¸ğµÎ µå·¡±× ¾Ø µå·ÓÀ¸·Î ¿¬°áÇØÁÖ¼¼¿ä) ---
-
-    [Header("A. »ó´Ü Á¤º¸")]
+    [Header("A. ìƒë‹¨ ì •ë³´")]
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI shardText;
     public Button exitButton;
 
-    [Header("Áß¾Ó ¸¶Â÷ µğ½ºÇÃ·¹ÀÌ")]
+    [Header("ì¤‘ì•™ ë§ˆì°¨ ë””ìŠ¤í”Œë ˆì´")]
     public Image wagonImage;
 
-    [Header("B-1. ¸¶Â÷ ½ºÅÈ ¹× ¸ñ·Ï")]
+    [Header("B-1. ë§ˆì°¨ ìŠ¤íƒ¯ ë° ëª©ë¡")]
     public TextMeshProUGUI wagonNameText;
     public TextMeshProUGUI loadText;
     public TextMeshProUGUI slotText;
-    public Transform partListContent; // ºÎÇ° ¸ñ·ÏÀÌ »ı¼ºµÉ ScrollViewÀÇ Content ¿ÀºêÁ§Æ®
-    public GameObject partListItemPrefab; // ºÎÇ° ¸ñ·Ï ¾ÆÀÌÅÛÀ¸·Î »ç¿ëÇÒ ÇÁ¸®ÆÕ
+    public Transform partListContent; // ë¶€í’ˆ ëª©ë¡ì´ ìƒì„±ë  ScrollViewì˜ Content ì˜¤ë¸Œì íŠ¸
+    public GameObject partListItemPrefab; // ë¶€í’ˆ ëª©ë¡ ì•„ì´í…œìœ¼ë¡œ ì‚¬ìš©í•  í”„ë¦¬íŒ¹
 
-    [Header("B-2. »ó¼¼ Á¤º¸")]
+    [Header("B-2. ìƒì„¸ ì •ë³´")]
     public Image selectedPartIcon;
     public TextMeshProUGUI selectedPartNameText;
     public TextMeshProUGUI selectedPartDescText;
-    public Transform materialListContent; // ÇÊ¿ä Àç·á ¸ñ·ÏÀÌ »ı¼ºµÉ Content ¿ÀºêÁ§Æ®
-    public GameObject materialListItemPrefab; // ÇÊ¿ä Àç·á ¾ÆÀÌÅÛÀ¸·Î »ç¿ëÇÒ ÇÁ¸®ÆÕ
+    public Transform materialListContent; // í•„ìš” ì¬ë£Œ ëª©ë¡ì´ ìƒì„±ë  Content ì˜¤ë¸Œì íŠ¸
+    public GameObject materialListItemPrefab; // í•„ìš” ì¬ë£Œ ì•„ì´í…œìœ¼ë¡œ ì‚¬ìš©í•  í”„ë¦¬íŒ¹
 
-    [Header("ÇÏ´Ü ¾×¼Ç ¹öÆ°")]
+    [Header("í•˜ë‹¨ ì•¡ì…˜ ë²„íŠ¼")]
     public Button actionButton;
     public TextMeshProUGUI actionButtonText;
 
-    // --- ³»ºÎ º¯¼ö ---
-    private PlayerWagon currentWagon; // ÇöÀç º¸°í ÀÖ´Â ¸¶Â÷ÀÇ µ¥ÀÌÅÍ
-    private PartData selectedPart; // ÁÂÃø ¸ñ·Ï¿¡¼­ ¼±ÅÃÇÑ ºÎÇ°ÀÇ µ¥ÀÌÅÍ
-    private List<PartListItemUI> currentPartListItems = new List<PartListItemUI>(); // È­¸é¿¡ »ı¼ºµÈ ¸ñ·Ï ¾ÆÀÌÅÛµéÀ» °ü¸®ÇÏ±â À§ÇÑ ¸®½ºÆ®
+    // --- ë‚´ë¶€ ë³€ìˆ˜ ---
+    private PlayerWagon currentWagon; // í˜„ì¬ ë³´ê³  ìˆëŠ” ë§ˆì°¨ì˜ ë°ì´í„°
+    private PartData selectedPart; // ì¢Œì¸¡ ëª©ë¡ì—ì„œ ì„ íƒí•œ ë¶€í’ˆì˜ ë°ì´í„°
+    private List<PartListItemUI> currentPartListItems = new List<PartListItemUI>(); // í™”ë©´ì— ìƒì„±ëœ ëª©ë¡ ì•„ì´í…œë“¤ì„ ê´€ë¦¬í•˜ê¸° ìœ„í•œ ë¦¬ìŠ¤íŠ¸
 
-    // ÀÌ UI ÆĞ³ÎÀÌ ÄÑÁú ¶§¸¶´Ù È£ÃâµË´Ï´Ù.
+    // ì´ UI íŒ¨ë„ì´ ì¼œì§ˆ ë•Œë§ˆë‹¤ í˜¸ì¶œë©ë‹ˆë‹¤.
     void OnEnable()
     {
-        // 1. StableManager¿¡¼­ ÇöÀç ÇÃ·¹ÀÌ¾îÀÇ ¸¶Â÷ Á¤º¸¸¦ °¡Á®¿É´Ï´Ù.
-        //    (ÁÖÀÇ: StableManager¿Í Player µ¥ÀÌÅÍ°¡ ÁØºñµÇ¾î ÀÖ¾î¾ß ÇÕ´Ï´Ù)
+        // 1. StableManagerì—ì„œ í˜„ì¬ í”Œë ˆì´ì–´ì˜ ë§ˆì°¨ ì •ë³´ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
+        //    (ì£¼ì˜: StableManagerì™€ Player ë°ì´í„°ê°€ ì¤€ë¹„ë˜ì–´ ìˆì–´ì•¼ í•©ë‹ˆë‹¤)
         currentWagon = StableManager.Instance.GetCurrentViewingWagon();
 
         if (currentWagon == null)
         {
-            Debug.LogError("Ç¥½ÃÇÒ ¸¶Â÷°¡ ¾ø½À´Ï´Ù! StableManager¿¡¼­ ÇÃ·¹ÀÌ¾î ¸¶Â÷ µ¥ÀÌÅÍ¸¦ È®ÀÎÇÏ¼¼¿ä.");
+            Debug.LogError("í‘œì‹œí•  ë§ˆì°¨ê°€ ì—†ìŠµë‹ˆë‹¤! StableManagerì—ì„œ í”Œë ˆì´ì–´ ë§ˆì°¨ ë°ì´í„°ë¥¼ í™•ì¸í•˜ì„¸ìš”.");
             return;
         }
 
-        // 2. °¡Á®¿Â ¸¶Â÷ Á¤º¸·Î ÀüÃ¼ UI¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+        // 2. ê°€ì ¸ì˜¨ ë§ˆì°¨ ì •ë³´ë¡œ ì „ì²´ UIë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
         UpdateAllUI();
     }
 
-    // ÀüÃ¼ UI¸¦ »õ·Î°íÄ§ÇÏ´Â ÇÔ¼ö
+    // ì „ì²´ UIë¥¼ ìƒˆë¡œê³ ì¹¨í•˜ëŠ” í•¨ìˆ˜
     public void UpdateAllUI()
     {
-        UpdateWagonStatsUI(); // B-1 ÆĞ³ÎÀÇ ¸¶Â÷ ½ºÅÈ ¾÷µ¥ÀÌÆ®
-        PopulatePartList();   // B-1 ÆĞ³ÎÀÇ ºÎÇ° ¸ñ·Ï Ã¤¿ì±â
+        UpdateWagonStatsUI(); // B-1 íŒ¨ë„ì˜ ë§ˆì°¨ ìŠ¤íƒ¯ ì—…ë°ì´íŠ¸
+        PopulatePartList();   // B-1 íŒ¨ë„ì˜ ë¶€í’ˆ ëª©ë¡ ì±„ìš°ê¸°
 
-        // ¸ñ·Ï¿¡ ¾ÆÀÌÅÛÀÌ ÀÖ´Ù¸é, Ã¹ ¹øÂ° ¾ÆÀÌÅÛÀ» ÀÚµ¿À¸·Î ¼±ÅÃÇØ¼­ º¸¿©ÁÜ
+        // ëª©ë¡ì— ì•„ì´í…œì´ ìˆë‹¤ë©´, ì²« ë²ˆì§¸ ì•„ì´í…œì„ ìë™ìœ¼ë¡œ ì„ íƒí•´ì„œ ë³´ì—¬ì¤Œ
         if (currentPartListItems.Count > 0)
         {
-            // Ã¹ ¹øÂ° ¾ÆÀÌÅÛÀÇ PartData¸¦ °¡Á®¿Í¼­ SelectPart ÇÔ¼ö È£Ãâ
+            // ì²« ë²ˆì§¸ ì•„ì´í…œì˜ PartDataë¥¼ ê°€ì ¸ì™€ì„œ SelectPart í•¨ìˆ˜ í˜¸ì¶œ
             PartData firstPart = currentPartListItems[0].GetPartData();
             SelectPart(firstPart);
         }
         else
         {
-            // ¸ñ·ÏÀÌ ºñ¾îÀÖÀ¸¸é »ó¼¼ Á¤º¸ ÆĞ³Îµµ ºñ¿ò
+            // ëª©ë¡ì´ ë¹„ì–´ìˆìœ¼ë©´ ìƒì„¸ ì •ë³´ íŒ¨ë„ë„ ë¹„ì›€
             ClearDetailPanel();
         }
     }
 
-    // B-1 ÆĞ³ÎÀÇ ¸¶Â÷ ÀÌ¸§, ÀûÀç·®, ¿î¸í ½½·Ô UI¸¦ ¾÷µ¥ÀÌÆ®
+    // B-1 íŒ¨ë„ì˜ ë§ˆì°¨ ì´ë¦„, ì ì¬ëŸ‰, ìš´ëª… ìŠ¬ë¡¯ UIë¥¼ ì—…ë°ì´íŠ¸
     void UpdateWagonStatsUI()
     {
         wagonNameText.text = currentWagon.baseData.wagonName;
-        // TODO: ÀûÀç·®Àº ±âº» + °³Á¶ È¿°ú¸¦ ÇÕ»êÇØ¾ß ÇÔ. Áö±İÀº ÀÓ½Ã·Î ±âº»°ª¸¸ Ç¥½Ã.
-        loadText.text = $"ÀûÀç·®: {currentWagon.baseData.baseLoadCapacity} / {currentWagon.baseData.baseLoadCapacity}";
+        // TODO: ì ì¬ëŸ‰ì€ ê¸°ë³¸ + ê°œì¡° íš¨ê³¼ë¥¼ í•©ì‚°í•´ì•¼ í•¨. ì§€ê¸ˆì€ ì„ì‹œë¡œ ê¸°ë³¸ê°’ë§Œ í‘œì‹œ.
+        loadText.text = $"ì ì¬ëŸ‰: {currentWagon.baseData.baseLoadCapacity} / {currentWagon.baseData.baseLoadCapacity}";
 
-        slotText.text = $"¿î¸í ½½·Ô: {currentWagon.equippedDestinyParts.Count}/{currentWagon.baseData.destinyUpgradeSlots}";
+        slotText.text = $"ìš´ëª… ìŠ¬ë¡¯: {currentWagon.equippedDestinyParts.Count}/{currentWagon.baseData.destinyUpgradeSlots}";
     }
-    // B-1 ÆĞ³ÎÀÇ ½ºÅ©·Ñ ¸ñ·ÏÀ» ¸ğµç ºÎÇ° Á¤º¸·Î Ã¤¿ò
+    // B-1 íŒ¨ë„ì˜ ìŠ¤í¬ë¡¤ ëª©ë¡ì„ ëª¨ë“  ë¶€í’ˆ ì •ë³´ë¡œ ì±„ì›€
     void PopulatePartList()
     {
-        // 1. ±âÁ¸¿¡ ÀÖ´ø ¸ñ·Ï ¾ÆÀÌÅÛµéÀ» ¸ğµÎ »èÁ¦
+        // 1. ê¸°ì¡´ì— ìˆë˜ ëª©ë¡ ì•„ì´í…œë“¤ì„ ëª¨ë‘ ì‚­ì œ
         foreach (Transform child in partListContent)
         {
             Destroy(child.gameObject);
         }
         currentPartListItems.Clear();
 
-        // 2. StableManager¿¡¼­ °ÔÀÓ¿¡ Á¸ÀçÇÏ´Â ¸ğµç ºÎÇ° ¸ñ·ÏÀ» °¡Á®¿È
+        // 2. StableManagerì—ì„œ ê²Œì„ì— ì¡´ì¬í•˜ëŠ” ëª¨ë“  ë¶€í’ˆ ëª©ë¡ì„ ê°€ì ¸ì˜´
         foreach (PartData part in StableManager.Instance.allAvailableParts)
         {
-            // 3. ¸ñ·Ï ¾ÆÀÌÅÛ ÇÁ¸®ÆÕÀ» »ı¼º
+            // 3. ëª©ë¡ ì•„ì´í…œ í”„ë¦¬íŒ¹ì„ ìƒì„±
             GameObject itemGO = Instantiate(partListItemPrefab, partListContent);
             PartListItemUI itemUI = itemGO.GetComponent<PartListItemUI>();
 
-            // 4. ÀÌ ºÎÇ°ÀÇ ÇöÀç »óÅÂ (ÀåÂøµÊ, Á¦ÀÛ°¡´É µî)¸¦ StableManager¿¡°Ô ¹°¾îº½
+            // 4. ì´ ë¶€í’ˆì˜ í˜„ì¬ ìƒíƒœ (ì¥ì°©ë¨, ì œì‘ê°€ëŠ¥ ë“±)ë¥¼ StableManagerì—ê²Œ ë¬¼ì–´ë´„
             PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, part);
 
-            // 5. ÇÁ¸®ÆÕ¿¡ Á¤º¸¸¦ ¼³Á¤ÇÏ°í, Å¬¸¯ÇßÀ» ¶§ 'SelectPart' ÇÔ¼ö°¡ È£ÃâµÇµµ·Ï ¿¬°á
+            // 5. í”„ë¦¬íŒ¹ì— ì •ë³´ë¥¼ ì„¤ì •í•˜ê³ , í´ë¦­í–ˆì„ ë•Œ 'SelectPart' í•¨ìˆ˜ê°€ í˜¸ì¶œë˜ë„ë¡ ì—°ê²°
             itemUI.Setup(part, status, () => SelectPart(part));
             currentPartListItems.Add(itemUI);
         }
     }
 
-    // À¯Àú°¡ ºÎÇ° ¸ñ·Ï¿¡¼­ Ç×¸ñÀ» Å¬¸¯ÇßÀ» ¶§ È£Ãâ
+    // ìœ ì €ê°€ ë¶€í’ˆ ëª©ë¡ì—ì„œ í•­ëª©ì„ í´ë¦­í–ˆì„ ë•Œ í˜¸ì¶œ
     void SelectPart(PartData part)
     {
         selectedPart = part;
 
-        // 1. ¸ğµç ¾ÆÀÌÅÛÀÇ '¼±ÅÃµÊ' Ç¥½Ã¸¦ ÀÏ´Ü ²ö´Ù.
+        // 1. ëª¨ë“  ì•„ì´í…œì˜ 'ì„ íƒë¨' í‘œì‹œë¥¼ ì¼ë‹¨ ëˆë‹¤.
         foreach (var item in currentPartListItems)
         {
             item.SetSelected(false);
         }
-        // 2. ÇöÀç Å¬¸¯ÇÑ ¾ÆÀÌÅÛ¿¡ ÇØ´çÇÏ´Â UI¸¦ Ã£¾Æ¼­ '¼±ÅÃµÊ' Ç¥½Ã¸¦ ÄÒ´Ù.
+        // 2. í˜„ì¬ í´ë¦­í•œ ì•„ì´í…œì— í•´ë‹¹í•˜ëŠ” UIë¥¼ ì°¾ì•„ì„œ 'ì„ íƒë¨' í‘œì‹œë¥¼ ì¼ ë‹¤.
         PartListItemUI targetUI = currentPartListItems.Find(ui => ui.GetPartData() == part);
         if (targetUI != null)
         {
             targetUI.SetSelected(true);
         }
 
-        // 3. B-2 »ó¼¼ Á¤º¸ ÆĞ³ÎÀ» ¼±ÅÃµÈ ºÎÇ° Á¤º¸·Î ¾÷µ¥ÀÌÆ®
+        // 3. B-2 ìƒì„¸ ì •ë³´ íŒ¨ë„ì„ ì„ íƒëœ ë¶€í’ˆ ì •ë³´ë¡œ ì—…ë°ì´íŠ¸
         UpdateDetailPanel();
     }
 
-    // B-2 »ó¼¼ Á¤º¸ ÆĞ³Î°ú ÇÏ´Ü ¾×¼Ç ¹öÆ°À» ¾÷µ¥ÀÌÆ®
+    // B-2 ìƒì„¸ ì •ë³´ íŒ¨ë„ê³¼ í•˜ë‹¨ ì•¡ì…˜ ë²„íŠ¼ì„ ì—…ë°ì´íŠ¸
     void UpdateDetailPanel()
     {
         if (selectedPart == null) return;
 
-        // ¾ÆÀÌÄÜ, ÀÌ¸§, ¼³¸í ¾÷µ¥ÀÌÆ®
+        // ì•„ì´ì½˜, ì´ë¦„, ì„¤ëª… ì—…ë°ì´íŠ¸
         selectedPartIcon.sprite = selectedPart.icon;
         selectedPartNameText.text = selectedPart.partName;
         selectedPartDescText.text = selectedPart.description;
 
-        // ÇÊ¿ä Àç·á ¸ñ·Ï ¾÷µ¥ÀÌÆ®
+        // í•„ìš” ì¬ë£Œ ëª©ë¡ ì—…ë°ì´íŠ¸
         foreach (Transform child in materialListContent)
         {
             Destroy(child.gameObject);
@@ -150,25 +148,25 @@ public class StableUIController : MonoBehaviour
 
         foreach (var material in selectedPart.requiredMaterials)
         {
-            // 1. ÇÁ¸®ÆÕÀ» º¹Á¦ÇØ¼­ »ı¼º
+            // 1. í”„ë¦¬íŒ¹ì„ ë³µì œí•´ì„œ ìƒì„±
             GameObject matGO = Instantiate(materialListItemPrefab, materialListContent);
 
-            // 2. ÇÃ·¹ÀÌ¾îÀÇ ½ÇÁ¦ Àç·á º¸À¯·® È®ÀÎ
+            // 2. í”Œë ˆì´ì–´ì˜ ì‹¤ì œ ì¬ë£Œ ë³´ìœ ëŸ‰ í™•ì¸
             int ownedAmount = 0;
             if (StableManager.Instance.playerInventory.ContainsKey(material.item))
             {
                 ownedAmount = StableManager.Instance.playerInventory[material.item];
             }
 
-            // 3. ÇÁ¸®ÆÕÀÇ Setup ÇÔ¼ö¸¦ È£ÃâÇÏ¿© ³»¿ë Ã¤¿ì±â
+            // 3. í”„ë¦¬íŒ¹ì˜ Setup í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•˜ì—¬ ë‚´ìš© ì±„ìš°ê¸°
             matGO.GetComponent<MaterialListItemUI>().Setup(material, ownedAmount);
         }
 
-        // ¾×¼Ç ¹öÆ° »óÅÂ ¾÷µ¥ÀÌÆ® (ÅØ½ºÆ®, È°¼ºÈ­ ¿©ºÎ, Å¬¸¯ ½Ã ±â´É)
+        // ì•¡ì…˜ ë²„íŠ¼ ìƒíƒœ ì—…ë°ì´íŠ¸ (í…ìŠ¤íŠ¸, í™œì„±í™” ì—¬ë¶€, í´ë¦­ ì‹œ ê¸°ëŠ¥)
         UpdateActionButton();
     }
 
-    // ¾×¼Ç ¹öÆ°À» ¾÷µ¥ÀÌÆ®ÇÏ´Â ÇÔ¼ö
+    // ì•¡ì…˜ ë²„íŠ¼ì„ ì—…ë°ì´íŠ¸í•˜ëŠ” í•¨ìˆ˜
     void UpdateActionButton()
     {
         PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, selectedPart);
@@ -176,32 +174,32 @@ public class StableUIController : MonoBehaviour
         switch (status)
         {
             case PartStatus.Equipped:
-                actionButtonText.text = "ÀåÂø ÇØÁ¦";
+                actionButtonText.text = "ì¥ì°© í•´ì œ";
                 actionButton.interactable = true;
                 //actionButton.onClick.AddListener(() => StableManager.Instance.UnequipPart(currentWagon, selectedPart));
                 break;
             case PartStatus.Craftable:
-                actionButtonText.text = "Á¦ÀÛÇÏ±â";
+                actionButtonText.text = "ì œì‘í•˜ê¸°";
                 actionButton.interactable = true;
                 //actionButton.onClick.AddListener(() => StableManager.Instance.CraftPart(currentWagon, selectedPart));
                 break;
             case PartStatus.Locked:
-                actionButtonText.text = "Á¦ÀÛ ºÒ°¡";
+                actionButtonText.text = "ì œì‘ ë¶ˆê°€";
                 actionButton.interactable = false;
                 break;
         }
-        // Á¦ÀÛ/ÇØÁ¦ ÈÄ UI°¡ »õ·Î°íÄ§µÇµµ·Ï ¸®½º³Ê¿¡ UpdateAllUI()¸¦ Ãß°¡ÇØÁÙ ¼ö ÀÖ½À´Ï´Ù.
-        // ¿¹: actionButton.onClick.AddListener(() => {
+        // ì œì‘/í•´ì œ í›„ UIê°€ ìƒˆë¡œê³ ì¹¨ë˜ë„ë¡ ë¦¬ìŠ¤ë„ˆì— UpdateAllUI()ë¥¼ ì¶”ê°€í•´ì¤„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+        // ì˜ˆ: actionButton.onClick.AddListener(() => {
         //         StableManager.Instance.CraftPart(currentWagon, selectedPart);
         //         UpdateAllUI();
         //     });
     }
 
-    // »ó¼¼ Á¤º¸ ÆĞ³ÎÀ» ºñ¿ì´Â ÇÔ¼ö
+    // ìƒì„¸ ì •ë³´ íŒ¨ë„ì„ ë¹„ìš°ëŠ” í•¨ìˆ˜
     void ClearDetailPanel()
     {
-        selectedPartIcon.sprite = null; // Åõ¸íÇÏ°Ô
-        selectedPartNameText.text = "ºÎÇ°À» ¼±ÅÃÇÏ¼¼¿ä";
+        selectedPartIcon.sprite = null; // íˆ¬ëª…í•˜ê²Œ
+        selectedPartNameText.text = "ë¶€í’ˆì„ ì„ íƒí•˜ì„¸ìš”";
         selectedPartDescText.text = "";
         foreach (Transform child in materialListContent)
         {

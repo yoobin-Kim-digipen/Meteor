@@ -1,26 +1,26 @@
 // Scripts/Managers/StableManager.cs
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // Linq »ç¿ëÀ» À§ÇØ Ãß°¡
+using System.Linq; // Linq ì‚¬ìš©ì„ ìœ„í•´ ì¶”ê°€
 
 [System.Serializable]
 public struct TestInventoryItem
 {
-    public ItemData itemData; // Àç·áÀÇ Scriptable Object ¿¡¼Â
-    public int amount;      // Àç·áÀÇ ¼ö·®
+    public ItemData itemData; // ì¬ë£Œì˜ Scriptable Object ì—ì…‹
+    public int amount;      // ì¬ë£Œì˜ ìˆ˜ëŸ‰
 }
 
 public class StableManager : MonoBehaviour
 {
     public static StableManager Instance;
 
-    [Header("°ÔÀÓ ÀüÃ¼ µ¥ÀÌÅÍ (¿¡µğÅÍ¿¡¼­ ¿¬°á)")]
-    public List<PartData> allAvailableParts; // 2´Ü°è¿¡¼­ ¸¸µç ¸ğµç Part ¿¡¼Âµé
+    [Header("ê²Œì„ ì „ì²´ ë°ì´í„° (ì—ë””í„°ì—ì„œ ì—°ê²°)")]
+    public List<PartData> allAvailableParts; // 2ë‹¨ê³„ì—ì„œ ë§Œë“  ëª¨ë“  Part ì—ì…‹ë“¤
 
-    [Header("ÇÃ·¹ÀÌ¾î µ¥ÀÌÅÍ (ÀÓ½Ã)")]
+    [Header("í”Œë ˆì´ì–´ ë°ì´í„° (ì„ì‹œ)")]
     public List<PlayerWagon> playerWagons = new List<PlayerWagon>();
     public Dictionary<ItemData, int> playerInventory = new Dictionary<ItemData, int>();
-    public int playerGold = 9999; // Å×½ºÆ®¿ë °ñµå
+    public int playerGold = 9999; // í…ŒìŠ¤íŠ¸ìš© ê³¨ë“œ
 
     public List<TestInventoryItem> startingInventory;
 
@@ -31,11 +31,11 @@ public class StableManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // --- Å×½ºÆ®¿ë µ¥ÀÌÅÍ ÃÊ±âÈ­ ---
-        playerInventory = new Dictionary<ItemData, int>(); // µñ¼Å³Ê¸® ÃÊ±âÈ­
+        // --- í…ŒìŠ¤íŠ¸ìš© ë°ì´í„° ì´ˆê¸°í™” ---
+        playerInventory = new Dictionary<ItemData, int>(); // ë”•ì…”ë„ˆë¦¬ ì´ˆê¸°í™”
         foreach (var testItem in startingInventory)
         {
-            // ÀÎ½ºÆåÅÍ¿¡¼­ ¿¬°áÇÑ ItemData°¡ nullÀÌ ¾Æ´ÑÁö È®ÀÎ
+            // ì¸ìŠ¤í™í„°ì—ì„œ ì—°ê²°í•œ ItemDataê°€ nullì´ ì•„ë‹Œì§€ í™•ì¸
             if (testItem.itemData != null)
             {
                 playerInventory.Add(testItem.itemData, testItem.amount);
@@ -43,35 +43,35 @@ public class StableManager : MonoBehaviour
         }
     }
 
-    // ÇöÀç ¸¶±¸°£¿¡¼­ º¸°í ÀÖ´Â ¸¶Â÷¸¦ ¹İÈ¯
+    // í˜„ì¬ ë§ˆêµ¬ê°„ì—ì„œ ë³´ê³  ìˆëŠ” ë§ˆì°¨ë¥¼ ë°˜í™˜
     public PlayerWagon GetCurrentViewingWagon()
     {
-        if (playerWagons.Count == 0) return null; // ¸¶Â÷°¡ ¾øÀ¸¸é null
+        if (playerWagons.Count == 0) return null; // ë§ˆì°¨ê°€ ì—†ìœ¼ë©´ null
         return playerWagons[currentWagonIndex];
     }
 
-    // Æ¯Á¤ ºÎÇ°ÀÇ ÇöÀç »óÅÂ¸¦ ÆÇ´ÜÇØ¼­ ¾Ë·ÁÁÖ´Â ÇÔ¼ö
+    // íŠ¹ì • ë¶€í’ˆì˜ í˜„ì¬ ìƒíƒœë¥¼ íŒë‹¨í•´ì„œ ì•Œë ¤ì£¼ëŠ” í•¨ìˆ˜
     public PartStatus GetPartStatusForWagon(PlayerWagon wagon, PartData part)
     {
         if (wagon == null || part == null) return PartStatus.Locked;
 
-        // 1. ¿î¸í ºÎÇ°ÀÌ°í, ÀÌ¹Ì ÀåÂøÇß´Â°¡?
+        // 1. ìš´ëª… ë¶€í’ˆì´ê³ , ì´ë¯¸ ì¥ì°©í–ˆëŠ”ê°€?
         if (part.partType == PartType.Destiny && wagon.equippedDestinyParts.Contains(part))
         {
             return PartStatus.Equipped;
         }
 
-        // 2. Àç·á¿Í µ·ÀÌ ÃæºĞÇØ¼­ Á¦ÀÛ °¡´ÉÇÑ°¡?
+        // 2. ì¬ë£Œì™€ ëˆì´ ì¶©ë¶„í•´ì„œ ì œì‘ ê°€ëŠ¥í•œê°€?
         if (CanCraft(part))
         {
             return PartStatus.Craftable;
         }
 
-        // 3. µÑ ´Ù ¾Æ´Ï¸é ±×³É Á¦ÀÛ ºÒ°¡´É »óÅÂ
+        // 3. ë‘˜ ë‹¤ ì•„ë‹ˆë©´ ê·¸ëƒ¥ ì œì‘ ë¶ˆê°€ëŠ¥ ìƒíƒœ
         return PartStatus.Locked;
     }
 
-    // Á¦ÀÛ °¡´É ¿©ºÎ È®ÀÎ
+    // ì œì‘ ê°€ëŠ¥ ì—¬ë¶€ í™•ì¸
     public bool CanCraft(PartData part)
     {
         if (playerGold < part.requiredGold) return false;
@@ -86,8 +86,8 @@ public class StableManager : MonoBehaviour
         return true;
     }
 
-    // TODO: ½ÇÁ¦ Á¦ÀÛ/ÀåÂø ·ÎÁ÷ ±¸Çö
+    // TODO: ì‹¤ì œ ì œì‘/ì¥ì°© ë¡œì§ êµ¬í˜„
 }
 
-// ºÎÇ° »óÅÂ¸¦ ³ªÅ¸³»´Â enum
+// ë¶€í’ˆ ìƒíƒœë¥¼ ë‚˜íƒ€ë‚´ëŠ” enum
 public enum PartStatus { Equipped, Craftable, Locked }

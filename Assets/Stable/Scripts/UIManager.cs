@@ -2,23 +2,23 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    // ¸¶À» ±âº» UI ±×·ì
+    // ë§ˆì„ ê¸°ë³¸ UI ê·¸ë£¹
     public GameObject villageUIGroup;
 
-    // ¸¶±¸°£ ÆĞ³Î
+    // ë§ˆêµ¬ê°„ íŒ¨ë„
     public GameObject stablePanel;
 
-    // ¸¶±¸°£ UI¸¦ ¿©´Â ÇÔ¼ö
+    // ë§ˆêµ¬ê°„ UIë¥¼ ì—¬ëŠ” í•¨ìˆ˜
     public void OpenStablePanel()
     {
-        villageUIGroup.SetActive(false); // ¸¶À» UI¸¦ ²ö´Ù
-        stablePanel.SetActive(true);     // ¸¶±¸°£ UI¸¦ ÄÒ´Ù
+        villageUIGroup.SetActive(false); // ë§ˆì„ UIë¥¼ ëˆë‹¤
+        stablePanel.SetActive(true);     // ë§ˆêµ¬ê°„ UIë¥¼ ì¼ ë‹¤
     }
 
-    // ¸¶±¸°£ UI¸¦ ´İ´Â ÇÔ¼ö
+    // ë§ˆêµ¬ê°„ UIë¥¼ ë‹«ëŠ” í•¨ìˆ˜
     public void CloseStablePanel()
     {
-        stablePanel.SetActive(false);   // ¸¶±¸°£ UI¸¦ ²ö´Ù
-        villageUIGroup.SetActive(true);    // ¸¶À» UI¸¦ ÄÒ´Ù
+        stablePanel.SetActive(false);   // ë§ˆêµ¬ê°„ UIë¥¼ ëˆë‹¤
+        villageUIGroup.SetActive(true);    // ë§ˆì„ UIë¥¼ ì¼ ë‹¤
     }
 }

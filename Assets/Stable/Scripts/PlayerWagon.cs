@@ -4,13 +4,13 @@ using System.Collections.Generic;
 [System.Serializable]
 public class PlayerWagon
 {
-    public WagonData baseData; // ÀÌ ¸¶Â÷ÀÇ ¿øº» ¼³°èµµ
+    public WagonData baseData; // ì´ ë§ˆì°¨ì˜ ì›ë³¸ ì„¤ê³„ë„
 
-    // ÇöÀç ÀåÂøµÈ '¿î¸í °³Á¶' ºÎÇ° ¸ñ·Ï
+    // í˜„ì¬ ì¥ì°©ëœ 'ìš´ëª… ê°œì¡°' ë¶€í’ˆ ëª©ë¡
     public List<PartData> equippedDestinyParts = new List<PartData>();
 
-    // '±âº» °³Á¶'ÀÇ °­È­ ·¹º§ (³ªÁß¿¡ È®Àå¿ë)
+    // 'ê¸°ë³¸ ê°œì¡°'ì˜ ê°•í™” ë ˆë²¨ (ë‚˜ì¤‘ì— í™•ì¥ìš©)
     // public Dictionary<PartData, int> basicPartLevels = new Dictionary<PartData, int>();
 
-    // TODO: °³Á¶ È¿°ú¸¦ ¹İ¿µÇÑ ÃÖÁ¾ ½ºÅÈ °è»ê ÇÔ¼ö Ãß°¡
+    // TODO: ê°œì¡° íš¨ê³¼ë¥¼ ë°˜ì˜í•œ ìµœì¢… ìŠ¤íƒ¯ ê³„ì‚° í•¨ìˆ˜ ì¶”ê°€
 }

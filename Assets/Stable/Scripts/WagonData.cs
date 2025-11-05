@@ -5,9 +5,9 @@ using UnityEngine;
 public class WagonData : ScriptableObject
 {
     public string wagonName;
-    public Sprite wagonImage; // ¶Ç´Â 3D ¸ğµ¨
+    public Sprite wagonImage; // ë˜ëŠ” 3D ëª¨ë¸
     [TextArea] public string description;
 
-    public int baseLoadCapacity; // ±âº» ÀûÀç·®
-    public int destinyUpgradeSlots; // ¿î¸í °³Á¶ ½½·Ô ÃÖ´ëÄ¡
+    public int baseLoadCapacity; // ê¸°ë³¸ ì ì¬ëŸ‰
+    public int destinyUpgradeSlots; // ìš´ëª… ê°œì¡° ìŠ¬ë¡¯ ìµœëŒ€ì¹˜
 }

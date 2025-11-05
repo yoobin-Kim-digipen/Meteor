@@ -2,10 +2,10 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// ºÎÇ°ÀÇ Á¾·ù¸¦ ±¸ºĞÇÏ±â À§ÇÔ (½½·Ô »ç¿ë ¿©ºÎ)
+// ë¶€í’ˆì˜ ì¢…ë¥˜ë¥¼ êµ¬ë¶„í•˜ê¸° ìœ„í•¨ (ìŠ¬ë¡¯ ì‚¬ìš© ì—¬ë¶€)
 public enum PartType { Basic, Destiny }
 
-// ÀÎ½ºÆåÅÍ Ã¢¿¡¼­ Àç·á¿Í ÇÊ¿ä·®À» ¼³Á¤ÇÒ ¼ö ÀÖ°Ô ÇØÁÖ´Â ÀÛÀº Å¬·¡½º
+// ì¸ìŠ¤í™í„° ì°½ì—ì„œ ì¬ë£Œì™€ í•„ìš”ëŸ‰ì„ ì„¤ì •í•  ìˆ˜ ìˆê²Œ í•´ì£¼ëŠ” ì‘ì€ í´ë˜ìŠ¤
 [System.Serializable]
 public class RequiredMaterial
 {
@@ -21,7 +21,7 @@ public class PartData : ScriptableObject
     [TextArea] public string description;
     public PartType partType;
 
-    // Á¦ÀÛ¿¡ ÇÊ¿äÇÑ Àç·á ¹× ºñ¿ë
+    // ì œì‘ì— í•„ìš”í•œ ì¬ë£Œ ë° ë¹„ìš©
     public List<RequiredMaterial> requiredMaterials;
     public int requiredGold;
 }
