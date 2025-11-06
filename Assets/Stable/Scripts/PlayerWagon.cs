@@ -1,16 +1,27 @@
-// Scripts/Player/PlayerWagon.cs
+using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
 public class PlayerWagon
 {
-    public WagonData baseData; // 이 마차의 원본 설계도
-
-    // 현재 장착된 '운명 개조' 부품 목록
+    public WagonBaseData baseData;
+    public int currentBasicUpgradeLevel;
     public List<PartData> equippedDestinyParts = new List<PartData>();
 
-    // '기본 개조'의 강화 레벨 (나중에 확장용)
-    // public Dictionary<PartData, int> basicPartLevels = new Dictionary<PartData, int>();
+    public float currentLoad;
+    public float maxLoad;
 
-    // TODO: 개조 효과를 반영한 최종 스탯 계산 함수 추가
+    public void Initialize()
+    {
+        if (baseData == null)
+        {
+            Debug.LogError("PlayerWagon의 BaseData가 할당되지 않아 초기화할 수 없습니다!");
+            return;
+        }
+
+        maxLoad = baseData.baseLoadCapacity;
+
+        // TODO: 나중에 기본 개조 효과가 생기면 여기에 추가합니다.
+        // maxLoad += currentBasicUpgradeLevel * (적재함 확장 부품의 upgradeValue);
+    }
 }

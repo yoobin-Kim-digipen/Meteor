@@ -23,7 +23,7 @@ public class MaterialListItemUI : MonoBehaviour
         }
         else
         {
-            amountText.color = Color.white; // 충분하면 흰색으로
+            amountText.color = Color.green; // 충분하면 흰색으로
         }
     }
 }

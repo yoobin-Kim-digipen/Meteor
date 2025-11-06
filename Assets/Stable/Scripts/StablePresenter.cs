@@ -1,128 +1,252 @@
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+
 public class StablePresenter
 {
-    private IStableView view;
-    private PlayerWagon currentWagon;
-    private PartData selectedPart;
+    private readonly IStableView view;
 
-    // 생성자: View와 연결
+    // --- Model 데이터 캐시 및 현재 상태 ---
+    private PlayerWagon currentWagon;
+    private Dictionary<ItemData, int> playerInventory;
+    private object selectedItem;
+    private StableUIMode currentMode = StableUIMode.Upgrading; // UI 시작 시 기본 모드
+    private UpgradeFilter currentFilter = UpgradeFilter.All;   // UI 시작 시 기본 필터
+
     public StablePresenter(IStableView view)
     {
         this.view = view;
         ConnectEvents();
     }
 
-    // View에서 발생하는 이벤트를 Presenter의 함수와 연결합니다.
     private void ConnectEvents()
     {
-        view.OnPartSelected += HandlePartSelection;
+        view.OnModeTabClicked += SetMode;
+        view.OnFilterClicked += SetFilter;
+        view.OnBlueprintSelected += (blueprint) => HandleItemSelection(blueprint);
+        view.OnPartSelected += (part) => HandleItemSelection(part);
         view.OnActionButtonClicked += HandleActionButtonClick;
-        // view.OnExitClicked += HandleExit; // TODO: 나가기 버튼 로직 구현 시 연결
+        view.OnExitClicked += HandleExitRequest;
     }
 
-    // UI가 활성화될 때 View에 의해 호출됩니다.
     public void OnViewEnabled()
     {
-        // Model에서 데이터를 가져옵니다.
-        currentWagon = StableManager.Instance.GetCurrentViewingWagon();
+        LoadModelData();
         if (currentWagon == null)
         {
-            UnityEngine.Debug.LogError("Presenter: 표시할 마차 데이터를 찾을 수 없습니다.");
+            Debug.LogError("[Presenter] 표시할 마차 데이터를 찾을 수 없습니다. StableManager를 확인하세요.");
+            // 여기서 더 진행하지 않고 UI에 오류를 표시하거나 UI를 닫을 수 있습니다.
             return;
         }
-
-        // View에 전체 UI를 새로 그리라고 명령합니다.
-        view.RefreshAll();
+        // UI를 처음 켤 때는 목록의 첫 번째 항목을 자동으로 선택하도록 합니다.
+        RefreshUI(true);
     }
 
-    // View가 UI를 채워야 할 때 호출하는 함수입니다. Presenter가 필요한 데이터를 제공합니다.
-    public void PopulateUI()
+    private void LoadModelData()
     {
-        // 1. 마차 스탯 정보 가공 및 전달
-        string load = $"적재량: {currentWagon.baseData.baseLoadCapacity} / {currentWagon.baseData.baseLoadCapacity}";
-        string slot = $"운명 슬롯: {currentWagon.equippedDestinyParts.Count}/{currentWagon.baseData.destinyUpgradeSlots}";
-        view.SetWagonStats(currentWagon.baseData.wagonName, load, slot);
+        currentWagon = StableManager.Instance.GetCurrentWagon();
+        playerInventory = StableManager.Instance.playerInventory;
+    }
 
-        // 2. 부품 목록 정보 가공 및 전달
-        view.ClearPartList();
-        var allParts = StableManager.Instance.allAvailableParts;
-        foreach (PartData part in allParts)
-        {
-            PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, part);
-            view.AddPartToList(part, status);
-        }
+    private void SetMode(StableUIMode newMode)
+    {
+        if (currentMode == newMode) return;
 
-        // 3. 목록의 첫 번째 부품을 자동으로 선택하도록 처리
-        if (allParts.Count > 0)
+        currentMode = newMode;
+        selectedItem = null; // 모드가 바뀌면 선택이 초기화됩니다.
+        RefreshUI(true); // 새 목록의 첫 항목을 자동으로 선택합니다.
+    }
+
+    private void SetFilter(UpgradeFilter newFilter)
+    {
+        if (currentFilter == newFilter) return;
+
+        currentFilter = newFilter;
+        selectedItem = null; // 필터가 바뀌면 선택이 초기화됩니다.
+        RefreshUI(true); // 새 목록의 첫 항목을 자동으로 선택합니다.
+    }
+
+    private void RefreshUI(bool isAutoSelectFirst = false)
+    {
+        object itemToReselect = selectedItem; // 액션 후 선택 유지를 위해 이전 선택 항목을 기억
+
+        // 1. 탭, 필터 등 UI 상태 설정
+        view.SetActiveMode(currentMode);
+        view.SetActiveFilter(currentFilter);
+
+        // 2. 대시보드 및 재화 정보 업데이트 (Presenter는 순수 데이터만 전달)
+        view.SetPlayerCurrency(StableManager.Instance.playerGold);
+        view.UpdateWagonDashboard(
+             currentWagon.baseData.wagonName,
+             currentWagon.currentBasicUpgradeLevel,
+             currentWagon.baseData.maxBasicUpgradeLevel,
+             currentWagon.equippedDestinyParts.Count,
+             currentWagon.baseData.destinyUpgradeSlots,
+             currentWagon.currentLoad,
+             currentWagon.maxLoad
+         );
+        view.UpdateWagonDisplay(currentWagon.baseData.image);
+
+        // 3. 목록 채우기
+        List<object> populatedItems = PopulateList();
+
+        // 4. 상세 정보 패널 및 선택 상태 결정
+        if (isAutoSelectFirst) // 모드/필터 변경 시
         {
-            HandlePartSelection(allParts[0]);
+            if (populatedItems.Any()) HandleItemSelection(populatedItems.First());
+            else view.ClearDetailPanel(); // 목록이 비었으면 상세 패널도 비움
         }
-        else
+        else if (itemToReselect != null && populatedItems.Contains(itemToReselect)) // 액션 성공 후
         {
+            // 이전에 선택한 아이템이 여전히 목록에 있다면 다시 선택
+            HandleItemSelection(itemToReselect);
+        }
+        else // 액션 성공 후 이전에 선택한 아이템이 목록에서 사라졌다면
+        {
+            selectedItem = null;
             view.ClearDetailPanel();
         }
     }
 
-    // View에서 부품 선택 이벤트가 발생했을 때 처리하는 로직
-    private void HandlePartSelection(PartData part)
+    #region List Population
+
+    private List<object> PopulateList()
     {
-        // 이전에 선택된 아이템이 있었다면, View에게 선택 해제 표시를 하라고 명령
-        if (selectedPart != null)
-        {
-            view.SetPartSelection(selectedPart, false);
-        }
-
-        selectedPart = part;
-
-        // View에게 새로 선택된 아이템에 선택 표시를 하고, 상세 정보를 보여주라고 명령
-        view.SetPartSelection(selectedPart, true);
-        view.ShowDetailPanel(selectedPart, StableManager.Instance.playerInventory);
-
-        // 액션 버튼 상태 업데이트 명령
-        UpdateActionButtonState();
+        view.ClearList();
+        return currentMode == StableUIMode.Crafting ? PopulateBlueprintList() : PopulatePartList();
     }
 
-    // View에서 액션 버튼 클릭 이벤트가 발생했을 때 처리하는 로직
+    private List<object> PopulateBlueprintList()
+    {
+        var allBlueprints = StableManager.Instance.GetAllBlueprints();
+        if (allBlueprints == null) return new List<object>();
+
+        foreach (var blueprint in allBlueprints)
+        {
+            bool canCraft = StableManager.Instance.CanCraftWagon(blueprint);
+            view.AddBlueprintToList(blueprint, canCraft);
+        }
+        return allBlueprints.Cast<object>().ToList();
+    }
+
+    private List<object> PopulatePartList()
+    {
+        var allParts = StableManager.Instance.allAvailableParts;
+        if (allParts == null) return new List<object>();
+
+        var filteredParts = allParts
+            .Where(part =>
+                   currentFilter == UpgradeFilter.All ||
+                   (currentFilter == UpgradeFilter.Basic && part.partType == PartType.Basic) ||
+                   (currentFilter == UpgradeFilter.Destiny && part.partType == PartType.Destiny))
+            .ToList();
+
+        foreach (var part in filteredParts)
+        {
+            PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, part);
+            view.AddPartToList(part, status);
+        }
+        return filteredParts.Cast<object>().ToList();
+    }
+    #endregion
+
+    #region Item Selection & Actions
+
+    private void DeselectCurrentItem()
+    {
+        if (selectedItem == null) return;
+
+        if (selectedItem is WagonBlueprintData oldBlueprint) view.SetBlueprintSelection(oldBlueprint, false);
+        else if (selectedItem is PartData oldPart) view.SetPartSelection(oldPart, false);
+    }
+
+    private void HandleItemSelection(object item)
+    {
+        if (item == null) return;
+
+        DeselectCurrentItem();
+        selectedItem = item;
+
+        if (selectedItem is WagonBlueprintData newBlueprint)
+        {
+            view.SetBlueprintSelection(newBlueprint, true);
+            view.ShowBlueprintDetails(newBlueprint, playerInventory);
+            bool canCraft = StableManager.Instance.CanCraftWagon(newBlueprint);
+            view.UpdateActionButton(canCraft, "제작하기");
+        }
+        else if (selectedItem is PartData newPart)
+        {
+            view.SetPartSelection(newPart, true);
+            PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, newPart);
+
+            if (status == PartStatus.Craftable || status == PartStatus.Locked)
+                view.ShowPartDetails(newPart, playerInventory);
+            else // Equipped or Unequipped
+                view.ShowEquippedPartDetails(newPart);
+
+            UpdateActionButtonState(status, newPart);
+        }
+    }
+
     private void HandleActionButtonClick()
     {
-        if (selectedPart == null) return;
+        if (selectedItem == null) return;
 
-        PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, selectedPart);
+        bool actionSuccess = false;
 
-        // 실제 로직 실행은 Model(StableManager)에게 위임합니다.
-        // TODO: 아래 주석 처리된 부분을 실제 함수로 구현/연결해야 합니다.
-        if (status == PartStatus.Equipped)
+        if (selectedItem is WagonBlueprintData blueprint)
         {
-            // StableManager.Instance.UnequipPart(currentWagon, selectedPart);
-            UnityEngine.Debug.Log($"{selectedPart.partName} 장착 해제 시도");
+            actionSuccess = StableManager.Instance.CraftWagon(blueprint);
         }
-        else if (status == PartStatus.Craftable)
+        else if (selectedItem is PartData part)
         {
-            // StableManager.Instance.CraftPart(currentWagon, selectedPart);
-            UnityEngine.Debug.Log($"{selectedPart.partName} 제작 시도");
+            PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, part);
+            switch (status)
+            {
+                case PartStatus.Craftable:
+                    actionSuccess = StableManager.Instance.CraftPart(currentWagon, part);
+                    break;
+                case PartStatus.Equipped:
+                    actionSuccess = StableManager.Instance.UnequipPart(currentWagon, part);
+                    break;
+                case PartStatus.Unequipped:
+                    actionSuccess = StableManager.Instance.EquipPart(currentWagon, part);
+                    break;
+            }
         }
 
-        // 로직 실행 후, 데이터가 변경되었을 수 있으므로 UI를 다시 그리라고 명령합니다.
-        view.RefreshAll();
+        if (actionSuccess)
+        {
+            LoadModelData(); // Model의 데이터가 변경되었으므로 다시 로드
+            RefreshUI(false); // UI 새로고침 (선택 유지 시도)
+        }
     }
 
-    // 액션 버튼의 상태를 결정하고 View에게 업데이트하라고 명령합니다.
-    private void UpdateActionButtonState()
+    private void UpdateActionButtonState(PartStatus status, PartData part)
     {
-        if (selectedPart == null) return;
-
-        PartStatus status = StableManager.Instance.GetPartStatusForWagon(currentWagon, selectedPart);
         switch (status)
         {
             case PartStatus.Equipped:
-                view.UpdateActionButton(status, true, "장착 해제");
+                view.UpdateActionButton(true, "장착 해제");
+                break;
+            case PartStatus.Unequipped:
+                view.UpdateActionButton(true, "장착하기");
                 break;
             case PartStatus.Craftable:
-                view.UpdateActionButton(status, true, "제작하기");
+                bool canCraft = StableManager.Instance.CanCraft(part);
+                string text = part.partType == PartType.Basic ? "개조하기" : "제작하기";
+                view.UpdateActionButton(canCraft, text);
                 break;
             case PartStatus.Locked:
-                view.UpdateActionButton(status, false, "제작 불가");
+                view.UpdateActionButton(false, "조건 미충족");
                 break;
         }
     }
+
+    private void HandleExitRequest()
+    {
+        UIManager.Instance.CloseStablePanel();
+    }
+    #endregion
 }

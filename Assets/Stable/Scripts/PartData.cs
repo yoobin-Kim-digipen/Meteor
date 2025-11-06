@@ -17,7 +17,7 @@ public class RequiredMaterial
 public class PartData : ScriptableObject
 {
     public string partName;
-    public Sprite icon;
+    public Sprite image;
     [TextArea] public string description;
     public PartType partType;
 
