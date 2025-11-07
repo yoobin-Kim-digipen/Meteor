@@ -4,10 +4,10 @@ using UnityEngine.InputSystem;
 public class PlayerGroundedState : PlayerBaseState
 {
     private Player _player;
-    private float _groundedGraceTimer; // <--- À¯¿¹ ½Ã°£À» ¼¿ Å¸ÀÌ¸Ó º¯¼ö Ãß°¡
+    private float _groundedGraceTimer; // <--- ìœ ì˜ˆ ì‹œê°„ì„ ì…€ íƒ€ì´ë¨¸ ë³€ìˆ˜ ì¶”ê°€
     public PlayerGroundedState(PlayerStateMachine context, PlayerStateFactory factory) : base(context, factory)
     {
-        _player = _ctx.playerMovement; // Player ÄÄÆ÷³ÍÆ® ÂüÁ¶
+        _player = _ctx.playerMovement; // Player ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
     }
 
     public override void EnterState()
@@ -19,28 +19,28 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void UpdateState()
     {
-        // ¸Å ÇÁ·¹ÀÓ »óÅÂ ÀüÈ¯ Á¶°ÇÀ» È®ÀÎ
+        // ë§¤ í”„ë ˆì„ ìƒíƒœ ì „í™˜ ì¡°ê±´ì„ í™•ì¸
         CheckSwitchStates();
     }
 
     public override void FixedUpdateState()
     {
-        // °ø°İ ÁßÀÏ ¶§¿Í ¾Æ´Ò ¶§ÀÇ ·ÎÁ÷À» ºĞ¸®
+        // ê³µê²© ì¤‘ì¼ ë•Œì™€ ì•„ë‹ ë•Œì˜ ë¡œì§ì„ ë¶„ë¦¬
         if (_player.IsAttacking)
         {
-            // 1. °ø°İ °ü¸®ÀÚ¿¡°Ô Á¶ÁØ°ú ¹ß»ç¸¦ ¸ğµÎ À§ÀÓ
+            // 1. ê³µê²© ê´€ë¦¬ìì—ê²Œ ì¡°ì¤€ê³¼ ë°œì‚¬ë¥¼ ëª¨ë‘ ìœ„ì„
             if (_player.attackManager != null)
             {
                 _player.attackManager.HandleAimAndAttack();
             }
 
-            // 2. °ø°İ Áß¿¡µµ ÀÌµ¿Àº °¡´ÉÇÏµµ·Ï Ã³¸®
-            // ´Ü, È¸ÀüÀº AttackManager°¡ ÇÏ¹Ç·Î ¿©±â¼­´Â È¸Àü ·ÎÁ÷À» Á¦¿Ü
+            // 2. ê³µê²© ì¤‘ì—ë„ ì´ë™ì€ ê°€ëŠ¥í•˜ë„ë¡ ì²˜ë¦¬
+            // ë‹¨, íšŒì „ì€ AttackManagerê°€ í•˜ë¯€ë¡œ ì—¬ê¸°ì„œëŠ” íšŒì „ ë¡œì§ì„ ì œì™¸
             HandleGroundedMovement(applyRotation: false);
         }
         else
         {
-            // 3. °ø°İ ÁßÀÌ ¾Æ´Ò ¶§´Â Æò¼ÒÃ³·³ ÀÌµ¿°ú È¸ÀüÀ» ¸ğµÎ Ã³¸®
+            // 3. ê³µê²© ì¤‘ì´ ì•„ë‹ ë•ŒëŠ” í‰ì†Œì²˜ëŸ¼ ì´ë™ê³¼ íšŒì „ì„ ëª¨ë‘ ì²˜ë¦¬
             HandleGroundedMovement(applyRotation: true);
         }
     }
@@ -52,7 +52,7 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void CheckSwitchStates()
     {
-        // Á¡ÇÁ Á¶°ÇÀº ÃÖ¿ì¼±À¸·Î È®ÀÎ
+        // ì í”„ ì¡°ê±´ì€ ìµœìš°ì„ ìœ¼ë¡œ í™•ì¸
         if (_player.jumpQueued && _player.isGrounded)
         {
             _ctx.SwitchState(_factory.Jump());
@@ -61,15 +61,15 @@ public class PlayerGroundedState : PlayerBaseState
 
         if (_player.isGrounded)
         {
-            // ¶¥¿¡ ºÙ¾îÀÖ´Ù¸é, Å¸ÀÌ¸Ó¸¦ °è¼Ó ÃÖ´ë·Î À¯Áö
+            // ë•…ì— ë¶™ì–´ìˆë‹¤ë©´, íƒ€ì´ë¨¸ë¥¼ ê³„ì† ìµœëŒ€ë¡œ ìœ ì§€
             _groundedGraceTimer = _player.groundedGracePeriod;
         }
         else
         {
-            // ¶¥¿¡¼­ ¶³¾îÁ³´Ù¸é, Å¸ÀÌ¸Ó¸¦ °¨¼Ò½ÃÅ°±â ½ÃÀÛ
+            // ë•…ì—ì„œ ë–¨ì–´ì¡Œë‹¤ë©´, íƒ€ì´ë¨¸ë¥¼ ê°ì†Œì‹œí‚¤ê¸° ì‹œì‘
             _groundedGraceTimer -= Time.deltaTime;
 
-            // Å¸ÀÌ¸Ó°¡ 0 ÀÌÇÏ·Î ¶³¾îÁ®¾ß¸¸ 'ÁøÂ¥ Ãß¶ô'À¸·Î °£ÁÖÇÏ°í Fall »óÅÂ·Î ÀüÈ¯
+            // íƒ€ì´ë¨¸ê°€ 0 ì´í•˜ë¡œ ë–¨ì–´ì ¸ì•¼ë§Œ 'ì§„ì§œ ì¶”ë½'ìœ¼ë¡œ ê°„ì£¼í•˜ê³  Fall ìƒíƒœë¡œ ì „í™˜
             if (_groundedGraceTimer <= 0f)
             {
                 _ctx.SwitchState(_factory.Fall());
@@ -78,64 +78,57 @@ public class PlayerGroundedState : PlayerBaseState
     }
     private void HandleGroundedMovement(bool applyRotation)
     {
+        // 1. StatManagerë¡œë¶€í„° ì‹œê°„ ë³´ì • ê°’ì„ ê°€ì ¸ì˜µë‹ˆë‹¤ (í‰ì†Œ: 1, ìŠ¬ë¡œìš°: 5 ë“±)
+        float timeMultiplier = _player.TimeScaleMultiplier;
+        
         float dt = Time.fixedDeltaTime;
         Vector3 v = _player.Rigidbody.linearVelocity;
 
-        // Æò¸éº¤ÅÍ ¸¸µé±â (xÃà°ú zÃà¸¸ »ç¿ë)
         Vector3 planar = new Vector3(v.x, 0f, v.z);
 
-        // clamp»ç¿ëÀ¸·Î ÀÔ·Â°ª Á¤±ÔÈ­
-        float targetSpeed = _player.moveSpeed * Mathf.Clamp01(_player.moveDir.magnitude);
+        // 2. ëª©í‘œ ì†ë„ì— ì‹œê°„ ë³´ì • ê°’ì„ ê³±í•´ì¤ë‹ˆë‹¤.
+        float targetSpeed = _player.moveSpeed * Mathf.Clamp01(_player.moveDir.magnitude) * timeMultiplier;
         Vector3 wishDir = (_player.moveDir.sqrMagnitude > 1e-6f) ? _player.moveDir.normalized : Vector3.zero;
 
         if (wishDir != Vector3.zero)
         {
-            // Áö»ó: ÀÔ·Â ¹æÇâÀ¸·Î '°¡¼Ó¸¸' ´õÇØÁÜ(°¨¼ÓÀº º°µµ)
-            // ÇöÀç ¼ÓµµÀÇ "wishDir ¹æÇâ ¼ººĞ" (Åõ¿µ°ª)
-            // ¡æ ¿¹: wishDir=Àü¹æ, planar=Àü¹æ 3 + ¿· 1 ¡æ curAlong=3
-            float curAlong = Vector3.Dot(planar, wishDir); // ÀÔ·Â ¹æÇâ ¼ººĞ ¼Óµµ
-
-            // ¡æ curAlong < target ¡æ ¾ç¼ö (°¡¼Ó ÇÊ¿ä), > target ¡æ À½¼ö (ÀÌ¹Ì ºü¸§)
+            float curAlong = Vector3.Dot(planar, wishDir);
             float addNeeded = targetSpeed - curAlong;
 
             if (addNeeded > 0f)
             {
-                // ºÎµå·¯¿î °¡¼ÓÀ» À§ÇÑ Min»ç¿ë ±Ş°¡¼Ó ¹æÁö
-                float add = Mathf.Min(_player.acceleration * dt, addNeeded);
+                // 3. ê°€ì† ë° ê°ì† ê³„ì‚°ì—ë„ ì‹œê°„ ë³´ì • ê°’ì„ ê³±í•´ì¤ë‹ˆë‹¤.
+                float add = Mathf.Min(_player.acceleration * dt * timeMultiplier, addNeeded);
                 planar += wishDir * add;
             }
             else
             {
-                // ¹İ´ë ¹æÇâ ÀÔ·Â: Àû´çÈ÷ °¨¼Ó
-                float reduce = Mathf.Min(_player.deceleration * dt, -addNeeded);
+                float reduce = Mathf.Min(_player.deceleration * dt * timeMultiplier, -addNeeded);
                 planar += wishDir * (-reduce);
             }
 
-            // ÃÖ°í ¼Óµµ »ìÂ¦ Å¬·¥ÇÁ(³ÑÄ¡¸é Á¶±İ¸¸ ±ğ±â)
-            // °¡¼Ó ÈÄ magnitude°¡ targetSpeed ÃÊ°úÇÏ¸é(¿· ÀÔ·Â µîÀ¸·Î), ÃÊ°úºĞ¸¸ deceleration*dt¸¸Å­ ±ğÀ½.
-            // normalized * (magnitude - cut): ¹æÇâ À¯ÁöÇÏ¸é¼­ ±æÀÌ¸¸ ÁÙÀÓ ¡æ "½½¶óÀÌµå" ¹æÁö
             if (planar.magnitude > targetSpeed)
             {
                 float over = planar.magnitude - targetSpeed;
-                float cut = Mathf.Min(_player.deceleration * dt, over);
+                float cut = Mathf.Min(_player.deceleration * dt * timeMultiplier, over);
                 planar = planar.normalized * (planar.magnitude - cut);
             }
         }
         else
         {
-            // ÀÔ·Â ¾øÀ¸¸é ¼­¼­È÷ °¨¼Ó
-            // MoveTowards´Â Å¬·¥ÇÁ ³»Àå ¡æ over-shoot ¾øÀ½
-            planar = Vector3.MoveTowards(planar, Vector3.zero, _player.deceleration * dt);
+            // ì…ë ¥ì´ ì—†ì„ ë•Œì˜ ê°ì†ì—ë„ ë³´ì • ê°’ì„ ì ìš©í•©ë‹ˆë‹¤.
+            planar = Vector3.MoveTowards(planar, Vector3.zero, _player.deceleration * dt * timeMultiplier);
         }
 
         v.x = planar.x;
         v.z = planar.z;
         _player.Rigidbody.linearVelocity = v;
 
-        // È¸Àü Ã³¸® (Ä«¸Ş¶ó ¹æÇâ)
         if (applyRotation && _player.wantRotate)
         {
-            _player.faceCameraYaw(); // Æò¼ÒÀÇ È¸Àü ·ÎÁ÷
+            // ì°¸ê³ : ìºë¦­í„° íšŒì „ë„ ëŠë ¤ì§€ëŠ” í˜„ìƒì„ ë§‰ìœ¼ë ¤ë©´,
+            // Player.csì˜ faceCameraYaw() í•¨ìˆ˜ ë‚´ë¶€ì—ì„œë„ turnSpeedì— timeMultiplierë¥¼ ê³±í•´ì£¼ì–´ì•¼ í•©ë‹ˆë‹¤.
+            _player.faceCameraYaw();
         }
     }
 }

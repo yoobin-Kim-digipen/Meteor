@@ -17,3 +17,4 @@ MonoBehaviour:
   projectileAmount: 1
   skills:
   - {fileID: 11400000, guid: 089a45d80d8c6134e8a007b4d89adec0, type: 2}
+  - {fileID: 11400000, guid: 6a1d86bff50114471b679055d457ada2, type: 2}

@@ -17,9 +17,9 @@ MonoBehaviour:
   maxHealth: 100
   speed: 8.5
   attackRange: 1.8
-  poolSize: 10
+  poolSize: 100
   spawnInterval: 5
-  maxAliveCount: 1
+  maxAliveCount: 60
   attackWindupTime: 1
   attackCooldown: 0.5
   damage: 15

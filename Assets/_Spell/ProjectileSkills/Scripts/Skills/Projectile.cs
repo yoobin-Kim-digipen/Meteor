@@ -11,6 +11,8 @@ public class Projectile : Skill // Skill을 상속
     private GameObject _caster;
     private ProjectileSkillData _data;
 
+    private bool _isPlayerProjectile = false;
+
     void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -22,18 +24,38 @@ public class Projectile : Skill // Skill을 상속
         if (data is ProjectileSkillData projData)
         {
             this._data = projData;
-
-            // 이제 _data를 통해 능력치를 설정
             _speed = _data.speed;
             _lifetime = _data.lifetime;
             _damage = _data.damage;
 
-            if (caster.CompareTag("Player")) _targetTag = "Enemy";
-            else if (caster.CompareTag("Enemy")) _targetTag = "Player";
+            if (caster.CompareTag("Player"))
+            {
+                _targetTag = "Enemy";
+                _isPlayerProjectile = true; // 플레이어의 발사체임을 기억
+            }
+            else if (caster.CompareTag("Enemy"))
+            {
+                _targetTag = "Player";
+                _isPlayerProjectile = false;
+            }
 
-            _rb.linearVelocity = transform.forward * _speed;
+            // Activate 시점에는 속도를 설정하지 않고, FixedUpdate에서 계속 갱신
             StartCoroutine(DeactivateAfterTime(_lifetime));
         }
+    }
+
+    void FixedUpdate()
+    {
+        float timeMultiplier = 1.0f;
+
+        // 이 발사체가 플레이어의 것이라면, StatManager로부터 시간 보정 값을 가져옴
+        if (_isPlayerProjectile && StatManager.Instance != null)
+        {
+            timeMultiplier = StatManager.Instance.PlayerTimeScaleMultiplier;
+        }
+
+        // 시간 보정 값을 적용하여 속도를 매 프레임 유지
+        _rb.linearVelocity = transform.forward * _speed * timeMultiplier;
     }
 
     void OnTriggerEnter(Collider other)
