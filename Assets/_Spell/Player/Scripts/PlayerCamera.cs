@@ -3,28 +3,28 @@ using UnityEngine.InputSystem;
 
 public class PlayerCamera : MonoBehaviour
 {
-    public Transform target;                 // µû¶ó°¥ ´ë»ó(ÇÃ·¹ÀÌ¾î)
-    public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // ¸Ó¸® ³ôÀÌ
+    public Transform target;                 // ë”°ë¼ê°ˆ ëŒ€ìƒ(í”Œë ˆì´ì–´)
+    public Vector3 pivotOffset = new Vector3(0f, 1.6f, 0f); // ë¨¸ë¦¬ ë†’ì´
 
-    public float distance = 5f;             // ±âº» °Å¸®
-    public float minDistance = 5f;           // ÃÖ¼Ò
-    public float maxDistance = 20f;          // ÃÖ´ë
-    public float maxHeightOffset = 5f;       // ÃÖ´ë ÁÜ ¾Æ¿ô ½Ã Ãß°¡µÉ ³ôÀÌ
+    public float distance = 5f;             // ê¸°ë³¸ ê±°ë¦¬
+    public float minDistance = 5f;           // ìµœì†Œ
+    public float maxDistance = 20f;          // ìµœëŒ€
+    public float maxHeightOffset = 5f;       // ìµœëŒ€ ì¤Œ ì•„ì›ƒ ì‹œ ì¶”ê°€ë  ë†’ì´
 
-    public float yaw = 0f;                   // ÁÂ¿ì °¢µµ
-    public float pitch = 15f;                // À§¾Æ·¡ °¢µµ
-    public float minPitch = -85f;            // ¾Æ·¡·Î ÃÖ´ë
-    public float maxPitch = 85f;             // À§·Î ÃÖ´ë
-    public float sensitivity = 0.12f;        // ¸¶¿ì½º ¹Î°¨µµ
-    public bool invertY = false;             // ¸¶¿ì½º Y ¹İÀü
+    public float yaw = 0f;                   // ì¢Œìš° ê°ë„
+    public float pitch = 15f;                // ìœ„ì•„ë˜ ê°ë„
+    public float minPitch = -85f;            // ì•„ë˜ë¡œ ìµœëŒ€
+    public float maxPitch = 85f;             // ìœ„ë¡œ ìµœëŒ€
+    public float sensitivity = 0.12f;        // ë§ˆìš°ìŠ¤ ë¯¼ê°ë„
+    public bool invertY = false;             // ë§ˆìš°ìŠ¤ Y ë°˜ì „
 
-    public float zoomStep = 25f;             // ÈÙ ÇÑ Ä­ ´ç °Å¸® º¯È­
+    public float zoomStep = 25f;             // íœ  í•œ ì¹¸ ë‹¹ ê±°ë¦¬ ë³€í™”
 
     [Header("Collision")]
-    public LayerMask collisionMask;      // Ä«¸Ş¶ó°¡ Ãæµ¹ÇÒ ·¹ÀÌ¾îµé (¿¹: Ground, Wall)
-    public float collisionPadding = 0.2f; // Ãæµ¹ ÁöÁ¡¿¡¼­ »ìÂ¦ ¶¿ °Å¸® (Ä«¸Ş¶ó°¡ º®¿¡ ³Ê¹« ºÙÁö ¾Ê°Ô)
+    public LayerMask collisionMask;      // ì¹´ë©”ë¼ê°€ ì¶©ëŒí•  ë ˆì´ì–´ë“¤ (ì˜ˆ: Ground, Wall)
+    public float collisionPadding = 0.2f; // ì¶©ëŒ ì§€ì ì—ì„œ ì‚´ì§ ë—„ ê±°ë¦¬ (ì¹´ë©”ë¼ê°€ ë²½ì— ë„ˆë¬´ ë¶™ì§€ ì•Šê²Œ)
 
-    // ÃÊ±â°ª ¹é¾÷(ÈÙ Å¬¸¯ ¸®¼Â¿ë)
+    // ì´ˆê¸°ê°’ ë°±ì—…(íœ  í´ë¦­ ë¦¬ì…‹ìš©)
     private float defaultYaw, defaultPitch, defaultDistance;
     private Vector3 defaultPivotOffset;
 
@@ -38,7 +38,7 @@ public class PlayerCamera : MonoBehaviour
 
     void Start()
     {
-        // target ºñ¾úÀ¸¸é Player ÅÂ±× ÀÚµ¿ ÇÒ´ç
+        // target ë¹„ì—ˆìœ¼ë©´ Player íƒœê·¸ ìë™ í• ë‹¹
         if (target == null)
         {
             GameObject p = GameObject.FindWithTag("Player");
@@ -58,7 +58,7 @@ public class PlayerCamera : MonoBehaviour
         Vector3 focus = target.position + pivotOffset;
         Vector3 pos = focus - rot * Vector3.forward * distance;
 
-        Vector3 finalPos = camera_Raycast(focus, pos); //º®¶Õ ¹Ù´Ú¶Õ ¹æÁö¿ë
+        Vector3 finalPos = camera_Raycast(focus, pos); //ë²½ëš« ë°”ë‹¥ëš« ë°©ì§€ìš©
 
         transform.position = finalPos;
         transform.LookAt(focus);
@@ -90,7 +90,7 @@ public class PlayerCamera : MonoBehaviour
     {
         if (Mouse.current == null) return;
 
-        // 1. ±âÁ¸ ÁÜ ·ÎÁ÷
+        // 1. ê¸°ì¡´ ì¤Œ ë¡œì§
         float scroll = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scroll) > 0.01f)
         {
@@ -98,14 +98,14 @@ public class PlayerCamera : MonoBehaviour
             distance = Mathf.Clamp(distance - steps * zoomStep, minDistance, maxDistance);
         }
 
-        // 2. Ãß°¡µÈ ·ÎÁ÷: °Å¸®¿¡ ºñ·ÊÇÏ¿© pivotOffsetÀÇ y°ªÀ» Á¶Àı
-        // ÇöÀç ÁÜ »óÅÂ°¡ ÃÖ¼Ò(0)ÀÎÁö ÃÖ´ë(1)ÀÎÁö ºñÀ²À» °è»ê
+        // 2. ì¶”ê°€ëœ ë¡œì§: ê±°ë¦¬ì— ë¹„ë¡€í•˜ì—¬ pivotOffsetì˜ yê°’ì„ ì¡°ì ˆ
+        // í˜„ì¬ ì¤Œ ìƒíƒœê°€ ìµœì†Œ(0)ì¸ì§€ ìµœëŒ€(1)ì¸ì§€ ë¹„ìœ¨ì„ ê³„ì‚°
         float zoomRatio = (distance - minDistance) / (maxDistance - minDistance);
 
-        // ±âº» ³ôÀÌ(defaultPivotOffset.y)¿¡¼­ Ãß°¡µÉ ÃÖ´ë ³ôÀÌ(maxHeightOffset) »çÀÌ¸¦ º¸°£
+        // ê¸°ë³¸ ë†’ì´(defaultPivotOffset.y)ì—ì„œ ì¶”ê°€ë  ìµœëŒ€ ë†’ì´(maxHeightOffset) ì‚¬ì´ë¥¼ ë³´ê°„
         float newOffsetY = Mathf.Lerp(defaultPivotOffset.y, defaultPivotOffset.y + maxHeightOffset, zoomRatio);
 
-        // pivotOffsetÀÇ y°ª¸¸ ¾÷µ¥ÀÌÆ®
+        // pivotOffsetì˜ yê°’ë§Œ ì—…ë°ì´íŠ¸
         pivotOffset.y = newOffsetY;
     }
 
@@ -113,23 +113,23 @@ public class PlayerCamera : MonoBehaviour
     {
         RaycastHit hit;
 
-        // ÇÃ·¹ÀÌ¾î ¸Ó¸®(focus)¿¡¼­ ÀÌ»óÀûÀÎ Ä«¸Ş¶ó À§Ä¡(pos) ¹æÇâÀ¸·Î Ray¸¦ ½ğ´Ù.
-        // Vector3.forward ´ë½Å (pos - focus).normalized ¸¦ »ç¿ëÇØ Á¤È®ÇÑ ¹æÇâÀ» ±¸ÇÑ´Ù.
+        // í”Œë ˆì´ì–´ ë¨¸ë¦¬(focus)ì—ì„œ ì´ìƒì ì¸ ì¹´ë©”ë¼ ìœ„ì¹˜(pos) ë°©í–¥ìœ¼ë¡œ Rayë¥¼ ìœë‹¤.
+        // Vector3.forward ëŒ€ì‹  (pos - focus).normalized ë¥¼ ì‚¬ìš©í•´ ì •í™•í•œ ë°©í–¥ì„ êµ¬í•œë‹¤.
         Vector3 direction = pos - focus;
-        float rayDistance = direction.magnitude; // ±¤¼±ÀÇ ÃÖ´ë °Å¸®´Â ¿ø·¡ distance¿Í °°´Ù.
-        Vector3 finalPosition = pos; // ÃÖÁ¾ À§Ä¡´Â ÀÏ´Ü ÀÓÀÇ·Î ÃÊ±âÈ­
+        float rayDistance = direction.magnitude; // ê´‘ì„ ì˜ ìµœëŒ€ ê±°ë¦¬ëŠ” ì›ë˜ distanceì™€ ê°™ë‹¤.
+        Vector3 finalPosition = pos; // ìµœì¢… ìœ„ì¹˜ëŠ” ì¼ë‹¨ ì„ì˜ë¡œ ì´ˆê¸°í™”
 
-        // Raycast ½ÇÇà
+        // Raycast ì‹¤í–‰
         if (Physics.Raycast(focus, direction.normalized, out hit, rayDistance, collisionMask))
         {
-            // ¸¸¾à Ray°¡ ¹«¾ğ°¡¿¡ ºÎµúÇû´Ù¸é,
-            // ÃÖÁ¾ À§Ä¡¸¦ 'ºÎµúÈù ÁöÁ¡'¿¡¼­ 'ÆĞµù'¸¸Å­ »ìÂ¦ ¾ÕÀ¸·Î ´ç±ä °÷À¸·Î ¼³Á¤ÇÑ´Ù.
-            Debug.DrawLine(focus, hit.point, Color.red); // µğ¹ö±ë¿ë: Ãæµ¹ ÁöÁ¡±îÁö »¡°£ ¼± ±×¸®±â
+            // ë§Œì•½ Rayê°€ ë¬´ì–¸ê°€ì— ë¶€ë”ªí˜”ë‹¤ë©´,
+            // ìµœì¢… ìœ„ì¹˜ë¥¼ 'ë¶€ë”ªíŒ ì§€ì 'ì—ì„œ 'íŒ¨ë”©'ë§Œí¼ ì‚´ì§ ì•ìœ¼ë¡œ ë‹¹ê¸´ ê³³ìœ¼ë¡œ ì„¤ì •í•œë‹¤.
+            Debug.DrawLine(focus, hit.point, Color.red); // ë””ë²„ê¹…ìš©: ì¶©ëŒ ì§€ì ê¹Œì§€ ë¹¨ê°„ ì„  ê·¸ë¦¬ê¸°
             return hit.point + hit.normal * collisionPadding;
         }
         else
         {
-            Debug.DrawLine(focus, pos, Color.green); // µğ¹ö±ë¿ë: Ãæµ¹ ¾øÀ» ¶§ ÃÊ·Ï ¼± ±×¸®±â
+            Debug.DrawLine(focus, pos, Color.green); // ë””ë²„ê¹…ìš©: ì¶©ëŒ ì—†ì„ ë•Œ ì´ˆë¡ ì„  ê·¸ë¦¬ê¸°
             return pos;
         }
     }

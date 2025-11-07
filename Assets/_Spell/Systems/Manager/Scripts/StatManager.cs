@@ -15,7 +15,25 @@ public class StatManager : MonoBehaviour
     private int experiencePoints = 0;
     private int currentLevel = 1;
     private float previousHealth = -1f;
+    public int mp = 30;
+    private float totalDamageMultiplier = 1.0f;
+    private bool isPlayerTeleporting = false;
+    public bool isTeleportSynergyEnabled = false; // 스킬 연계 활성화 스위치
+    private bool isExecutingTeleportSynergy = false; // 스킬 연계 중복 실행 방지 플래그
+    public bool isParrySynergyEnabled = false;
+    public bool isParryHealEnabled = false;
+    public float synergyFireInterval = 0.2f; // 연속 발사 간격
+    public int synergyMissileCount = 2;
+    public int parryMissileCount = 2;
+     public int bonusNormalHomingProjectiles = 0;
+    public int bonusHomingDamage = 0; // 모든 유도탄에 적용될 '추가 데미지'
+    public float PlayerTimeScaleMultiplier { get; private set; } = 1.0f;
     public PlayerHealth playerHealth { get; private set; }
+    public SkillData BombProjectileSkillData; // 분노 루트용 스킬 데이터
+    public PlayerAttackManager playerAttackManager;
+    public TeleportSkillData teleportData; // 인스펙터에서 텔레포트 스킬 데이터 에셋 연결
+    public HomingProjectileSkillData HomingSkillData; // 텔레포트 연계용 유도탄 스킬 데이터 에셋 연결
+    public ParrySkillData parryData;
     //[SerializeField] private int baseXPForNextLevel = 100;
     //private int XPRequired => currentLevel * baseXPForNextLevel;
 
@@ -41,12 +59,136 @@ public class StatManager : MonoBehaviour
         if (playerHealth == null)
             Debug.LogError("StatManager: PlayerHealth script not found on playerObject.");
 
+        if (playerAttackManager == null && playerObject != null)
+        {
+            playerAttackManager = playerObject.GetComponent<PlayerAttackManager>();
+            if (playerAttackManager == null)
+            {
+                Debug.LogError("PlayerAttackManager를 찾을 수 없습니다! playerObject에 붙어있는지 확인하거나 인스펙터에서 직접 할당해주세요.");
+            }
+        }
+
+        if (weaponData != null) weaponData = Instantiate(weaponData);
+        if (teleportData != null) teleportData = Instantiate(teleportData);
+        if (parryData != null) parryData = Instantiate(parryData);
+
+        if (playerAttackManager != null && playerAttackManager.equippedWeapons.Count > 0)
+        {
+            // 공격 관리자의 첫 번째 무기를 우리의 '복사본'으로 교체합니다.
+            playerAttackManager.equippedWeapons[0] = weaponData;
+        }
+
     }
 
     void Update()
     {
         MornitoringHP();
-        //MornitoringMP();
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            if (isTeleportSynergyEnabled && !isExecutingTeleportSynergy)
+            {
+                StartCoroutine(TeleportAndFireSequence());
+            }
+            else
+            {
+                PlayerSkillManager.Instance.UseSkill(teleportData, playerObject);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            PlayerSkillManager.Instance.UseSkill(parryData, playerObject);
+        }
+        isPlayerTeleporting = PlayerSkillManager.Instance.teleportSkillHandler.IsTeleporting;
+    }
+
+    public void HandleSuccessfulParry(float slowFactor, float slowDuration)
+    {
+        // 1. 시간 감속 효과를 발동시킵니다.
+        TriggerSlowMotion(slowFactor, slowDuration);
+
+        if (isParryHealEnabled)
+        {
+            HealPlayerByPercentage(0.1f); // 최대 체력의 10% 회복
+        }
+
+        // 2. 패링-유도탄 연계가 활성화되었는지 확인합니다.
+        if (isParrySynergyEnabled)
+        {
+            StartCoroutine(ParryFireSequence());
+        }
+    }
+
+    // 패링 성공 시 유도탄을 발사하는 새로운 코루틴
+    private System.Collections.IEnumerator ParryFireSequence()
+    {
+        Debug.Log($"<color=cyan>패링 성공! 유도탄 {parryMissileCount}발을 발사합니다.</color>");
+        if (playerAttackManager != null && HomingSkillData != null)
+        {
+            for (int i = 0; i < parryMissileCount; i++)
+            {
+                playerAttackManager.UseSkill(HomingSkillData, playerObject);
+                if (i < parryMissileCount - 1)
+                {
+                    yield return new WaitForSecondsRealtime(synergyFireInterval);
+                }
+            }
+        }
+    }
+
+    private System.Collections.IEnumerator TeleportAndFireSequence()
+    {
+        isExecutingTeleportSynergy = true;
+        PlayerSkillManager.Instance.UseSkill(teleportData, playerObject);
+        yield return null;
+
+        if (PlayerSkillManager.Instance.teleportSkillHandler.IsTeleporting)
+        {
+            yield return new WaitUntil(() => !PlayerSkillManager.Instance.teleportSkillHandler.IsTeleporting);
+            Debug.Log($"<color=cyan>텔레포트 완료! 도착 지점에서 유도탄을 {synergyMissileCount}연속 발사합니다.</color>");
+            if (playerAttackManager != null && HomingSkillData != null)
+            {
+                for (int i = 0; i < synergyMissileCount; i++)
+                {
+                    // PlayerAttackManager가 알아서 데미지를 강화해주므로, 원본 데이터를 그대로 넘깁니다.
+                    playerAttackManager.UseSkill(HomingSkillData, playerObject);
+                    if (i < synergyMissileCount - 1)
+                    {
+                        yield return new WaitForSeconds(synergyFireInterval);
+                    }
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("텔레포트가 발동되지 않아 유도탄을 발사하지 않았습니다. (쿨타임 등)");
+        }
+        
+        isExecutingTeleportSynergy = false;
+    }
+
+    public void TriggerSlowMotion(float factor, float duration)
+    {
+        // 이미 실행 중인 시간 감속 코루틴이 있다면 중지하고 새로 시작
+        // (패링을 연속으로 성공했을 때를 대비)
+        StopCoroutine("SlowTimeCoroutine"); 
+        StartCoroutine(SlowTimeCoroutine(factor, duration));
+    }
+
+    private System.Collections.IEnumerator SlowTimeCoroutine(float factor, float duration)
+    {
+        PlayerTimeScaleMultiplier = 1.0f / factor;
+
+        float originalTimeScale = Time.timeScale;
+        
+        Time.timeScale = factor;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        PlayerTimeScaleMultiplier = 1.0f;
+
+        Time.timeScale = originalTimeScale;
+        Time.fixedDeltaTime = 0.02f * originalTimeScale;
     }
 
     public void AdjustingHP(int amount)
@@ -72,9 +214,25 @@ public class StatManager : MonoBehaviour
         }
     }
 
-    public void MornitoringMP()
+    public void HealPlayer(int amount)
     {
-        // MP 모니터링 로직 추가 예정
+        if (playerHealth == null) return;
+        playerHealth.currentHealth = Mathf.Min(playerHealth.currentHealth + amount, playerHealth.maxHealth);
+        Debug.Log($"<color=green>플레이어가 {amount}만큼 체력을 회복했습니다. 현재 체력: {playerHealth.currentHealth}</color>");
+    }
+
+    public void HealPlayerByPercentage(float percentage)
+    {
+        if (playerHealth == null) return;
+
+        int healAmount = Mathf.FloorToInt(playerHealth.maxHealth * percentage);
+        HealPlayer(healAmount); // 기존 함수를 재사용하여 회복
+    }
+
+    public void AdjustingMP(int amount)
+    {
+        mp += amount;
+        Debug.Log("플레이어의 마력이 조정되었습니다. 현재 마력: " + mp);
     }
 
     private float damageMultiplier = 1f;  // 지능 증가에 따른 데미지 배율
@@ -182,7 +340,7 @@ public class StatManager : MonoBehaviour
 
     private void ApplyGrowthByChosenRoute()
     {
-        if (currentLevel == 2 || currentLevel == 4 || currentLevel == 6 || currentLevel == 8 || currentLevel ==  9)
+        if (currentLevel == 2 || currentLevel == 4 || currentLevel == 6 || currentLevel == 8 || currentLevel == 9)
         {
             ApplyMainCoreUpgrade(lastChosenRouteIdx);
             ApplyMainCoreEffect(lastChosenRouteIdx, mainCoreLevels[lastChosenRouteIdx]);
@@ -225,19 +383,21 @@ public class StatManager : MonoBehaviour
             switch (level)
             {
                 case 1:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    isTeleportSynergyEnabled = true;
+                    Debug.Log("<color=yellow>특성 활성화: 이제 텔레포트 시 유도탄이 함께 발사됩니다!</color>");
                     break;
                 case 2:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    teleportData.teleportDistance *= 1.2f;
                     break;
                 case 3:
                     // 추가 스탯 또는 스킬 변경 요소 추가 예정
                     break;
                 case 4:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    bonusNormalHomingProjectiles += 2; // 유도탄 발사 개수 증가
+                    GainINT((int)(intelligence * 0.1f)); // 지능 10% 증가
                     break;
                 case 5:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    teleportData.teleportDistance *= 1.2f; 
                     break;
             }
         }
@@ -246,19 +406,25 @@ public class StatManager : MonoBehaviour
             switch (level)
             {
                 case 1:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    weaponData.skills[0] = BombProjectileSkillData;
                     break;
                 case 2:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    totalDamageMultiplier += 0.1f;
                     break;
                 case 3:
                     // 추가 스탯 또는 스킬 변경 요소 추가 예정
                     break;
                 case 4:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    criticalHitChance += 0.2f;
+                    criticalHitMultiplier += 0.1f;
                     break;
                 case 5:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    if (weaponData.skills[0] is BombProjectileSkillData bombSkill)
+                    {
+                        bombSkill.explosionRadius += 10f;
+                    }
+                    totalDamageMultiplier += 0.15f;
+                    // 디버프 효과 추가 예정
                     break;
             }
         }
@@ -267,19 +433,21 @@ public class StatManager : MonoBehaviour
             switch (level)
             {
                 case 1:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    isParrySynergyEnabled = true;
+                    Debug.Log("<color=yellow>특성 활성화: 이제 패링 성공 시 유도탄이 함께 발사됩니다!</color>");
                     break;
                 case 2:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    //isParryHealEnabled = true;
                     break;
                 case 3:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    isParryHealEnabled = true;
                     break;
                 case 4:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    bonusNormalHomingProjectiles += 2; 
+                    bonusHomingDamage += 15;
                     break;
                 case 5:
-                    // 추가 스탯 또는 스킬 변경 요소 추가 예정
+                    parryMissileCount += 2;
                     break;
             }
         }
@@ -307,7 +475,7 @@ public class StatManager : MonoBehaviour
                     break;
                 case 3:
                     AdjustingHP((int)(experiencePoints * 0.05f));
-                    GainINT((int)(intelligence * 0.05f));
+                    GainINT((int)(intelligence * 0.05f)); 
                     GainDEF((int)(defense * 0.05f));
                     AdjustingSPD((int)(player.moveSpeed * 0.07f));
                     break;
@@ -392,6 +560,7 @@ public class StatManager : MonoBehaviour
             F = D;
             Debug.Log("일반 공격 데미지: " + Mathf.FloorToInt(F));
         }
+        F *= totalDamageMultiplier;
         return Mathf.FloorToInt(F);
     }
 

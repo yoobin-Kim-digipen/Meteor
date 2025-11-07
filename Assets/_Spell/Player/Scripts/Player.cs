@@ -7,6 +7,8 @@ public class Player : MonoBehaviour, IStats
     public float moveSpeed = 7f;
     public float turnSpeed = 720f; // 도/초
 
+    public float TimeScaleMultiplier { get; private set; } = 1.0f;
+
     public float MoveSpeed
     {
         get { return moveSpeed; }  // MoveSpeed를 읽으려고 하면, moveSpeed 변수 값을 줌
@@ -106,6 +108,11 @@ public class Player : MonoBehaviour, IStats
 
     void Update()
     {
+        if (StatManager.Instance != null)
+        {
+            TimeScaleMultiplier = StatManager.Instance.PlayerTimeScaleMultiplier;
+        }
+
         moveDir = Vector3.zero;
         readMoveInput(ref moveDir);
 
@@ -295,18 +302,17 @@ public class Player : MonoBehaviour, IStats
     {
         if (cam == null) return;
 
-        //카메라 수직성분을 0으로 만들어서 수평 성분만 남김
         Vector3 forward = cam.transform.forward;
         forward.y = 0f;
 
-        //카메라 수직으로 봤을때 수평 방향 벡터가 0일떄 생기는 버그 방지
         if (forward.sqrMagnitude < 1e-4f) return;
 
-        //forward 방향을 바라보는 회전(Quaternion)을 만든다. Vector3.up은 회전의 위쪽 방향(롤 고정) 기준.
         Quaternion targetRot = Quaternion.LookRotation(forward, Vector3.up);
 
-        //현재 회전(rb.rotation)에서 목표 회전(targetRot) 쪽으로 회전
-        rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, targetRot, turnSpeed * Time.fixedDeltaTime));
+        // ▼▼▼▼▼ 바로 이 부분이 수정되었습니다! ▼▼▼▼▼
+        // 회전 속도(turnSpeed)에 시간 보정 값을 곱해줍니다.
+        float finalTurnSpeed = turnSpeed * TimeScaleMultiplier;
+        rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, targetRot, finalTurnSpeed * Time.fixedDeltaTime));
     }
 
     // 외부에서 플레이어에게 넉백을 적용할 때 호출하는 함수

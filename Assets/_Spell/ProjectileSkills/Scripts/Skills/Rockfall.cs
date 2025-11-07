@@ -12,7 +12,7 @@ public class Rockfall : Skill
         _caster = caster;
         _data = data as RockfallSkillData;
 
-        // RigidbodyÀÇ ¼Óµµ¸¦ 0À¸·Î ¸¸µé¾î ÀÚÀ¯ ³«ÇÏ ÁØºñ
+        // Rigidbodyì˜ ì†ë„ë¥¼ 0ìœ¼ë¡œ ë§Œë“¤ì–´ ììœ  ë‚™í•˜ ì¤€ë¹„
         if (TryGetComponent<Rigidbody>(out var rb))
         {
             rb.linearVelocity = Vector3.zero;
@@ -20,23 +20,23 @@ public class Rockfall : Skill
         }
     }
 
-    // OnCollisionEnter: ¹°¸®Àû Ãæµ¹ÀÌ ¹ß»ıÇßÀ» ¶§ È£Ãâ
+    // OnCollisionEnter: ë¬¼ë¦¬ì  ì¶©ëŒì´ ë°œìƒí–ˆì„ ë•Œ í˜¸ì¶œ
     void OnCollisionEnter(Collision collision)
     {
         GameObject other = collision.gameObject;
 
-        // 1. ÀÚ±â ÀÚ½ÅÀÌ³ª ½ğ »ç¶÷°ú ºÎµúÈ÷¸é ¾Æ¹«°Íµµ ÇÏÁö ¾Ê°í Åë°ú
+        // 1. ìê¸° ìì‹ ì´ë‚˜ ìœ ì‚¬ëŒê³¼ ë¶€ë”ªíˆë©´ ì•„ë¬´ê²ƒë„ í•˜ì§€ ì•Šê³  í†µê³¼
         if (other == _caster) return;
 
-        // 2. °°Àº Æí(°°Àº ·¹ÀÌ¾î)°ú ºÎµúÈ÷´Â °æ¿ìµµ ¹«½Ã
+        // 2. ê°™ì€ í¸(ê°™ì€ ë ˆì´ì–´)ê³¼ ë¶€ë”ªíˆëŠ” ê²½ìš°ë„ ë¬´ì‹œ
         if (_caster != null && other.layer == _caster.layer) return;
 
-        // 3. ºÎµúÈù ´ë»óÀÌ '°ø°İ ´ë»ó'ÀÎÁö ¸ÕÀú È®ÀÎ
+        // 3. ë¶€ë”ªíŒ ëŒ€ìƒì´ 'ê³µê²© ëŒ€ìƒ'ì¸ì§€ ë¨¼ì € í™•ì¸
         if (other.TryGetComponent<EnemyHealth>(out var enemyHealth))
         {
-            // °ø°İ ´ë»óÀÌ ¸Â´Ù¸é, µ¥¹ÌÁö¸¦ ÁÜ
+            // ê³µê²© ëŒ€ìƒì´ ë§ë‹¤ë©´, ë°ë¯¸ì§€ë¥¼ ì¤Œ
             enemyHealth.TakeDamage(_data.damage);
-            Debug.Log($"<color=yellow>{other.name}¿¡°Ô ³«¼®ÀÌ ¸íÁß! {_data.damage}ÀÇ µ¥¹ÌÁö!</color>");
+            Debug.Log($"<color=yellow>{other.name}ì—ê²Œ ë‚™ì„ì´ ëª…ì¤‘! {_data.damage}ì˜ ë°ë¯¸ì§€!</color>");
         }
 
         gameObject.SetActive(false);
