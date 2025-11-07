@@ -6,18 +6,18 @@ using System.Collections.Generic;
 
 public class DetailPanelView : MonoBehaviour
 {
-    [Header("»ó¼¼ Á¤º¸ UI")]
-    [Tooltip("¼±ÅÃµÈ ¾ÆÀÌÅÛÀÇ ÀÌ¹ÌÁö¸¦ Ç¥½ÃÇÒ UI Image")]
+    [Header("ìƒì„¸ ì •ë³´ UI")]
+    [Tooltip("ì„ íƒëœ ì•„ì´í…œì˜ ì´ë¯¸ì§€ë¥¼ í‘œì‹œí•  UI Image")]
     [SerializeField] private Image selectedItemImage;
-    [Tooltip("¼±ÅÃµÈ ¾ÆÀÌÅÛÀÇ ÀÌ¸§À» Ç¥½ÃÇÒ TextMeshPro UI")]
+    [Tooltip("ì„ íƒëœ ì•„ì´í…œì˜ ì´ë¦„ì„ í‘œì‹œí•  TextMeshPro UI")]
     [SerializeField] private TextMeshProUGUI selectedItemNameText;
-    [Tooltip("¼±ÅÃµÈ ¾ÆÀÌÅÛÀÇ ¼³¸íÀ» Ç¥½ÃÇÒ TextMeshPro UI")]
+    [Tooltip("ì„ íƒëœ ì•„ì´í…œì˜ ì„¤ëª…ì„ í‘œì‹œí•  TextMeshPro UI")]
     [SerializeField] private TextMeshProUGUI selectedItemDescText;
 
-    [Header("ÇÊ¿ä Àç·á ¸ñ·Ï")]
-    [Tooltip("ÇÊ¿ä Àç·á UIµéÀÌ »ı¼ºµÉ ºÎ¸ğ Transform")]
+    [Header("í•„ìš” ì¬ë£Œ ëª©ë¡")]
+    [Tooltip("í•„ìš” ì¬ë£Œ UIë“¤ì´ ìƒì„±ë  ë¶€ëª¨ Transform")]
     [SerializeField] private Transform materialListContent;
-    [Tooltip("ÇÊ¿ä Àç·á¸¦ Ç¥½ÃÇÒ UI ÇÁ¸®ÆÕ (MaterialListItemUI Æ÷ÇÔ)")]
+    [Tooltip("í•„ìš” ì¬ë£Œë¥¼ í‘œì‹œí•  UI í”„ë¦¬íŒ¹ (MaterialListItemUI í¬í•¨)")]
     [SerializeField] private GameObject materialListItemPrefab;
 
     public void DisplayBlueprint(WagonBlueprintData blueprint, Dictionary<ItemData, int> playerInventory)
@@ -53,7 +53,7 @@ public class DetailPanelView : MonoBehaviour
         }
 
         UpdateCommonInfo(part.image, part.partName, part.description);
-        ClearMaterialList(); // ÀåÂøµÈ ¾ÆÀÌÅÛÀº Àç·á ¸ñ·ÏÀÌ ÇÊ¿ä ¾øÀ½
+        ClearMaterialList(); // ì¥ì°©ëœ ì•„ì´í…œì€ ì¬ë£Œ ëª©ë¡ì´ í•„ìš” ì—†ìŒ
     }
 
     private void UpdateCommonInfo(Sprite sprite, string itemName, string description)
@@ -75,7 +75,7 @@ public class DetailPanelView : MonoBehaviour
         {
             GameObject matGO = Instantiate(materialListItemPrefab, materialListContent);
 
-            // TryGetValue¸¦ »ç¿ëÇÏ¿© ´õ ¾ÈÀüÇÏ°Ô º¸À¯·® È®ÀÎ
+            // TryGetValueë¥¼ ì‚¬ìš©í•˜ì—¬ ë” ì•ˆì „í•˜ê²Œ ë³´ìœ ëŸ‰ í™•ì¸
             int ownedAmount = playerInventory.TryGetValue(material.item, out int amount) ? amount : 0;
 
             matGO.GetComponent<MaterialListItemUI>().Setup(material, ownedAmount);
@@ -84,7 +84,7 @@ public class DetailPanelView : MonoBehaviour
 
     public void Clear()
     {
-        UpdateCommonInfo(null, "Ç×¸ñÀ» ¼±ÅÃÇÏ¼¼¿ä", "");
+        UpdateCommonInfo(null, "í•­ëª©ì„ ì„ íƒí•˜ì„¸ìš”", "");
         ClearMaterialList();
     }
 

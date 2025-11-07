@@ -4,18 +4,18 @@ using TMPro;
 
 public class WagonDashboardView : MonoBehaviour
 {
-    [Header("¸¶Â÷ µğ½ºÇÃ·¹ÀÌ")]
-    [Tooltip("¸¶Â÷ÀÇ ÀÌ¹ÌÁö¸¦ Ç¥½ÃÇÒ UI Image ÄÄÆ÷³ÍÆ®")]
+    [Header("ë§ˆì°¨ ë””ìŠ¤í”Œë ˆì´")]
+    [Tooltip("ë§ˆì°¨ì˜ ì´ë¯¸ì§€ë¥¼ í‘œì‹œí•  UI Image ì»´í¬ë„ŒíŠ¸")]
     [SerializeField] private Image wagonDisplayImage;
-    [Tooltip("¸¶Â÷ÀÇ ÀÌ¸§À» Ç¥½ÃÇÒ TextMeshPro UI")]
+    [Tooltip("ë§ˆì°¨ì˜ ì´ë¦„ì„ í‘œì‹œí•  TextMeshPro UI")]
     [SerializeField] private TextMeshProUGUI wagonNameText;
 
-    [Header("¸¶Â÷ ½ºÅÈ Á¤º¸")]
-    [Tooltip("±âº» °³Á¶ ·¹º§À» Ç¥½ÃÇÒ TextMeshPro UI")]
+    [Header("ë§ˆì°¨ ìŠ¤íƒ¯ ì •ë³´")]
+    [Tooltip("ê¸°ë³¸ ê°œì¡° ë ˆë²¨ì„ í‘œì‹œí•  TextMeshPro UI")]
     [SerializeField] private TextMeshProUGUI basicUpgradeText;
-    [Tooltip("¿î¸í ½½·Ô »óÅÂ¸¦ Ç¥½ÃÇÒ TextMeshPro UI")]
+    [Tooltip("ìš´ëª… ìŠ¬ë¡¯ ìƒíƒœë¥¼ í‘œì‹œí•  TextMeshPro UI")]
     [SerializeField] private TextMeshProUGUI destinySlotsText;
-    [Tooltip("ÀûÀç·®À» Ç¥½ÃÇÒ TextMeshPro UI")]
+    [Tooltip("ì ì¬ëŸ‰ì„ í‘œì‹œí•  TextMeshPro UI")]
     [SerializeField] private TextMeshProUGUI loadText;
 
     public void UpdateDashboard(string name, int currentUpgrade, int maxUpgrade, int equippedSlots, int maxSlots, float currentLoad, float maxLoad)
@@ -24,13 +24,13 @@ public class WagonDashboardView : MonoBehaviour
             wagonNameText.text = name;
 
         if (basicUpgradeText != null)
-            basicUpgradeText.text = $"±âº» °³Á¶: {currentUpgrade} / {maxUpgrade}";
+            basicUpgradeText.text = $"ê¸°ë³¸ ê°œì¡°: {currentUpgrade} / {maxUpgrade}";
 
         if (destinySlotsText != null)
-            destinySlotsText.text = $"¿î¸í ½½·Ô: {equippedSlots} / {maxSlots}";
+            destinySlotsText.text = $"ìš´ëª… ìŠ¬ë¡¯: {equippedSlots} / {maxSlots}";
 
         if (loadText != null)
-            loadText.text = $"ÀûÀç·®: {currentLoad} / {maxLoad}";
+            loadText.text = $"ì ì¬ëŸ‰: {currentLoad} / {maxLoad}";
     }
 
     public void UpdateWagonImage(Sprite wagonSprite)
@@ -38,7 +38,7 @@ public class WagonDashboardView : MonoBehaviour
         if (wagonDisplayImage == null) return;
 
         wagonDisplayImage.sprite = wagonSprite;
-        // ½ºÇÁ¶óÀÌÆ®°¡ ¾øÀ¸¸é Åõ¸íÇÏ°Ô, ÀÖÀ¸¸é ºÒÅõ¸íÇÏ°Ô ¸¸µì´Ï´Ù.
+        // ìŠ¤í”„ë¼ì´íŠ¸ê°€ ì—†ìœ¼ë©´ íˆ¬ëª…í•˜ê²Œ, ìˆìœ¼ë©´ ë¶ˆíˆ¬ëª…í•˜ê²Œ ë§Œë“­ë‹ˆë‹¤.
         wagonDisplayImage.color = (wagonSprite == null) ? Color.clear : Color.white;
     }
 }
