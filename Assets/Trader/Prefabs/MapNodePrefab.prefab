@@ -135,3 +135,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapNode
   row: 5
   col: 5
+  nodeType: 0

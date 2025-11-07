@@ -13,8 +13,12 @@ public class GameManager : MonoBehaviour
     public GameObject mapNodePrefab;
     public int gridRows = 5;
     public int gridCols = 5;
-    public float nodeSpacing = 0f;
     public Vector2 startPosition = new Vector2(-200, -200);
+    public float nodeSpacing = 0f;
+    // public Vector2 startPosition = new Vector2(-200, -200); // <-- 이 줄을 삭제하세요.
+
+    [Range(0.1f, 1f)] // 10% ~ 100%
+    public float gridHeightPercentage = 0.8f; // <-- 이 줄을 새로 추가하세요. (화면 세로의 80%를 차지)
 
     [Header("마차 설정")]
     public GameObject carriagePrefab;
@@ -82,22 +86,45 @@ public class GameManager : MonoBehaviour
             Debug.LogError("MapNodePrefab이 할당되지 않았습니다!");
             return;
         }
+        if (ParentTransform == null)
+        {
+            Debug.LogError("ParentTransform이 할당되지 않았습니다! (1920x1080 캔버스 패널을 할당하세요)");
+            return;
+        }
+
+        // --- (새 코드) 화면 비율에 맞춰 중앙 정렬 ---
+        Rect parentRect = ParentTransform.rect; // (예: 1920x1080)
+
+        // 1. 맵 그리드의 *총 높이*를 계산합니다. (화면 높이의 N% 사용)
+        //    (e.g., 1080 * 0.8f = 864)
+        float totalGridHeight = parentRect.height * gridHeightPercentage;
+
+        // 2. 정사각형 노드의 *한 변의 크기(nodeSize)*를 계산합니다.
+        //    (e.g., (864 - (0 spacing * 4)) / 5 rows = 172.8)
+        float nodeSize = (totalGridHeight - (nodeSpacing * (gridRows - 1))) / gridRows;
+
+        // 3. 계산된 nodeSize로 맵 그리드의 *총 너비*를 계산합니다.
+        //    (e.g., 172.8 * 5 cols + (0 spacing * 4) = 864)
+        float totalGridWidth = (nodeSize * gridCols) + (nodeSpacing * (gridCols - 1));
+
+        // 4. 부모의 좌측 하단 좌표 (배치 기준점)
+        //    (e.g., -1920/2 = -960, -1080/2 = -540)
+        float parentBottomLeftX = -parentRect.width * 0.5f;
+        float parentBottomLeftY = -parentRect.height * 0.5f;
+        
+        // 5. 맵이 *중앙*에 오도록 맵의 시작 위치 (좌측 하단)를 계산합니다.
+        float mapStartX = parentBottomLeftX + (parentRect.width - totalGridWidth) / 2;
+        float mapStartY = parentBottomLeftY + (parentRect.height - totalGridHeight) / 2;
+        // --- (새 코드 끝) ---
+
 
         mapGrid = new MapNode[gridRows, gridCols];
         visitedNodes = new bool[gridRows, gridCols];
 
-        RectTransform prefabRect = mapNodePrefab.GetComponent<RectTransform>();
-        float nodeWidth = prefabRect.rect.width;
-        float nodeHeight = prefabRect.rect.height;
-
-        GameObject gridParent = new GameObject("GridMapParent");
-        gridParent.transform.SetParent(ParentTransform);
-        gridParent.transform.localPosition = Vector3.zero;
-
-        // pathLineImage 부모를 gridParent로 & pivot 왼쪽 중앙으로 설정
+        // pathLineImage 부모를 ParentTransform으로 & pivot 왼쪽 중앙으로 설정
         if (pathLineImage != null)
         {
-            pathLineImage.SetParent(gridParent.transform, false);
+            pathLineImage.SetParent(ParentTransform, false);
             pathLineImage.pivot = new Vector2(0f, 0.5f);
             pathLineImage.gameObject.SetActive(false);
         }
@@ -106,17 +133,22 @@ public class GameManager : MonoBehaviour
         {
             for (int col = 0; col < gridCols; col++)
             {
-                GameObject nodeGO = Instantiate(mapNodePrefab, gridParent.transform);
+                GameObject nodeGO = Instantiate(mapNodePrefab, ParentTransform);
                 nodeGO.name = $"MapNode_{row}_{col}";
 
                 RectTransform nodeRect = nodeGO.GetComponent<RectTransform>();
 
-                float xPos = startPosition.x + col * (nodeWidth + nodeSpacing);
-                float yPos = startPosition.y + row * (nodeHeight + nodeSpacing);
+                // 6. 노드 크기를 (nodeSize x nodeSize) 정사각형으로 강제 설정합니다.
+                nodeRect.sizeDelta = new Vector2(nodeSize, nodeSize);
+
+                // 7. 노드의 위치를 계산합니다.
+                //    (노드 피벗이 중앙(0.5, 0.5)이므로 nodeSize의 절반을 더해줍니다)
+                float xPos = mapStartX + (nodeSize * 0.5f) + col * (nodeSize + nodeSpacing);
+                float yPos = mapStartY + (nodeSize * 0.5f) + row * (nodeSize + nodeSpacing);
 
                 nodeRect.anchoredPosition = new Vector2(xPos, yPos);
 
-                // 안개용 UI 이미지 동적 생성
+                // 안개용 UI 이미지 동적 생성 (이하 동일)
                 GameObject fogGO = new GameObject("FogCover", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
                 fogGO.transform.SetParent(nodeGO.transform, false);
                 RectTransform fogRect = fogGO.GetComponent<RectTransform>();
@@ -131,18 +163,14 @@ public class GameManager : MonoBehaviour
                 MapNode mapNode = nodeGO.GetComponent<MapNode>();
                 if (mapNode != null)
                 {
-                    // NodeType 결정: 확률에 의한 랜덤 타입 지정
                     NodeType type = DetermineNodeType(row, col);
                     mapNode.Initialize(row, col, type);
                     mapGrid[row, col] = mapNode;
-
-                    // 아이콘 배치는 NodeType 기준으로 처리
                     PlaceIconByNodeType(mapNode);
                 }
             }
         }
 
-        // 시작 위치 노드는 방문 처리하여 안개 제거
         visitedNodes[0, 0] = true;
     }
 
@@ -349,7 +377,12 @@ public class GameManager : MonoBehaviour
 
     public void OnStableEnterButton()
     {
-        StartCoroutine(SwitchToOtherMapScene("DemoStableScene"));
+        StartCoroutine(SwitchToOtherMapScene("demo_caravan"));
+    }
+
+    public void OnStableExitButton()
+    {
+
     }
 
     public IEnumerator SwitchScene(string oldScene, string newScene, bool keepOldScene = true)
@@ -370,6 +403,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ReturnToLocalMapScene2(string oldScene)
+    {
+        var old = SceneManager.GetSceneByName(oldScene);
+        foreach (var go in old.GetRootGameObjects())
+        {
+            Debug.Log($"Deactivating GameObject: {go.name}");
+            if (go.name == "GameManager") continue;
+            go.SetActive(false);
+        }
+        var local = SceneManager.GetSceneByName("LocalMapScene");
+        foreach (var go in local.GetRootGameObjects())
+        {
+            Debug.Log($"Deactivating GameObject: {go.name}");
+            if (go.name == "GameManager") continue;
+            go.SetActive(true);
+        }
+        SceneManager.SetActiveScene(local);
+        UpdateFogOfWar();
+    }
+
     public IEnumerator SwitchToOtherMapScene(string newScene)
     {
         var local = SceneManager.GetSceneByName("LocalMapScene");
@@ -379,8 +432,22 @@ public class GameManager : MonoBehaviour
             if (go.name == "GameManager") continue;
             go.SetActive(false);
         }
-        yield return SceneManager.LoadSceneAsync(newScene, LoadSceneMode.Additive);
-        SceneManager.SetActiveScene(SceneManager.GetSceneByName(newScene));
+        if (SceneManager.GetSceneByName(newScene).isLoaded)
+        {
+            var newnew = SceneManager.GetSceneByName(newScene);
+            foreach (var go in newnew.GetRootGameObjects())
+            {
+                Debug.Log($"Deactivating GameObject: {go.name}");
+                if (go.name == "GameManager") continue;
+                go.SetActive(true);
+            }
+            SceneManager.SetActiveScene(newnew);
+        }
+        else
+        {
+            yield return SceneManager.LoadSceneAsync(newScene, LoadSceneMode.Additive);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName(newScene));
+        }
     }
 
     public IEnumerator ReturnToLocalMapScene(string oldScene)
@@ -403,6 +470,38 @@ public class GameManager : MonoBehaviour
         foreach (var go in oldS.GetRootGameObjects())
             go.SetActive(true);
         SceneManager.SetActiveScene(oldS);
+    }
+
+    public void UpdateFogOfWar()
+    {
+        for (int row = 0; row < gridRows; row++)
+        {
+            for (int col = 0; col < gridCols; col++)
+            {
+                MapNode node = mapGrid[row, col];
+                if (node == null)
+                    continue;
+
+                Transform fogTransform = node.transform.Find("FogCover");
+                if (fogTransform != null)
+                {
+                    bool isVisited = visitedNodes[row, col];
+                    fogTransform.gameObject.SetActive(!isVisited);
+
+                    // 아이콘 숨기기 처리
+                    Transform monsterIcon = node.transform.Find("MonsterIcon");
+                    Transform treasureIcon = node.transform.Find("TreasureChestIcon");
+                    Transform wellIcon = node.transform.Find("WellIcon");
+
+                    if (monsterIcon != null)
+                        monsterIcon.gameObject.SetActive(isVisited);
+                    if (treasureIcon != null)
+                        treasureIcon.gameObject.SetActive(isVisited);
+                    if (wellIcon != null)
+                        wellIcon.gameObject.SetActive(isVisited);
+                }
+            }
+        }
     }
 
     private IEnumerator MoveCarriageSmoothly(MapNode targetNode)
@@ -504,43 +603,11 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-        if(row == 0 && col == 0)
+        if (row == 0 && col == 0)
         {
             UpdateFogOfWar();
         }
         //UpdateFogOfWar();
-    }
-
-    private void UpdateFogOfWar()
-    {
-        for (int row = 0; row < gridRows; row++)
-        {
-            for (int col = 0; col < gridCols; col++)
-            {
-                MapNode node = mapGrid[row, col];
-                if (node == null)
-                    continue;
-
-                Transform fogTransform = node.transform.Find("FogCover");
-                if (fogTransform != null)
-                {
-                    bool isVisited = visitedNodes[row, col];
-                    fogTransform.gameObject.SetActive(!isVisited);
-
-                    // 아이콘 숨기기 처리
-                    Transform monsterIcon = node.transform.Find("MonsterIcon");
-                    Transform treasureIcon = node.transform.Find("TreasureChestIcon");
-                    Transform wellIcon = node.transform.Find("WellIcon");
-
-                    if (monsterIcon != null)
-                        monsterIcon.gameObject.SetActive(isVisited);
-                    if (treasureIcon != null)
-                        treasureIcon.gameObject.SetActive(isVisited);
-                    if (wellIcon != null)
-                        wellIcon.gameObject.SetActive(isVisited);
-                }
-            }
-        }
     }
 
 }
