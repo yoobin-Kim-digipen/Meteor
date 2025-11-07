@@ -11,12 +11,23 @@ public class MonsterStateMachine : MonoBehaviour
     {
         MonsterFSM = GetComponent<MonsterFSM>();
     }
-
+    public void SwitchToReturnState()
+    {
+        SwitchState(_states.Return());
+    }
     public void Initialize(MonsterData data)
     {
-        // 팩토리를 생성하고, 시작 상태를 'Chase'로 설정합니다.
         _states = new MonsterStateFactory(this);
-        _currentState = _states.Chase();
+
+        // 몬스터 타입에 따라 다른 시작 상태를 가짐
+        if (MonsterFSM.aiType == AIType.LairGuardian)
+        {
+            _currentState = _states.Idle();
+        }
+        else // 야생 몬스터(Wanderer)는 바로 추적 시작
+        {
+            _currentState = _states.Chase();
+        }
         _currentState.EnterState();
     }
 

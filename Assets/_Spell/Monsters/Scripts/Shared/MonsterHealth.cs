@@ -28,6 +28,10 @@ public class EnemyHealth : MonoBehaviour
             Die();
         }
     }
+    public void ResetHealth()
+    {
+        currentHealth = maxhealth;
+    }
 
     private void Die()
     {
