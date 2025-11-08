@@ -20,7 +20,7 @@ public class DetailPanelView : MonoBehaviour
     [Tooltip("필요 재료를 표시할 UI 프리팹 (MaterialListItemUI 포함)")]
     [SerializeField] private GameObject materialListItemPrefab;
 
-    public void DisplayBlueprint(WagonBlueprintData blueprint, Dictionary<ItemData, int> playerInventory)
+    public void DisplayBlueprint(WagonBlueprintData blueprint, Dictionary<StableItemData, int> playerInventory)
     {
         if (blueprint == null)
         {
@@ -32,7 +32,7 @@ public class DetailPanelView : MonoBehaviour
         PopulateMaterialList(blueprint.requiredMaterials, playerInventory);
     }
 
-    public void DisplayPart(PartData part, Dictionary<ItemData, int> playerInventory)
+    public void DisplayPart(PartData part, Dictionary<StableItemData, int> playerInventory)
     {
         if (part == null)
         {
@@ -66,7 +66,7 @@ public class DetailPanelView : MonoBehaviour
         if (selectedItemNameText != null) selectedItemNameText.text = itemName;
         if (selectedItemDescText != null) selectedItemDescText.text = description;
     }
-    private void PopulateMaterialList(List<RequiredMaterial> materials, Dictionary<ItemData, int> playerInventory)
+    private void PopulateMaterialList(List<RequiredMaterial> materials, Dictionary<StableItemData, int> playerInventory)
     {
         ClearMaterialList();
         if (materials == null || materialListItemPrefab == null) return;

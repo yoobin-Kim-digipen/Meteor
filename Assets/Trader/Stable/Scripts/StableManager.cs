@@ -5,7 +5,7 @@ using System.Linq;
 [System.Serializable]
 public struct TestInventoryItem
 {
-    public ItemData itemData;
+    public StableItemData itemData;
     public int amount;
 }
 
@@ -22,7 +22,7 @@ public class StableManager : MonoBehaviour
     [Header("플레이어 데이터 (임시)")]
     public PlayerWagon currentPlayerWagon;
     public List<PartData> ownedDestinyParts = new List<PartData>();
-    public Dictionary<ItemData, int> playerInventory = new Dictionary<ItemData, int>();
+    public Dictionary<StableItemData, int> playerInventory = new Dictionary<StableItemData, int>();
     public int playerGold = 9999;
 
     [Header("테스트용 시작 아이템")]

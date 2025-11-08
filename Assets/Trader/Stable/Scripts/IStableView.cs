@@ -26,8 +26,8 @@ public interface IStableView
     void ClearList();
     void AddBlueprintToList(WagonBlueprintData blueprint, bool isCraftable);
     void AddPartToList(PartData part, PartStatus status);
-    void ShowBlueprintDetails(WagonBlueprintData blueprint, Dictionary<ItemData, int> playerInventory);
-    void ShowPartDetails(PartData part, Dictionary<ItemData, int> playerInventory);
+    void ShowBlueprintDetails(WagonBlueprintData blueprint, Dictionary<StableItemData, int> playerInventory);
+    void ShowPartDetails(PartData part, Dictionary<StableItemData, int> playerInventory);
     void ShowEquippedPartDetails(PartData part);
     void ClearDetailPanel();
     void SetBlueprintSelection(WagonBlueprintData blueprint, bool isSelected);

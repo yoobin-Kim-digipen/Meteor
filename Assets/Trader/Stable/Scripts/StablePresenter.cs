@@ -9,7 +9,7 @@ public class StablePresenter
 
     // --- Model 데이터 캐시 및 현재 상태 ---
     private PlayerWagon currentWagon;
-    private Dictionary<ItemData, int> playerInventory;
+    private Dictionary<StableItemData, int> playerInventory;
     private object selectedItem;
     private StableUIMode currentMode = StableUIMode.Upgrading; // UI 시작 시 기본 모드
     private UpgradeFilter currentFilter = UpgradeFilter.All;   // UI 시작 시 기본 필터

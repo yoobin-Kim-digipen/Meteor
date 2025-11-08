@@ -107,12 +107,12 @@ public class StableUIView : MonoBehaviour, IStableView
         }
     }
 
-    public void ShowBlueprintDetails(WagonBlueprintData blueprint, Dictionary<ItemData, int> playerInventory)
+    public void ShowBlueprintDetails(WagonBlueprintData blueprint, Dictionary<StableItemData, int> playerInventory)
     {
         detailPanelView?.DisplayBlueprint(blueprint, playerInventory);
     }
 
-    public void ShowPartDetails(PartData part, Dictionary<ItemData, int> playerInventory)
+    public void ShowPartDetails(PartData part, Dictionary<StableItemData, int> playerInventory)
     {
         detailPanelView?.DisplayPart(part, playerInventory);
     }

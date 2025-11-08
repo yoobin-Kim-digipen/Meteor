@@ -9,7 +9,7 @@ public enum PartType { Basic, Destiny }
 [System.Serializable]
 public class RequiredMaterial
 {
-    public ItemData item;
+    public StableItemData item;
     public int amount;
 }
 
