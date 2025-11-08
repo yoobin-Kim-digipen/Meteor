@@ -6,7 +6,7 @@ public class SpaceToNextScene : MonoBehaviour
     void Update()
     {
         Scene currentScene = SceneManager.GetActiveScene();
-        if (currentScene.name != "demo_caravan")
+        if (currentScene.name != "demo_caravan" && currentScene.name != "Shop_scene")
         {
             if (Input.GetKeyDown(KeyCode.Space) && (currentScene.name != "LocalMapScene"))
             {

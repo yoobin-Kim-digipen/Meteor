@@ -372,17 +372,12 @@ public class GameManager : MonoBehaviour
 
     public void OnShopEnterButton()
     {
-        StartCoroutine(SwitchToOtherMapScene("DemoShopScene"));
+        StartCoroutine(SwitchToOtherMapScene("Shop_scene"));
     }
 
     public void OnStableEnterButton()
     {
         StartCoroutine(SwitchToOtherMapScene("demo_caravan"));
-    }
-
-    public void OnStableExitButton()
-    {
-
     }
 
     public IEnumerator SwitchScene(string oldScene, string newScene, bool keepOldScene = true)

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//¾Æ·¡ list¿¡ ItemData¸¦ Ãß°¡ÇÏ¿© ¾ÆÀÌÅÛ »ı¼º °¡´É.
+//ì•„ë˜ listì— ItemDataë¥¼ ì¶”ê°€í•˜ì—¬ ì•„ì´í…œ ìƒì„± ê°€ëŠ¥.
 public class Items : MonoBehaviour
 {
     public List<ItemData> itemList = new List<ItemData>()
@@ -35,7 +35,7 @@ public class Items : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("items »ı¼º");
+        Debug.Log("items ìƒì„±");
     }
 
     ~Items()

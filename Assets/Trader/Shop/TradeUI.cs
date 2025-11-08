@@ -4,10 +4,10 @@ using TMPro;
 
 public class TradeUI : MonoBehaviour
 {
-    //Trade ÆĞ³ÎÀÇ ÄÜÅÙÃ÷ ¸ğÀ½
+    //Trade íŒ¨ë„ì˜ ì½˜í…ì¸  ëª¨ìŒ
     [SerializeField] private GameObject[] content;
    
-    //¾ÆÀÌÅÛ ÀÌ¹ÌÁö
+    //ì•„ì´í…œ ì´ë¯¸ì§€
     public Image Image;
     public TextMeshProUGUI Item_Name;
 
@@ -16,23 +16,23 @@ public class TradeUI : MonoBehaviour
     public TextMeshProUGUI weight_num;
     public TextMeshProUGUI price_num;
 
-    //¹öÆ°¸ğÀ½
+    //ë²„íŠ¼ëª¨ìŒ
     public Button plus_button;
     public Button minus_button;
     public Button bargin_button;
     public Button trade_button;
 
-    //ÇÃ·¹ÀÌ¾î °ñµå
+    //í”Œë ˆì´ì–´ ê³¨ë“œ
     public Gold player_gold;
 
 
     public ItemData itemdata;
     private ItemData previtemdata;
 
-    //Trade ÆĞ³Î º¯¼ö
-    private int items_counted = 1; // ¸î°³ »ì°ÇÁö
-    private int items_weight = 0;   // ¾ÆÀÌÅÛÀÇ ¹«°Ô ÃÑÇÕ
-    private int items_price = 0;    // ¾ÆÀÌÅÛÀÇ °¡°İ ÃÑÇÕ
+    //Trade íŒ¨ë„ ë³€ìˆ˜
+    private int items_counted = 1; // ëª‡ê°œ ì‚´ê±´ì§€
+    private int items_weight = 0;   // ì•„ì´í…œì˜ ë¬´ê²Œ ì´í•©
+    private int items_price = 0;    // ì•„ì´í…œì˜ ê°€ê²© ì´í•©
 
 
 
@@ -46,7 +46,7 @@ public class TradeUI : MonoBehaviour
         {
             c.SetActive(false);
         }
-        Debug.Log(" Æ®·¹ÀÌµå UI »ı¼ºµÊ");
+        Debug.Log(" íŠ¸ë ˆì´ë“œ UI ìƒì„±ë¨");
     }
 
     void Update()
@@ -54,11 +54,11 @@ public class TradeUI : MonoBehaviour
 
         if (itemdata != previtemdata)
         {
-            previtemdata = itemdata; // ÇöÀç »óÅÂ ÀúÀå
+            previtemdata = itemdata; // í˜„ì¬ ìƒíƒœ ì €ì¥
 
             if (itemdata == null)
             {
-                Debug.Log("¼±ÅÃµÈ ¾ÆÀÌÅÛ ¾øÀ½");
+                Debug.Log("ì„ íƒëœ ì•„ì´í…œ ì—†ìŒ");
                 foreach (var c in content)
                 {
                     c.SetActive(false);
@@ -66,7 +66,7 @@ public class TradeUI : MonoBehaviour
             }
             else
             {
-                Debug.Log("¼±ÅÃµÈ ¾ÆÀÌÅÛ ÀÖÀ½");
+                Debug.Log("ì„ íƒëœ ì•„ì´í…œ ìˆìŒ");
                 trade_reset();
                 foreach (var c in content)
                 {
@@ -92,7 +92,7 @@ public class TradeUI : MonoBehaviour
     public void Set_itemdata(ItemData item)
     {
 
-        Debug.Log("¾ÆÀÌÅÛ ¼±ÅÃµÊ");
+        Debug.Log("ì•„ì´í…œ ì„ íƒë¨");
         itemdata = item;
     }
 
@@ -110,18 +110,18 @@ public class TradeUI : MonoBehaviour
 
     public void Bargin()
     {
-        //µ¿Àü´øÁö±â
+        //ë™ì „ë˜ì§€ê¸°
     }
 
     public void Trade()
     {
         if(player_gold.Use_gold(items_price))
         {
-            Debug.Log("°Å·¡¼º°ø~");
+            Debug.Log("ê±°ë˜ì„±ê³µ~");
         }
         else
         {
-            Debug.Log("°Å·¡½ÇÆĞ~");
+            Debug.Log("ê±°ë˜ì‹¤íŒ¨~");
         }
         
     }

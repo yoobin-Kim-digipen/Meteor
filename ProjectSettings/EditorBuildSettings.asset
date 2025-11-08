@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Trader/Stable/Scenes/demo_caravan.unity
     guid: 15d5c54c8e5611445a8f50e09a1e227d
+  - enabled: 1
+    path: Assets/Trader/Shop/Shop_scene.unity
+    guid: 44bd908d7a8320d4b9bc0dbcd80605a0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

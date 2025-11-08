@@ -3,7 +3,7 @@ public class ItemData
     public int item_id = 0;
     public string image_path = "Assets/Shop/Item_icon/apple.png";
     public string name = "a";
-    public int price = 0; // °¡°İÀº »óÁ¡ °¡°İÀ» ±âÁØ
+    public int price = 0; // ê°€ê²©ì€ ìƒì  ê°€ê²©ì„ ê¸°ì¤€
     public int weight = 0;
 
 }

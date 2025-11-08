@@ -6,7 +6,7 @@ public class Gold : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Debug.Log("Gold °´Ã¼ »ı¼ºµÊ");
+        Debug.Log("Gold ê°ì²´ ìƒì„±ë¨");
         gold = 100;
     }
 
@@ -14,7 +14,7 @@ public class Gold : MonoBehaviour
     {
         if (gold < amount)
         {
-            Debug.Log("°ñµå°¡ ºÎÁ·ÇÕ´Ï´Ù.");
+            Debug.Log("ê³¨ë“œê°€ ë¶€ì¡±í•©ë‹ˆë‹¤.");
             return false;
         }
         else
