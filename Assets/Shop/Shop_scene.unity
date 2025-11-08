@@ -2855,6 +2855,7 @@ MonoBehaviour:
   minus_button: {fileID: 1414821347}
   bargin_button: {fileID: 51072273}
   trade_button: {fileID: 113052766}
+  player_gold: {fileID: 817894331}
 --- !u!1 &2079157057
 GameObject:
   m_ObjectHideFlags: 0
