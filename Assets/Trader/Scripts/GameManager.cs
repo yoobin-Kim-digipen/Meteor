@@ -57,6 +57,31 @@ public class GameManager : MonoBehaviour
     private RectTransform currentCarriageRect;
     private bool isMoving = false;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void InitializeOnLoad()
+    {
+        // 인스턴스가 아직 없는지 확인합니다.
+        // (이미 Init 씬 등에서 생성되었다면 이 코드를 건너뜁니다)
+        if (Instance == null)
+        {
+            // Resources 폴더에서 "GameManager"라는 이름의 프리팹을 찾습니다.
+            // (1단계에서 만든 프리팹 이름과 동일해야 합니다)
+            var gameManagerPrefab = Resources.Load<GameObject>("GameManager");
+
+            if (gameManagerPrefab != null)
+            {
+                // 프리팹을 인스턴스화(생성)합니다.
+                // 이 순간, 새로 생성된 객체의 Awake() 메서드가 호출됩니다.
+                Instantiate(gameManagerPrefab);
+                Debug.Log("GameManager가 씬 시작 전에 자동으로 생성되었습니다.");
+            }
+            else
+            {
+                Debug.LogError("자동 생성을 위한 'GameManager' 프리팹을 Resources 폴더에서 찾을 수 없습니다!");
+            }
+        }
+    }
+
     void Awake()
     {
         if (Instance == null)
@@ -65,6 +90,7 @@ public class GameManager : MonoBehaviour
 
             // (선택 사항) 씬이 변경되어도 이 GameManager가 파괴되지 않게 함
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -75,8 +101,63 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        GenerateGridMap();
-        SetInitialCarriagePosition();
+        
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 로드된 씬의 이름이 "LocalMapScene"인지 확인합니다.
+        if (scene.name == "LocalMapScene")
+        {
+            // [중요] mapGrid가 null일 때만 (즉, 맵이 아직 생성되지 않았을 때만) 맵을 생성합니다.
+            if (mapGrid == null)
+            {
+                // ▼▼▼ [수정된 부분] ▼▼▼
+                // 1. 씬에서 "Canvas"라는 이름의 GameObject를 찾습니다.
+                //    (스크린샷에 보이는 이름 기준. 만약 이름이 다르면 이 문자열을 수정하세요.)
+                GameObject canvasObject = GameObject.Find("Canvas");
+
+                if (canvasObject != null)
+                {
+                    // 2. 찾은 Canvas의 RectTransform을 ParentTransform 변수에 할당합니다.
+                    ParentTransform = canvasObject.GetComponent<RectTransform>();
+                }
+                
+                // 3. ParentTransform이 여전히 null인지 (못 찾았는지) 마지막으로 확인합니다.
+                if (ParentTransform == null)
+                {
+                    Debug.LogError("'LocalMapScene'에서 'Canvas'를 찾지 못했습니다! 맵을 생성할 수 없습니다.");
+                    return; // 맵 생성 중단
+                }
+                // ▲▲▲ [수정 끝] ▲▲▲
+
+                Debug.Log("LocalMapScene 로드 확인. 맵 생성을 시작합니다.");
+                GenerateGridMap(); // 이제 ParentTransform이 정상적으로 할당된 상태로 호출됩니다.
+                SetInitialCarriagePosition();
+            }
+            else
+            {
+                Debug.Log("LocalMapScene 로드 확인. 맵이 이미 존재하므로 생성하지 않습니다.");
+                // 맵이 이미 존재하므로, 안개 업데이트 등 복귀 시 필요한 처리만 수행
+                
+                // [선택적 수정] 다른 씬에 갔다가 돌아왔을 때도 부모를 다시 찾아주는 것이 좋습니다.
+                if (ParentTransform == null)
+                {
+                     GameObject canvasObject = GameObject.Find("Canvas");
+                     if(canvasObject != null) ParentTransform = canvasObject.GetComponent<RectTransform>();
+                }
+                
+                UpdateFogOfWar();
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
     }
 
     void GenerateGridMap()
@@ -124,9 +205,21 @@ public class GameManager : MonoBehaviour
         // pathLineImage 부모를 ParentTransform으로 & pivot 왼쪽 중앙으로 설정
         if (pathLineImage != null)
         {
-            pathLineImage.SetParent(ParentTransform, false);
+            // 1. (수정) pathLineImage가 프리팹이므로, 씬에 인스턴스(복제본)를 생성합니다.
+            //    부모는 ParentTransform(Canvas)으로 즉시 설정합니다.
+            RectTransform lineInstance = Instantiate(pathLineImage, ParentTransform);
+            lineInstance.name = "PathLine (Instance)"; // 하이어라키에서 알아보기 쉽게 이름 변경
+
+            // 2. (수정) [중요] 앞으로 GameManager가 사용할 pathLineImage 변수는
+            //    프리팹 원본(pathLineImage)이 아닌, 방금 생성한 인스턴스(lineInstance)여야 합니다.
+            pathLineImage = lineInstance;
+
+            // 3. (기존 로직) 이제 인스턴스(복제본)의 설정을 변경합니다.
             pathLineImage.pivot = new Vector2(0f, 0.5f);
             pathLineImage.gameObject.SetActive(false);
+            
+            // 기존 SetParent 코드는 Instantiate의 두 번째 인자가 대체하므로 필요 없습니다.
+            // pathLineImage.SetParent(ParentTransform, false); // <-- 이 줄이 오류의 원인이었음!
         }
 
         for (int row = 0; row < gridRows; row++)
@@ -351,33 +444,37 @@ public class GameManager : MonoBehaviour
     // 팝업을 띄우는 메서드
     public void ShowPopup(string message, System.Action enterAction)
     {
-        if (popupMessageText != null)
-            popupMessageText.text = message;
-        if (popupPanel != null)
-            popupPanel.SetActive(true);
-        popupPanel.transform.SetAsLastSibling();
-        onEnterAction = enterAction;
-    }
+        if (popupPanel == null)
+        {
+            Debug.LogError("popupPanelPrefab이 GameManager에 할당되지 않았습니다!");
+            return;
+        }
 
-    public void OnPopupEnter()
-    {
-        popupPanel.SetActive(false);
-        onEnterAction?.Invoke(); ;
-    }
+        if (ParentTransform == null)
+        {
+            Debug.LogError("Canvas(ParentTransform)가 할당되지 않았습니다. 팝업을 생성할 수 없습니다.");
+            return;
+        }
 
-    public void OnPopupCancel()
-    {
-        popupPanel.SetActive(false);
-    }
+        // 1. 팝업 프리팹을 ParentTransform (Canvas)의 자식으로 생성(Instantiate)합니다.
+        GameObject popupGO = Instantiate(popupPanel, ParentTransform);
 
-    public void OnShopEnterButton()
-    {
-        StartCoroutine(SwitchToOtherMapScene("Shop_scene"));
-    }
+        // 2. 팝업이 다른 UI 위에 보이도록 마지막 순서로 보냅니다.
+        popupGO.transform.SetAsLastSibling();
 
-    public void OnStableEnterButton()
-    {
-        StartCoroutine(SwitchToOtherMapScene("demo_caravan"));
+        // 3. 생성된 팝업 인스턴스에서 PopupPanel 스크립트를 가져옵니다.
+        PopupPanel popupScript = popupGO.GetComponent<PopupPanel>();
+
+        if (popupScript != null)
+        {
+            // 4. 스크립트의 Initialize 메서드를 호출하여 메시지와 "Enter" 버튼 동작을 전달합니다.
+            popupScript.Initialize(message, enterAction);
+        }
+        else
+        {
+            Debug.LogError("popupPanelPrefab에 PopupPanel.cs 스크립트가 없습니다!");
+            Destroy(popupGO); // 스크립트가 없으면 생성된 오브젝트 즉시 파괴
+        }
     }
 
     public IEnumerator SwitchScene(string oldScene, string newScene, bool keepOldScene = true)
@@ -420,7 +517,8 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator SwitchToOtherMapScene(string newScene)
     {
-        var local = SceneManager.GetSceneByName("LocalMapScene");
+        Scene currentScene = SceneManager.GetActiveScene();
+        var local = SceneManager.GetSceneByName(currentScene.name);
         foreach (var go in local.GetRootGameObjects())
         {
             Debug.Log($"Deactivating GameObject: {go.name}");
@@ -555,7 +653,7 @@ public class GameManager : MonoBehaviour
                     StartCoroutine(SwitchToOtherMapScene("WellMapScene"));
                     break;
                 case NodeType.Battle:
-                    StartCoroutine(SwitchToOtherMapScene("BattleMapScene"));
+                    StartCoroutine(SwitchToOtherMapScene("Battle_Sample_Scene"));
                     break;
                 case NodeType.Treasure:
                     StartCoroutine(SwitchToOtherMapScene("TreasureMapScene"));

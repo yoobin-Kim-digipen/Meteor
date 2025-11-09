@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 729891167}
     - target: {fileID: 4336653731802673885, guid: e6da16af370a1474b9838045679dd88e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ReturnToLocalMapScene2
+      value: ReturnToVillageScene2
       objectReference: {fileID: 0}
     - target: {fileID: 4336653731802673885, guid: e6da16af370a1474b9838045679dd88e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
