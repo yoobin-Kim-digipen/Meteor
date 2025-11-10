@@ -186,6 +186,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnterBT
       objectReference: {fileID: 0}
+    - target: {fileID: 8373314784255515974, guid: fb9cc5f2cda544a07a675c7f1aeb420b, type: 3}
+      propertyPath: m_fontSize
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8373314784255515974, guid: fb9cc5f2cda544a07a675c7f1aeb420b, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2194adcf7591c9845866145c4471d5a1, type: 2}
+    - target: {fileID: 8373314784255515974, guid: fb9cc5f2cda544a07a675c7f1aeb420b, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8373314784255515974, guid: fb9cc5f2cda544a07a675c7f1aeb420b, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 6437128410882915206, guid: 2194adcf7591c9845866145c4471d5a1, type: 2}
+    - target: {fileID: 8373314784255515974, guid: fb9cc5f2cda544a07a675c7f1aeb420b, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -293,6 +313,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1709640029585479710, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1929142143824465905, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
+      propertyPath: m_fontSize
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1929142143824465905, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2194adcf7591c9845866145c4471d5a1, type: 2}
+    - target: {fileID: 1929142143824465905, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1929142143824465905, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 6437128410882915206, guid: 2194adcf7591c9845866145c4471d5a1, type: 2}
+    - target: {fileID: 1929142143824465905, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
+      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8177466071486023015, guid: 95afa7d039aa045e99210a1d5868ba04, type: 3}
@@ -415,6 +455,30 @@ PrefabInstance:
     - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
       propertyPath: m_text
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
+      propertyPath: m_fontSize
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2194adcf7591c9845866145c4471d5a1, type: 2}
+    - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 6437128410882915206, guid: 2194adcf7591c9845866145c4471d5a1, type: 2}
+    - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4279900698
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

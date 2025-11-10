@@ -101,7 +101,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
