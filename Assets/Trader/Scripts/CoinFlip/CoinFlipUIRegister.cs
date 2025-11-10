@@ -5,10 +5,10 @@ public class CoinFlipUIRegister : MonoBehaviour
     public GameObject flipUI;
     void OnEnable()
     {
-        // ¾ÀÀÌ ·ÎµåµÇ°í ÀÌ UI°¡ »ı¼ºµÉ ¶§ ¸Å´ÏÀú¿¡ µî·Ï
+        // ì”¬ì´ ë¡œë“œë˜ê³  ì´ UIê°€ ìƒì„±ë  ë•Œ ë§¤ë‹ˆì €ì— ë“±ë¡
         if (CoinFlipManager.Instance != null)
         {
-            Debug.Log("µî·Ï µÇ¾ú½À´Ï´Ù.");
+            Debug.Log("ë“±ë¡ ë˜ì—ˆìŠµë‹ˆë‹¤.");
             CoinFlipManager.Instance.RegisterUI(flipUI);
         }
     }
