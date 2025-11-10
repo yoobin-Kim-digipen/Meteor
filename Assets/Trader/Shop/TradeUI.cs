@@ -6,7 +6,7 @@ public class TradeUI : MonoBehaviour
 {
     //Trade 패널의 콘텐츠 모음
     [SerializeField] private GameObject[] content;
-   
+
     //아이템 이미지
     public Image Image;
     public TextMeshProUGUI Item_Name;
@@ -41,6 +41,7 @@ public class TradeUI : MonoBehaviour
         plus_button.onClick.AddListener(Count_plus);
         minus_button.onClick.AddListener(Count_minus);
         trade_button.onClick.AddListener(Trade);
+        bargin_button.onClick.AddListener(bargin);
         //content.SetActive(false);
         foreach (var c in content)
         {
@@ -77,7 +78,7 @@ public class TradeUI : MonoBehaviour
             }
         }
 
-        if(itemdata != null)
+        if (itemdata != null)
         {
             items_weight = itemdata.weight * items_counted;
             items_price = itemdata.price * items_counted;
@@ -115,7 +116,7 @@ public class TradeUI : MonoBehaviour
 
     public void Trade()
     {
-        if(player_gold.Use_gold(items_price))
+        if (player_gold.Use_gold(items_price))
         {
             Debug.Log("거래성공~");
         }
@@ -123,8 +124,29 @@ public class TradeUI : MonoBehaviour
         {
             Debug.Log("거래실패~");
         }
-        
+
     }
+
+    public void bargin()
+    {
+        if(items_price > 0)
+        {
+            CoinFlipManager.Instance.StartCoinFlip(
+                () => {
+                    Debug.Log("코인이 앞면으로 나왔습니다!");
+                    items_price = (int)((float)items_price * 0.7f);
+                    CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "SUCCES " + items_price.ToString();
+                },
+                () => {
+                    Debug.Log("코인이 뒷면으로 나왔습니다!");
+                    CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "FAILED " + items_price.ToString();
+                }
+            );
+        }
+        
+
+    }
+
 
     public void trade_reset()
     {
