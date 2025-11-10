@@ -14,6 +14,7 @@ public class CoinFlipManager : MonoBehaviour
     private Action onTailsCallback;
 
     public GameObject flipUI;
+    public CoinController coinController;
 
     private void Awake()
     {
@@ -40,6 +41,7 @@ public class CoinFlipManager : MonoBehaviour
     {
 
         flipUI.SetActive(true);
+        coinController.FlipCoin();
         yield return new WaitForSeconds(2.0f);
         bool isHeads = (UnityEngine.Random.Range(0, 2) == 0);
 
@@ -62,6 +64,12 @@ public class CoinFlipManager : MonoBehaviour
     public void RegisterUI(GameObject uiObject)
     {
         flipUI = uiObject;
+    }
+
+
+    public void RegisterCoinController(CoinController uiObject)
+    {
+        coinController = uiObject;
     }
 
 }

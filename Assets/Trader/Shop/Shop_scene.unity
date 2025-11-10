@@ -1632,6 +1632,94 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1001 &672153795
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.043
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.9991022
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.070052
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e89396624161b4539989c6565798e483, type: 3}
+      propertyPath: m_Name
+      value: uploads-files-2139898-SOLDIER_Napoleon_Coin
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e89396624161b4539989c6565798e483, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 672153798}
+  m_SourcePrefab: {fileID: 100100000, guid: e89396624161b4539989c6565798e483, type: 3}
+--- !u!1 &672153796 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e89396624161b4539989c6565798e483, type: 3}
+  m_PrefabInstance: {fileID: 672153795}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &672153797 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e89396624161b4539989c6565798e483, type: 3}
+  m_PrefabInstance: {fileID: 672153795}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &672153798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672153796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b328d0e8262624d28930ccc8258cb3a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoinController
+  coinTransform: {fileID: 672153797}
+  spinDuration: 1
+  spinSpeed: 720
+  headsProbability: 0.6
+  zRotateMagnitude: 30
+  zPosMagnitude: -7
 --- !u!1 &705223198
 GameObject:
   m_ObjectHideFlags: 0
@@ -3106,6 +3194,10 @@ PrefabInstance:
       value: FlipUIRegister
       objectReference: {fileID: 0}
     - target: {fileID: 8492815899620021154, guid: 6c7861105d9b85845989c71d8a1adec9, type: 3}
+      propertyPath: coin
+      value: 
+      objectReference: {fileID: 672153798}
+    - target: {fileID: 8492815899620021154, guid: 6c7861105d9b85845989c71d8a1adec9, type: 3}
       propertyPath: flipUI
       value: 
       objectReference: {fileID: 447771200}
@@ -3379,3 +3471,4 @@ SceneRoots:
   - {fileID: 189009857}
   - {fileID: 729891166}
   - {fileID: 1806692201}
+  - {fileID: 672153795}
