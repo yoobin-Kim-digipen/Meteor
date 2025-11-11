@@ -38,6 +38,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Trader/Scenes/VillageScene.unity
     guid: 81c128ad9bbbe4176af7e592fab4ec04
+  - enabled: 1
+    path: Assets/Trader/Scenes/WorldMapScene.unity
+    guid: ac49f622b746bda47bfda1a98ff58f11
+  - enabled: 1
+    path: Assets/Trader/Scenes/StoneguardVillageScene.unity
+    guid: fa5911ce9fc397845ba009f7aecdeb2c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

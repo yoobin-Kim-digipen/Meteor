@@ -670,7 +670,7 @@ public class GameManager : MonoBehaviour
         visitedNodes[currentNode.row, currentNode.col] = true;
 
         RevealAdjacentNodes(currentNode.row, currentNode.col);
-        //UpdateFogOfWar();
+        //UpdateFogOfWar()
 
         bool isFinalNode = currentNode.row == gridRows - 1 && currentNode.col == gridCols - 1;
 
@@ -684,7 +684,10 @@ public class GameManager : MonoBehaviour
 
         if (nodeTypeDisplayText != null)
         {
-            nodeTypeDisplayText.text = $"Node Property: {currentNode.nodeType}";
+            // 2. 마지막 노드가 맞다면, '스톤가드 마을'로 이동하는 씬 전환을 실행
+            Debug.Log("타일맵의 끝에 도착! 목적지 마을로 이동합니다.");
+            // "StoneguardVillageScene"은 실제 스톤가드 마을 씬의 이름으로 변경
+            StartCoroutine(SwitchToOtherMapScene("StoneguardVillageScene"));
         }
 
         var message = "";
@@ -770,6 +773,26 @@ public class GameManager : MonoBehaviour
             }
         );
 
+            GameManager.Instance.ShowPopup("Would you like to enter?", () =>
+            {
+                switch (currentNode.nodeType)
+                {
+                    case NodeType.Well:
+                        StartCoroutine(SwitchToOtherMapScene("WellMapScene"));
+                        break;
+                    case NodeType.Battle:
+                        StartCoroutine(SwitchToOtherMapScene("Battle_Sample_Scene"));
+                        break;
+                    case NodeType.Treasure:
+                        StartCoroutine(SwitchToOtherMapScene("TreasureMapScene"));
+                        break;
+                    case NodeType.Empty:
+                        StartCoroutine(SwitchToOtherMapScene("EmptyMapScene"));
+                        break;
+                }
+                Debug.Log("노드 입장 처리!");
+            });
+        }
         isMoving = false;
 
         if (carriageAnimator != null)
