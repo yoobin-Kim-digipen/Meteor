@@ -724,8 +724,31 @@ public class GameManager : MonoBehaviour
                         {
                             Debug.Log("코인이 뒷면으로 나왔습니다!");
                             CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "실패";
-                            string sceneToLoad = (Random.value < 0.5f) ? "Battle_Sample_Scene" : "BattleMapScene";
-                            StartCoroutine(SwitchToOtherMapScene(sceneToLoad));
+                            GameManager.Instance.ShowPopup("한번 더 도전하시겠습니까?",
+                                () =>
+                                {
+                                    CoinFlipManager.Instance.StartCoinFlip(
+                                        () =>
+                                        {
+                                            Debug.Log("두번째 도전에서 코인이 앞면으로 나왔습니다!");
+                                            CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "성공";
+                                            UpdateFogOfWar();
+                                        },
+                                        () =>
+                                        {
+                                            Debug.Log("두번째 도전에서 코인이 뒷면으로 나왔습니다!");
+                                            CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "실패";
+                                            string sceneToLoad = (Random.value < 0.5f) ? "Battle_Sample_Scene" : "BattleMapScene";
+                                            StartCoroutine(SwitchToOtherMapScene(sceneToLoad));
+                                        }
+                                    );
+                                },
+                                () =>
+                                {
+                                    string sceneToLoad = (Random.value < 0.5f) ? "Battle_Sample_Scene" : "BattleMapScene";
+                                    StartCoroutine(SwitchToOtherMapScene(sceneToLoad));
+                                }
+                            );
                         }
                     );
                 }

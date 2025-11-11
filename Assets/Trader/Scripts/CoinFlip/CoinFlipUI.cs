@@ -9,7 +9,7 @@ public class CoinFlipUI : MonoBehaviour
 
     void Start()
     {
-        
+        //DontDestroyOnLoad(gameObject);
     }
 
     // Update is called once per frame
