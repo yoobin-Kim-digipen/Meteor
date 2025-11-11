@@ -672,6 +672,16 @@ public class GameManager : MonoBehaviour
         RevealAdjacentNodes(currentNode.row, currentNode.col);
         //UpdateFogOfWar();
 
+        bool isFinalNode = currentNode.row == gridRows - 1 && currentNode.col == gridCols - 1;
+
+        if (isFinalNode)
+        {
+            // 2. 마지막 노드가 맞다면, '스톤가드 마을'로 이동하는 씬 전환을 실행
+            Debug.Log("타일맵의 끝에 도착! 목적지 마을로 이동합니다.");
+            // "StoneguardVillageScene"은 실제 스톤가드 마을 씬의 이름으로 변경
+            StartCoroutine(SwitchToOtherMapScene("StoneguardVillageScene"));
+        }
+
         if (nodeTypeDisplayText != null)
         {
             nodeTypeDisplayText.text = $"Node Property: {currentNode.nodeType}";
