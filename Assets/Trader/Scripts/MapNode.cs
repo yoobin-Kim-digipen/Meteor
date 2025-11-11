@@ -17,16 +17,26 @@ public class MapNode : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public int col;
 
     private Button button;
-    // private GameManager gameManager; // 1. GameManager 참조 변수 "제거"
     public NodeType nodeType;
 
-    // 2. Initialize에서 GameManager 매개변수 "제거"
+    public TreasureType? treasureType = null; // Nullable로 보물 없는 상태 표현 가능
+
+    // Initialize 메서드 수정
     public void Initialize(int r, int c, NodeType type)
     {
         row = r;
         col = c;
-        // gameManager = manager; // "제거"
         nodeType = type;
+
+        // Treasure 타입일 때만 보물 종류 할당
+        if (type == NodeType.Treasure)
+        {
+            treasureType = TreasureManager.Instance.GetRandomTreasureType();
+        }
+        else
+        {
+            treasureType = null;
+        }
 
         button = GetComponent<Button>();
         button.onClick.AddListener(OnNodeClicked);
@@ -34,14 +44,12 @@ public class MapNode : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void OnNodeClicked()
     {
-        // 3. gameManager 변수 대신 "GameManager.Instance"를 직접 사용
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnNodeSelected(this);
         }
     }
 
-    // 3. gameManager 변수 대신 "GameManager.Instance"를 직접 사용
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (GameManager.Instance != null)
@@ -50,7 +58,6 @@ public class MapNode : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
     }
 
-    // 3. gameManager 변수 대신 "GameManager.Instance"를 직접 사용
     public void OnPointerExit(PointerEventData eventData)
     {
         if (GameManager.Instance != null)

@@ -12,33 +12,31 @@ public class PopupPanel : MonoBehaviour
 
     // GameManager가 호출할 콜백
     private System.Action onEnterCallback;
+    private System.Action onCancelCallback;
 
     /// <summary>
     /// GameManager가 팝업을 생성한 직후 호출할 초기화 메서드
     /// </summary>
     /// <param name="message">표시할 메시지</param>
     /// <param name="enterAction">"입장" 버튼 클릭 시 실행할 동작</param>
-    public void Initialize(string message, System.Action enterAction)
+    public void Initialize(string message, System.Action enterAction, System.Action cancelAction = null)
     {
         if (messageText != null)
         {
             messageText.text = message;
         }
 
-        // 입장 버튼 콜백 저장
         this.onEnterCallback = enterAction;
+        this.onCancelCallback = cancelAction; // 추가
 
-        // --- 버튼 리스너 설정 ---
         if (enterButton != null)
         {
-            // 기존 리스너를 제거하고 새 리스너를 추가합니다.
             enterButton.onClick.RemoveAllListeners();
             enterButton.onClick.AddListener(OnEnterClick);
         }
 
         if (cancelButton != null)
         {
-            // 기존 리스너를 제거하고 새 리스너를 추가합니다.
             cancelButton.onClick.RemoveAllListeners();
             cancelButton.onClick.AddListener(OnCancelClick);
         }
@@ -51,7 +49,7 @@ public class PopupPanel : MonoBehaviour
     {
         // 저장해둔 콜백(동작)이 있다면 실행
         onEnterCallback?.Invoke();
-
+        GameManager.Instance.isPopupActive = false;
         // 팝업 스스로를 파괴
         Destroy(gameObject);
     }
@@ -61,6 +59,8 @@ public class PopupPanel : MonoBehaviour
     /// </summary>
     private void OnCancelClick()
     {
+        onCancelCallback?.Invoke();
+        GameManager.Instance.isPopupActive = false;
         // 팝업 스스로를 파괴
         Destroy(gameObject);
     }

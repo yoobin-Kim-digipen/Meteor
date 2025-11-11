@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class GameManager : MonoBehaviour
 {
@@ -32,6 +33,8 @@ public class GameManager : MonoBehaviour
     public GameObject treasureChestIconPrefab; // 보물상자 아이콘 프리팹
     public GameObject monsterIconPrefab;      // 몬스터 아이콘 프리팹
     public GameObject wellIconPrefab;         // 샘 아이콘 프리팹
+    public GameObject TreasureTypeIcon;
+    public string TreasureType;
 
     [Range(0f, 1f)] public float treasureChance = 0.2f; // 보물상자 출현 확률
     [Range(0f, 1f)] public float monsterChance = 0.3f;  // 몬스터 출현 확률
@@ -43,7 +46,12 @@ public class GameManager : MonoBehaviour
     public TMP_Text popupMessageText;      // 팝업 내 메시지 텍스트
     public Button shopEnterButton;        // 상점 입장 버튼 (에디터에서 할당)
     public Button stableEnterButton;      // 마구간 입장 버튼 (에디터에서 할당)
+    public GameObject videoPlayerPrefab;    // VideoPlayer 프리팹 (에디터에서 할당)
+    private GameObject videoPlayerInstance; // 런타임에 생성되는 인스턴스
+    private VideoPlayer videoPlayer;        // 실제 VideoPlayer 컴포넌트
     private System.Action onEnterAction;   // 입장 콜백
+    public bool isVideoEnd = false;
+    public bool isPopupActive = false;
 
     [Header("애니메이션 설정")]
     private Animator carriageAnimator; // 마차 프리팹에 있는 Animator 컴포넌트 참조
@@ -95,7 +103,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-
+        //videoPlayer.loopPointReached += OnVideoEnd;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -116,9 +124,9 @@ public class GameManager : MonoBehaviour
                     Debug.LogError("'LocalMapScene'에서 'Canvas'를 찾지 못했습니다! 맵을 생성할 수 없습니다.");
                     return; // 맵 생성 중단
                 }
-                
+
                 Debug.Log("LocalMapScene 로드 확인. 맵 생성을 시작합니다.");
-                GenerateGridMap(); 
+                GenerateGridMap();
                 SetInitialCarriagePosition();
             }
             else
@@ -127,11 +135,52 @@ public class GameManager : MonoBehaviour
                 if (ParentTransform == null)
                 {
                     GameObject canvasObject = GameObject.Find("Canvas");
-                    if(canvasObject != null) ParentTransform = canvasObject.GetComponent<RectTransform>();
+                    if (canvasObject != null) ParentTransform = canvasObject.GetComponent<RectTransform>();
                 }
-                
+
                 UpdateFogOfWar();
             }
+        }
+        if (scene.name == "TreasureMapScene")
+        {
+            // 기존에 생성된 VideoPlayer 인스턴스가 있으면 제거
+            if (videoPlayerInstance != null)
+            {
+                Destroy(videoPlayerInstance);
+                videoPlayerInstance = null;
+                videoPlayer = null;
+            }
+
+            // 보물상자 씬의 Canvas 찾기 및 ParentTransform 재설정
+            GameObject canvasObject = GameObject.Find("Canvas");
+            if (canvasObject != null)
+                ParentTransform = canvasObject.GetComponent<RectTransform>();
+
+            // 이후 프리팹 생성
+            videoPlayerInstance = Instantiate(videoPlayerPrefab, ParentTransform);
+            videoPlayer = videoPlayerInstance.GetComponent<VideoPlayer>();
+
+            // VideoPlayer 컴포넌트 연결
+            videoPlayer = videoPlayerInstance.GetComponent<VideoPlayer>();
+            if (videoPlayer != null)
+            {
+                videoPlayer.prepareCompleted += OnVideoPrepared;
+                videoPlayer.loopPointReached += OnVideoEnd;
+                videoPlayer.Prepare();
+            }
+            else
+            {
+                Debug.LogError("VideoPlayer 컴포넌트를 프리팹에서 찾지 못했습니다.");
+            }
+        }
+        else
+        {
+            if (videoPlayerInstance != null)
+            {
+                Destroy(videoPlayerInstance);
+                videoPlayerInstance = null;
+            }
+            videoPlayer = null;
         }
     }
 
@@ -156,7 +205,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Rect parentRect = ParentTransform.rect; 
+        Rect parentRect = ParentTransform.rect;
 
         float totalGridHeight = parentRect.height * gridHeightPercentage;
 
@@ -166,7 +215,7 @@ public class GameManager : MonoBehaviour
 
         float parentBottomLeftX = -parentRect.width * 0.5f;
         float parentBottomLeftY = -parentRect.height * 0.5f;
-        
+
         float mapStartX = parentBottomLeftX + (parentRect.width - totalGridWidth) / 2;
         float mapStartY = parentBottomLeftY + (parentRect.height - totalGridHeight) / 2;
 
@@ -195,7 +244,7 @@ public class GameManager : MonoBehaviour
                 RectTransform nodeRect = nodeGO.GetComponent<RectTransform>();
 
                 nodeRect.sizeDelta = new Vector2(nodeSize, nodeSize);
-                
+
                 float xPos = mapStartX + (nodeSize * 0.5f) + col * (nodeSize + nodeSpacing);
                 float yPos = mapStartY + (nodeSize * 0.5f) + row * (nodeSize + nodeSpacing);
 
@@ -209,8 +258,8 @@ public class GameManager : MonoBehaviour
                 fogRect.offsetMin = Vector2.zero;
                 fogRect.offsetMax = Vector2.zero;
                 Image fogImage = fogGO.GetComponent<Image>();
-                fogImage.color = new Color(0f, 0f, 0f, 0.9f); 
-                fogGO.SetActive(true); 
+                fogImage.color = new Color(0f, 0f, 0f, 0.9f);
+                fogGO.SetActive(true);
 
                 MapNode mapNode = nodeGO.GetComponent<MapNode>();
                 if (mapNode != null)
@@ -219,6 +268,14 @@ public class GameManager : MonoBehaviour
                     mapNode.Initialize(row, col, type);
                     mapGrid[row, col] = mapNode;
                     PlaceIconByNodeType(mapNode);
+                    if (mapNode.nodeType == NodeType.Treasure)
+                    {
+                        if (mapNode.treasureType.HasValue)
+                        {
+                            TreasureTypeIcon = TreasureManager.Instance.GetTreasureIcon(mapNode.treasureType.Value);
+                            TreasureType = TreasureManager.Instance.GetTreasureDescription(mapNode.treasureType.Value);
+                        }
+                    }
                 }
             }
         }
@@ -360,15 +417,29 @@ public class GameManager : MonoBehaviour
 
     private bool IsValidMove(int targetRow, int targetCol)
     {
+        // 이동 중이면 절대 이동불가
+        if (isMoving || isPopupActive)
+        return false;
+
+        // 팝업 패널이 열려 있다면 이동 불가
+        if (popupPanel != null && popupPanel.activeInHierarchy)
+            return false;
+
         if (targetRow < 0 || targetRow >= gridRows || targetCol < 0 || targetCol >= gridCols)
         {
             return false;
         }
 
+        // 안개가 걷히지 않은 노드는 이동 불가
+        if (!visitedNodes[targetRow, targetCol])
+        {
+            return false;
+        }
+
+        // 이동 허용 위치 체크 (오른쪽, 대각선 오른쪽 위, 위쪽)
         int rowDiff = targetRow - currentNode.row;
         int colDiff = targetCol - currentNode.col;
 
-        // 오른쪽, 대각선 오른쪽 위, 위쪽으로만 이동 가능
         if (!((rowDiff == 0 && colDiff == 1) ||
               (rowDiff == 1 && colDiff == 1) ||
               (rowDiff == 1 && colDiff == 0)))
@@ -379,9 +450,9 @@ public class GameManager : MonoBehaviour
         // 현재 위치 인접 3방향 노드가 모두 방문 상태여야 이동 가능
         int[][] adjacentNodes = new int[][]
         {
-            new int[] {currentNode.row, currentNode.col + 1},      // 오른쪽
-            new int[] {currentNode.row + 1, currentNode.col + 1},  // 오른쪽 위 대각선
-            new int[] {currentNode.row + 1, currentNode.col}       // 위쪽
+        new int[] {currentNode.row, currentNode.col + 1},      // 오른쪽
+        new int[] {currentNode.row + 1, currentNode.col + 1},  // 오른쪽 위 대각선
+        new int[] {currentNode.row + 1, currentNode.col}       // 위쪽
         };
 
         foreach (var pos in adjacentNodes)
@@ -400,8 +471,9 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
+
     // 팝업을 띄우는 메서드
-    public void ShowPopup(string message, System.Action enterAction)
+    public void ShowPopup(string message, System.Action enterAction, System.Action cancelAction = null)
     {
         if (popupPanel == null)
         {
@@ -416,21 +488,23 @@ public class GameManager : MonoBehaviour
         }
 
         GameObject popupGO = Instantiate(popupPanel, ParentTransform);
-
         popupGO.transform.SetAsLastSibling();
 
         PopupPanel popupScript = popupGO.GetComponent<PopupPanel>();
-
         if (popupScript != null)
         {
-            popupScript.Initialize(message, enterAction);
+            popupScript.Initialize(message, enterAction, cancelAction);
         }
         else
         {
             Debug.LogError("popupPanelPrefab에 PopupPanel.cs 스크립트가 없습니다!");
-            Destroy(popupGO); 
+            Destroy(popupGO);
         }
+        isPopupActive = true;  // 팝업 열림 표시
     }
+
+
+
 
     public IEnumerator SwitchScene(string oldScene, string newScene, bool keepOldScene = true)
     {
@@ -509,6 +583,9 @@ public class GameManager : MonoBehaviour
             go.SetActive(true);
         }
         SceneManager.SetActiveScene(local);
+        GameObject canvasObject = GameObject.Find("Canvas");
+        if (canvasObject != null)
+            ParentTransform = canvasObject.GetComponent<RectTransform>();
         UpdateFogOfWar();
     }
 
@@ -600,25 +677,65 @@ public class GameManager : MonoBehaviour
             nodeTypeDisplayText.text = $"Node Property: {currentNode.nodeType}";
         }
 
-        GameManager.Instance.ShowPopup("Would you like to enter?", () =>
+        var message = "";
+
+        switch (currentNode.nodeType)
         {
-            switch (currentNode.nodeType)
+            case NodeType.Battle:
+                message = "배틀하시겠습니까?";
+                break;
+            default:
+                message = "입장하시겠습니까?";
+                break;
+        }
+
+        GameManager.Instance.ShowPopup(message,
+            () =>
             {
-                case NodeType.Well:
-                    StartCoroutine(SwitchToOtherMapScene("WellMapScene"));
-                    break;
-                case NodeType.Battle:
-                    StartCoroutine(SwitchToOtherMapScene("Battle_Sample_Scene"));
-                    break;
-                case NodeType.Treasure:
-                    StartCoroutine(SwitchToOtherMapScene("TreasureMapScene"));
-                    break;
-                case NodeType.Empty:
-                    StartCoroutine(SwitchToOtherMapScene("EmptyMapScene"));
-                    break;
+                switch (currentNode.nodeType)
+                {
+                    case NodeType.Well:
+                        StartCoroutine(SwitchToOtherMapScene("WellMapScene"));
+                        break;
+                    case NodeType.Battle:
+                        StartCoroutine(SwitchToOtherMapScene("Battle_Sample_Scene"));
+                        break;
+                    case NodeType.Treasure:
+                        StartCoroutine(SwitchToOtherMapScene("TreasureMapScene"));
+                        break;
+                    case NodeType.Empty:
+                        StartCoroutine(SwitchToOtherMapScene("EmptyMapScene"));
+                        break;
+                }
+                Debug.Log("노드 입장 처리!");
+            },
+            () =>
+            {
+                if (currentNode.nodeType == NodeType.Battle)
+                {
+                    CoinFlipManager.Instance.StartCoinFlip(
+                        () =>
+                        {
+                            Debug.Log("코인이 앞면으로 나왔습니다!");
+                            CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "성공";
+                            UpdateFogOfWar();
+                        },
+                        () =>
+                        {
+                            Debug.Log("코인이 뒷면으로 나왔습니다!");
+                            CoinFlipManager.Instance.flipUI.GetComponent<CoinFlipUI>().textUI.text = "실패";
+                            string sceneToLoad = (Random.value < 0.5f) ? "Battle_Sample_Scene" : "BattleMapScene";
+                            StartCoroutine(SwitchToOtherMapScene(sceneToLoad));
+                        }
+                    );
+                }
+                else
+                {
+                    Debug.Log("노드 입장 취소!");
+                    UpdateFogOfWar();
+                }
             }
-            Debug.Log("노드 입장 처리!");
-        });
+        );
 
         isMoving = false;
 
@@ -656,6 +773,24 @@ public class GameManager : MonoBehaviour
             UpdateFogOfWar();
         }
         //UpdateFogOfWar();
+    }
+
+
+    private void OnVideoPrepared(VideoPlayer vp)
+    {
+        vp.Play();
+        vp.prepareCompleted -= OnVideoPrepared;
+    }
+
+    public void OnVideoEnd(VideoPlayer vp)
+    {
+        Debug.Log("비디오 재생 종료!");
+        isVideoEnd = true;
+    }
+
+    public void SetvideoEnd(bool val)
+    {
+        isVideoEnd = val;
     }
 
 }
