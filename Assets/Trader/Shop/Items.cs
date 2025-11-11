@@ -4,6 +4,22 @@ using UnityEngine;
 //아래 list에 ItemData를 추가하여 아이템 생성 가능.
 public class Items : MonoBehaviour
 {
+    public static Items Instance { get; private set; }
+    private void Awake()
+    {
+        Debug.Log("items 생성");
+        // 싱글톤 중복 방지
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+
     public List<ItemData> itemList = new List<ItemData>()
     {
         new ItemData()
@@ -35,11 +51,28 @@ public class Items : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("items 생성");
     }
 
     ~Items()
     {
         itemList.Clear();
+    }
+
+
+    public ItemData this[int id]
+    {
+        get
+        {
+            if (itemList[id-1].item_id == id )
+            {
+                return itemList[id-1];
+            }
+            else
+            {
+                Debug.Log("잘못된 데이터 접근");
+                return null;
+            }
+        }
+
     }
 }
