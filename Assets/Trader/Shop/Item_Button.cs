@@ -8,8 +8,9 @@ public class Item_Button : MonoBehaviour
     {
         None = 0,
         ShopMode,
-        BuylistMode,
-        InventoryMode
+        BuyListMode,
+        InventoryMode,
+        SellListMode
     }
     public TradeUI tradeUI;
 
@@ -31,10 +32,7 @@ public class Item_Button : MonoBehaviour
     {        
         pre_count = count;
         mybutton.onClick.AddListener(OnButtonClicked);
-        /*        if(Image ==  null)
-                    Image = transform.Find("Image").GetComponent<Image>();
-                if(Name == null)
-                    Name = transform.Find("Item Name").GetComponent<TextMeshProUGUI>();*/
+
         Image.sprite = Resources.Load<Sprite>(itemdata.image_path);
         if(count == 1)
         {
@@ -68,16 +66,27 @@ public class Item_Button : MonoBehaviour
     }
     public void OnButtonClicked()
     {
-        if(this.button_mode == Button_Mode.ShopMode)
+        switch(button_mode)
         {
-            tradeUI.Set_TradeMode((int)button_mode);
-            tradeUI.Set_itemdata(itemdata);
-        }
-        else if(this.button_mode == Button_Mode.BuylistMode)
-        {
-            tradeUI.Set_TradeMode((int)button_mode);
-            tradeUI.Set_itemdata(itemdata);
-            tradeUI.Set_count(count);
+            case Button_Mode.ShopMode:
+                tradeUI.Set_TradeMode((int)button_mode);
+                tradeUI.Set_itemdata(itemdata);
+                break;
+            case Button_Mode.BuyListMode:
+                tradeUI.Set_TradeMode((int)button_mode);
+                tradeUI.Set_itemdata(itemdata);
+                tradeUI.Set_count(count);
+                break;
+            case Button_Mode.InventoryMode:
+                tradeUI.Set_TradeMode((int)button_mode);
+                tradeUI.Set_itemdata(itemdata);
+                break;
+            case Button_Mode.SellListMode:
+                tradeUI.Set_TradeMode((int)button_mode);
+                tradeUI.Set_itemdata(itemdata);
+                tradeUI.Set_count(count);
+                break;
+
         }
 
         Debug.Log("¹öÆ° Å¬¸¯µÊ!");
@@ -93,7 +102,21 @@ public class Item_Button : MonoBehaviour
 
     public void Set_BuyListButton(ItemData item, TradeUI ui, int cnt = 1)
     {
-        button_mode = Button_Mode.BuylistMode;
+        button_mode = Button_Mode.BuyListMode;
+        itemdata = item;
+        tradeUI = ui;
+        count = cnt;
+    }
+    public void Set_InventroyButton(ItemData item, TradeUI ui, int cnt = 1)
+    {
+        button_mode = Button_Mode.InventoryMode;
+        itemdata = item;
+        tradeUI = ui;
+        count = cnt;
+    }
+    public void Set_SellListButton(ItemData item, TradeUI ui, int cnt = 1)
+    {
+        button_mode = Button_Mode.SellListMode;
         itemdata = item;
         tradeUI = ui;
         count = cnt;
@@ -109,5 +132,8 @@ public class Item_Button : MonoBehaviour
         count -= cnt;
         Debug.Log(count);
     }
-
+    public void SetCount(int amount)
+    {
+        count = amount;
+    }
 }

@@ -23,7 +23,7 @@ public class ShopUIManager : MonoBehaviour
     public List<ItemData> winterShop_items;
     //string[] item_list = new string[4];
     public Transform constentParent;
-
+     
     void Start()
     {
         shop_items.Add(items.itemList[0]);

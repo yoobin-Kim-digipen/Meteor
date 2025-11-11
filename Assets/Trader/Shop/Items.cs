@@ -5,6 +5,19 @@ using UnityEngine;
 public class Items : MonoBehaviour
 {
     public static Items Instance { get; private set; }
+    private void Awake()
+    {
+        Debug.Log("items 생성");
+        // 싱글톤 중복 방지
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
 
     public List<ItemData> itemList = new List<ItemData>()
@@ -38,11 +51,28 @@ public class Items : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("items 생성");
     }
 
     ~Items()
     {
         itemList.Clear();
+    }
+
+
+    public ItemData this[int id]
+    {
+        get
+        {
+            if (itemList[id-1].item_id == id )
+            {
+                return itemList[id-1];
+            }
+            else
+            {
+                Debug.Log("잘못된 데이터 접근");
+                return null;
+            }
+        }
+
     }
 }

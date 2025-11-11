@@ -24,6 +24,11 @@ public class Gold : MonoBehaviour
         return true;
     }
 
+    public void Add_Gold(int amount)
+    {
+        this.gold += amount;
+    }
+
 
     // Update is called once per frame
     void Update()

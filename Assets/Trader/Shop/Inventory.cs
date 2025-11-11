@@ -1,12 +1,14 @@
 using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using System.Linq;
+using System;
+
 
 using static UnityEditor.Progress;
 public class Inventory : MonoBehaviour
 {
-
     public static Inventory Instance { get; private set; }
     //인벤토리의 아이템들을 <아이템 번호, 갯수> 로 관리
     private Dictionary<int, int> itemDictionary = new Dictionary<int, int>();
@@ -16,6 +18,10 @@ public class Inventory : MonoBehaviour
     private int weight = 0;
 
     private int preCount = 0;
+
+    public event Action OnInventoryChanged;
+    public event Action<int> Item_delete;
+
     private void Awake()
     {
         // 싱글톤 중복 방지
@@ -29,13 +35,11 @@ public class Inventory : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        //OnInventoryChanged += RemoveInventory;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (preCount != itemDictionary.Values.Sum())
@@ -50,8 +54,13 @@ public class Inventory : MonoBehaviour
 
             preCount = itemDictionary.Values.Sum();
         }
-    }
 
+        
+    }
+    private void OnDestroy()
+    {
+        //OnInventoryChanged -= RemoveInventory;
+    }
     public bool AddItem(int item_id, int count)
     {
         int items_weight = Items.Instance.itemList[item_id - 1].weight * count;
@@ -73,6 +82,8 @@ public class Inventory : MonoBehaviour
                 Debug.Log("아이템 번호" + item_id + "가 " + count + "만큼 새로 인벤토리에 추가됨 총: " + itemDictionary[item_id]);
 
             }
+
+            OnInventoryChanged?.Invoke();
             return true;
         }
         else
@@ -89,11 +100,29 @@ public class Inventory : MonoBehaviour
 
             itemDictionary[item_id] -= count;
             Debug.Log("아이템 번호" + item_id + "이 " + count + "만큼 제거됨 총: " + itemDictionary[item_id]);
-
+            if(itemDictionary[item_id] <= 0)
+            {
+                itemDictionary.Remove(item_id);
+                Item_delete?.Invoke(item_id);
+            }
+            OnInventoryChanged?.Invoke();
         }
         else
         {
             Debug.Log("잘못된 데이터 접근");
+        }
+
+
+    }
+
+    private void RemoveInventory()
+    {
+        foreach (int i in itemDictionary.Keys)
+        {
+            if (itemDictionary[i] <= 0 )
+            {
+                itemDictionary.Remove(i);
+            }
         }
     }
 
@@ -108,15 +137,31 @@ public class Inventory : MonoBehaviour
     {
         return itemDictionary.TryGetValue(itemID, out int count) ? count : 0;
     }
+    
+    public int GetAllCount()
+    {
+        return preCount;
+    }
 
     public int GetLimitWeight()
     {
         return limit_weight;
     }
 
+    public int GetCurrentWeight()
+    {
+        return weight;
+    }
+
+
     public int GetAvailableWeight()
     {
         return limit_weight - weight;
+    }
+
+    public ReadOnlyDictionary<int, int> GetItemDictionary()
+    {
+        return new ReadOnlyDictionary<int, int>(itemDictionary);
     }
 
 
