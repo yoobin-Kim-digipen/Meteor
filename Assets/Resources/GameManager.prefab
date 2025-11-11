@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7101482393922425109}
   - component: {fileID: 9000910125558654725}
   - component: {fileID: 1145118089622444357}
+  - component: {fileID: 7773536927936507631}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -67,6 +68,8 @@ MonoBehaviour:
   popupMessageText: {fileID: 6189321305505869938, guid: c26dc4eb03a944dec8af9e45d2a51859, type: 3}
   shopEnterButton: {fileID: 0}
   stableEnterButton: {fileID: 0}
+  videoPlayerPrefab: {fileID: 3926609257520076089, guid: df7c827392b0848d2aed50c67a5ba6b6, type: 3}
+  isVideoEnd: 0
 --- !u!114 &1145118089622444357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,3 +82,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfe6b4bca88ec4ed7b22364a53cf688e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpaceToNextScene
+--- !u!114 &7773536927936507631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5585513228438085501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7087a03695340f38290bb620a502d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIController
+  popupPrefab1: {fileID: 8632061873821080942, guid: c52cc999cc96d4ce99bf4c91f469eded, type: 3}
+  popupPrefab2: {fileID: 3085186403224188357, guid: c4c15280e39c7439e9ea8fc0f00fd5bd, type: 3}
