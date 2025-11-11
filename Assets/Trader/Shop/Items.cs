@@ -4,6 +4,9 @@ using UnityEngine;
 //아래 list에 ItemData를 추가하여 아이템 생성 가능.
 public class Items : MonoBehaviour
 {
+    public static Items Instance { get; private set; }
+
+
     public List<ItemData> itemList = new List<ItemData>()
     {
         new ItemData()

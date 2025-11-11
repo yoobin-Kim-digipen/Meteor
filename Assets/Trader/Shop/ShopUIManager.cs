@@ -38,7 +38,7 @@ public class ShopUIManager : MonoBehaviour
         {
             GameObject itemObj = Instantiate(ItemButtonPrefeb, constentParent);
             Item_Button item_ButtonScript = itemObj.GetComponent<Item_Button>();
-            item_ButtonScript.Set(item,tradeUI);
+            item_ButtonScript.Set_ShopButton(item,tradeUI);
             
             Debug.Log("item button construct");
         }
