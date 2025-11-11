@@ -772,27 +772,7 @@ public class GameManager : MonoBehaviour
                 }
             }
         );
-
-            GameManager.Instance.ShowPopup("Would you like to enter?", () =>
-            {
-                switch (currentNode.nodeType)
-                {
-                    case NodeType.Well:
-                        StartCoroutine(SwitchToOtherMapScene("WellMapScene"));
-                        break;
-                    case NodeType.Battle:
-                        StartCoroutine(SwitchToOtherMapScene("Battle_Sample_Scene"));
-                        break;
-                    case NodeType.Treasure:
-                        StartCoroutine(SwitchToOtherMapScene("TreasureMapScene"));
-                        break;
-                    case NodeType.Empty:
-                        StartCoroutine(SwitchToOtherMapScene("EmptyMapScene"));
-                        break;
-                }
-                Debug.Log("노드 입장 처리!");
-            });
-        }
+        
         isMoving = false;
 
         if (carriageAnimator != null)
